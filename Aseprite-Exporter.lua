@@ -283,11 +283,6 @@ dlg:label{
     label = " ",
     text = " "
 }
-dlg:check{
-    id = "saveSprite", 
-    label = "Save Sprite:", 
-    selected = true
-}
 
 dlg:button{id = "confirm", text = "Confirm"}
 dlg:button{id = "cancel", text = "Cancel"}
@@ -317,8 +312,6 @@ local layerVisibilityData = getLayerVisibilityData(activeSprite)
 hideLayers(activeSprite)
 export(activeSprite, activeSprite, fileName, fileNameTemplate, dlg.data)
 restoreLayers(activeSprite, layerVisibilityData)
-
-if dlg.data.saveSprite then activeSprite:saveAs(dlg.data.outputFile) end
 
 app.alert("Exported " .. layerCount .. " layers to " .. dlg.data.outputPath)
 
