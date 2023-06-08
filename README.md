@@ -12,6 +12,7 @@
 ### Example
 Transform this:
 ![aseprite-example](aseprite-example.png)
+
 Into that:
 ![spine-example](spine-example.png)
 
