@@ -10,10 +10,12 @@
 - Convert Aseprite groups into Spine skins 
 
 ### Example
-Transform this:
+**Transform this:**
+
 ![aseprite-example](aseprite-example.png)
 
-Into that:
+**Into that:**
+
 ![spine-example](spine-example.png)
 
 ### Installation
