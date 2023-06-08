@@ -119,7 +119,8 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
 
     if dlgData.groupsAsSkins == true then 
         local fileNameTemplate = fileNameTemplate:gsub("\\", "/")
-        skinsJson[skinsIndex] = string.format([[ { "name": "%s", "attachments": { "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } } } ]], layer.parent.name, name, name, fileNameTemplate, cel.bounds.width/2 + cel.position.x - activeSprite.bounds.width/2, activeSprite.bounds.height - cel.position.y - cel.bounds.height/2)
+        local attachmentName = dlgData.skinAttachmentFormat:gsub("{layergroup}", layer.parent.name)
+        skinsJson[skinsIndex] = string.format([[ { "name": "%s", "attachments": { "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } } } ]], attachmentName, name, name, fileNameTemplate, cel.bounds.width/2 + cel.position.x - activeSprite.bounds.width/2, activeSprite.bounds.height - cel.position.y - cel.bounds.height/2)
     else
         skinsJson[skinsIndex] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], name, name, cel.bounds.width/2 + cel.position.x - activeSprite.bounds.width/2, activeSprite.bounds.height - cel.position.y - cel.bounds.height/2)
     end
@@ -264,7 +265,18 @@ dlg:label{
 dlg:check{
     id = "groupsAsSkins",
     label = "Groups As Skins:",
-    selected = true
+    selected = true,
+    onclick = function()
+        dlg:modify{
+            id = "skinAttachmentFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+    end
+}
+dlg:entry{
+    id = "skinAttachmentFormat",
+    label = "Skin Attachment Format:",
+    text = "weapon-{layergroup}"
 }
 dlg:label{
     id = "spacer4",
