@@ -1,7 +1,7 @@
 # Aseprite-Exporter
 ---
 ### Showcase
-![showcase](showcase-v1.png)
+![showcase](showcase-v1.1.png)
 
 ### Features
 - Specify output path & subpath
@@ -27,6 +27,9 @@
 
 ### Usage
 1. Click **File > Scripts > Aseprite-Exporter**
+
+### Important
+- You cannot name your attachments "default" as this is reserved by spine itself
 
 ### Credits
 Some portions of my code where inspired by the following repositories:
