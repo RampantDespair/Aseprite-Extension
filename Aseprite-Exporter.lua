@@ -96,53 +96,74 @@ function exportSpineJsonStart(fileName, dlgData)
     os.execute("mkdir " .. dlgData.outputPath)
     json = io.open(jsonFileName, "w")
 
-    json:write('{')
-    json:write(string.format([[ "skeleton": { "images": "%s" }, ]], dlgData.outputSubPath .. "/"))
-    json:write([[ "bones": [ { "name": "root" }	], ]])
+    json:write('{ ')
+    json:write('"skeleton": { ')
+    json:write(string.format([["images": "%s" }, ]], dlgData.outputSubPath .. "/"))
+    json:write('"bones": [ { ')
+    json:write('"name": "root" ')
+    json:write('} ')
+    json:write('], ')
 
     slotsJson = {}
     skinsJson = {}
-    slotsIndex = 1
-    skinsIndex = 1
 end
 
 function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
-    local name = layer.name
-    local cel = layer.cels[1]
+    local layerName = layer.name
 
-    local targetSlot = string.format([[ { "name": "%s", "bone": "%s", "attachment": "%s" } ]], name, "root", name)
-
-    if arrayContains(slotsJson, targetSlot) == false then
-        slotsJson[slotsIndex] = targetSlot
-        slotsIndex = slotsIndex + 1
+    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" } ]], layerName, "root", layerName)
+    
+    if arrayContainsValue(slotsJson, slot) == false then
+        slotsJson[#slotsJson + 1] = slot
     end
+
+    local layerCel = layer.cels[1]
+    local layerCelPosition = layerCel.position
+    local layerCelX = layerCelPosition.x
+    local layerCelY = layerCelPosition.y
+
+    local layerCelBounds = layerCel.bounds
+    local layerCelWidth = layerCelBounds.width
+    local layerCelHeight = layerCelBounds.height
+
+    local spriteX = layerCelWidth/2 + layerCelX - activeSprite.bounds.width/2
+    local spriteY = activeSprite.bounds.height - layerCelY - layerCelHeight/2
 
     if dlgData.groupsAsSkins == true then 
         local fileNameTemplate = fileNameTemplate:gsub("\\", "/")
         local attachmentName = dlgData.skinAttachmentFormat:gsub("{layergroup}", layer.parent.name)
-        skinsJson[skinsIndex] = string.format([[ { "name": "%s", "attachments": { "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } } } ]], attachmentName, name, name, fileNameTemplate, cel.bounds.width/2 + cel.position.x - activeSprite.bounds.width/2, activeSprite.bounds.height - cel.position.y - cel.bounds.height/2)
-    else
-        skinsJson[skinsIndex] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], name, name, cel.bounds.width/2 + cel.position.x - activeSprite.bounds.width/2, activeSprite.bounds.height - cel.position.y - cel.bounds.height/2)
-    end
 
-    skinsIndex = skinsIndex + 1
+        if arrayContainsKey(skinsJson, attachmentName) == false then
+            skinsJson[attachmentName] = {}
+        end
+
+        skinsJson[attachmentName][#skinsJson[attachmentName] + 1] = string.format([[ "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], layerName, layerName, fileNameTemplate, spriteX, spriteY)
+    else
+        skinsJson[#skinsJson + 1] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], layerName, layerName, spriteX, spriteY)
+    end
 end
 
 function exportSpineJsonEnd(dlgData)
-    json:write('"slots": [')
-    json:write(table.concat(slotsJson, ","))
-    json:write("],")
+    json:write('"slots": [ ')
+    json:write(table.concat(slotsJson, ", "))
+    json:write("], ")
 
     if dlgData.groupsAsSkins == true then 
-        json:write('"skins": [')
-        json:write(table.concat(skinsJson, ","))
-        json:write(']')
+        json:write('"skins": [ ')
+
+        local parsedSkins = {}
+        for key, value in pairs(skinsJson) do
+            parsedSkins[#parsedSkins + 1] = string.format([[ { "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. "} }"
+        end
+
+        json:write(table.concat(parsedSkins, ", "))
+        json:write('] ')
     else 
-        json:write('"skins": {')
-        json:write('"default": {')
-        json:write(table.concat(skinsJson, ","))
-        json:write('}')
-        json:write('}')
+        json:write('"skins": { ')
+        json:write('"default": { ')
+        json:write(table.concat(skinsJson, ", "))
+        json:write('} ')
+        json:write('} ')
     end
 
     json:write("}")
@@ -150,10 +171,19 @@ function exportSpineJsonEnd(dlgData)
     json:close()
 end
 
-function arrayContains(table, targetValue)
+function arrayContainsValue(table, targetValue)
     for i, value in ipairs(table) do
         if value == targetValue then
-            return true
+            return true, i
+        end
+    end
+    return false
+end
+
+function arrayContainsKey(table, targetKey)
+    for key, value in pairs(table) do
+        if key == targetKey then
+            return true, i
         end
     end
     return false
