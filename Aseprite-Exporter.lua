@@ -118,6 +118,7 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
     end
 
     local layerCel = layer.cels[1]
+    
     local layerCelPosition = layerCel.position
     local layerCelX = layerCelPosition.x
     local layerCelY = layerCelPosition.y
@@ -126,8 +127,11 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
     local layerCelWidth = layerCelBounds.width
     local layerCelHeight = layerCelBounds.height
 
-    local spriteX = layerCelWidth/2 + layerCelX - activeSprite.bounds.width/2
-    local spriteY = activeSprite.bounds.height - layerCelY - layerCelHeight/2
+    local realPostionX = layerCelX + layerCelWidth / 2
+    local realPositionY = layerCelY + layerCelHeight / 2
+
+    local spriteX = realPostionX - dlgData.rootPositionX
+    local spriteY = dlgData.rootPositionY - realPositionY
 
     if dlgData.groupsAsSkins == true then 
         local fileNameTemplate = fileNameTemplate:gsub("\\", "/")
@@ -199,6 +203,10 @@ if (activeSprite == nil) then
 end
 
 local dlg = Dialog("Aseprite-Exporter")
+dlg:separator{
+    id = "separator1",
+    text = "Output Settings"
+}
 dlg:file{
     id = "outputFile",
     label = "Output File:",
@@ -227,10 +235,9 @@ dlg:label{
     label = "Output Path:",
     text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubPath)
 }
-dlg:label{
-    id = "spacer1",
-    label = " ",
-    text = " "
+dlg:separator{
+    id = "separator2",
+    text = "SpriteSheet Settings"
 }
 dlg:check{
     id = "exportSpriteSheet",
@@ -243,10 +250,6 @@ dlg:check{
         }
         dlg:modify{
             id = "exportFileFormat",
-            visible = dlg.data.exportSpriteSheet
-        }
-        dlg:modify{
-            id = "exportFileScale",
             visible = dlg.data.exportSpriteSheet
         }
         dlg:modify{
@@ -266,32 +269,50 @@ dlg:combobox{
     option = "png",
     options = {"png", "gif", "jpg"}
 }
-dlg:slider{
-    id = "exportFileScale", 
-    label = " SpriteSheet Scale:", 
-    min = 1, 
-    max = 10, 
-    value = 1
-}
 dlg:check{
     id = "exportSpriteSheetTrim",
     label = " SpriteSheet Trim:",
     selected = true
 }
-dlg:label{
-    id = "spacer2",
-    label = " ",
-    text = " "
+dlg:separator{
+    id = "separator3",
+    text = "Spine Settings"
 }
 dlg:check{
     id = "exportSpineSheet",
     label = "Export SpineSheet:",
     selected = true
 }
-dlg:label{
-    id = "spacer3",
-    label = " ",
-    text = " "
+dlg:check{
+    id = "setRootPostion",
+    label = "Set Root position",
+    selected = true,
+    onclick = function()
+        dlg:modify{
+            id = "rootPositionX",
+            visible = dlg.data.setRootPostion
+        }
+        dlg:modify{
+            id = "rootPositionY",
+            visible = dlg.data.setRootPostion
+        }
+    end
+}
+dlg:number{
+    id = "rootPositionX",
+    label = " Root Postion X:",
+    text = "0",
+    decimals = 0
+}
+dlg:number{
+    id = "rootPositionY",
+    label = " Root Postion Y:",
+    text = "0",
+    decimals = 0
+}
+dlg:separator{
+    id = "separator4",
+    text = "Group Settings"
 }
 dlg:check{
     id = "groupsAsSkins",
@@ -309,10 +330,8 @@ dlg:entry{
     label = "Skin Attachment Format:",
     text = "weapon-{layergroup}"
 }
-dlg:label{
-    id = "spacer4",
-    label = " ",
-    text = " "
+dlg:separator{
+    id = "separator5"
 }
 
 dlg:button{id = "confirm", text = "Confirm"}
