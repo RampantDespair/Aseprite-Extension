@@ -1,22 +1,23 @@
 # Aseprite-Exporter
 ---
 ### Showcase
-![showcase](showcase-v1.1.png)
+![showcase](media/showcase-v2.png)
 
 ### Features
-- Specify output path & subpath
+- Configurable output path & subpath
 - Export layers using different naming patterns & settings
 - Convert SpriteSheet into importable Spine data
-- Convert Aseprite groups into Spine skins 
+- Configurable root positioning for Spine
+- Convert Aseprite groups into Spine skins
 
 ### Example
 **Transform this:**
 
-![aseprite-example](aseprite-example.png)
+![aseprite-example](media/aseprite-example.png)
 
 **Into that:**
 
-![spine-example](spine-example.png)
+![spine-example](media/spine-example.png)
 
 ### Installation
 1. Download the latest release
@@ -29,7 +30,7 @@
 1. Click **File > Scripts > Aseprite-Exporter**
 
 ### Important
-- You cannot name your attachments "default" as this is reserved by spine itself
+- You cannot name your skins "default" as this is reserved by spine itself
 
 ### Credits
 Some portions of my code where inspired by the following repositories:
