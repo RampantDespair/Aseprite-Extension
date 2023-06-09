@@ -20,7 +20,7 @@
 ![spine-example](media/spine-example.png)
 
 ### Installation
-1. Download the latest release
+1. Download the [latest-release](https://github.com/RampantDespair/Aseprite-Exporter/releases)
 2. Open the Aseprite software
 3. Go to **File > Scripts > Open Scripts Folder**
 4. Copy the downloaded lua script to the scripts folder
