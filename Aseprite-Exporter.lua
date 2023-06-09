@@ -137,9 +137,9 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
             skinsJson[attachmentName] = {}
         end
 
-        skinsJson[attachmentName][#skinsJson[attachmentName] + 1] = string.format([[ "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], layerName, layerName, fileNameTemplate, spriteX, spriteY)
+        skinsJson[attachmentName][#skinsJson[attachmentName] + 1] = string.format([[ "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     else
-        skinsJson[#skinsJson + 1] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": 1, "height": 1 } } ]], layerName, layerName, spriteX, spriteY)
+        skinsJson[#skinsJson + 1] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     end
 end
 
@@ -194,10 +194,7 @@ layerCount = 0
 local activeSprite = app.activeSprite
 
 if (activeSprite == nil) then
-    app.alert("Please click the sprite you'd like to export")
-    return
-elseif (activeSprite.filename == "") then
-    app.alert("Please save the current sprite before running this script")
+    app.alert("No sprite selected, script aborted.")
     return
 end
 
@@ -246,6 +243,10 @@ dlg:check{
         }
         dlg:modify{
             id = "exportFileFormat",
+            visible = dlg.data.exportSpriteSheet
+        }
+        dlg:modify{
+            id = "exportFileScale",
             visible = dlg.data.exportSpriteSheet
         }
         dlg:modify{
@@ -320,12 +321,12 @@ dlg:show()
 
 if not dlg.data.confirm then 
     app.alert("Settings were not confirmed, script aborted.")
-    return 0 
+    return
 end
 
 if dlg.data.outputPath == nil then
     app.alert("No output directory was specified, script aborted.")
-    return 0
+    return
 end
 
 local fileName = app.fs.fileTitle(activeSprite.filename)
@@ -334,7 +335,7 @@ fileNameTemplate = fileNameTemplate:gsub("{spritename}", fileName)
 
 if fileNameTemplate == nil then
     app.alert("No file name was specified, script aborted.")
-    return 0
+    return
 end
 
 local layerVisibilityData = getLayerVisibilityData(activeSprite)
@@ -345,4 +346,4 @@ restoreLayers(activeSprite, layerVisibilityData)
 
 app.alert("Exported " .. layerCount .. " layers to " .. dlg.data.outputPath)
 
-return 0
+return
