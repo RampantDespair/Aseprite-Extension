@@ -33,6 +33,6 @@
 - You cannot name your skins "default" as this is reserved by spine itself
 
 ### Credits
-Some portions of my code where inspired by the following repositories:
+Some portions of my code were inspired by the following repositories:
 - [aseprite-to-spine](https://github.com/jordanbleu/aseprite-to-spine) made by [jordanbleu](https://github.com/jordanbleu)
 - [AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts) made by [PKGaspi](https://github.com/PKGaspi)
