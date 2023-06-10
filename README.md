@@ -30,7 +30,7 @@
 1. Click **File > Scripts > Aseprite-Exporter**
 
 ### Important
-- You cannot name your skins "default" as this is reserved by spine itself
+- You cannot name your skins "default" as this is reserved by Spine itself
 
 ### Credits
 Some portions of my code were inspired by the following repositories:
