@@ -1,10 +1,11 @@
 # Aseprite-Exporter
 ---
 ### Showcase
-![showcase](media/showcase-v2.1.png)
+![showcase](media/showcase-v2.3.png)
 
 ### Features
-- Configurable output path & subpath
+- Configurable output path
+- Configurable images & sound paths
 - Export layers using different naming patterns & settings
 - Convert SpriteSheet into importable Spine data
 - Configurable root positioning for Spine

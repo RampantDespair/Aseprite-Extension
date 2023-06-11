@@ -98,7 +98,9 @@ function exportSpineJsonStart(fileName, dlgData)
 
     json:write('{ ')
     json:write('"skeleton": { ')
-    json:write(string.format([["images": "%s" }, ]], dlgData.outputSubPath .. "/"))
+    json:write(string.format([["images": "%s", ]], "./" .. dlgData.imagesPath .. "/"))
+    json:write(string.format([["audio": "%s" ]], "./" .. dlgData.audioPath .. "/"))
+    json:write('}, ')
     json:write('"bones": [ { ')
     json:write('"name": "root" ')
     json:write('} ')
@@ -236,25 +238,30 @@ dlg:file{
     onchange = function()
         dlg:modify{
             id = "outputPath",
-            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubPath)
+            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
         }
     end
 }
 dlg:entry{
-    id = "outputSubPath",
-    label = "Output SubPath:",
+    id = "imagesPath",
+    label = "Images Path:",
     text = "sprite",
     onchange = function()
         dlg:modify{
             id = "outputPath",
-            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubPath)
+            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
         }
     end
+}
+dlg:entry{
+    id = "audioPath",
+    label = "Audio Path:",
+    text = "sound"
 }
 dlg:label{
     id = "outputPath",
     label = "Output Path:",
-    text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubPath)
+    text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
 }
 dlg:separator{
     id = "separator2",
