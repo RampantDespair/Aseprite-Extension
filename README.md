@@ -1,7 +1,7 @@
 # Aseprite-Exporter
 ---
 ### Showcase
-![showcase](media/showcase-v2.png)
+![showcase](media/showcase-v2.1.png)
 
 ### Features
 - Configurable output path & subpath
@@ -9,6 +9,7 @@
 - Convert SpriteSheet into importable Spine data
 - Configurable root positioning for Spine
 - Convert Aseprite groups into Spine skins
+- Format slot name & attachment name for Spine
 
 ### Example
 **Transform this:**
