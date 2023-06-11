@@ -111,7 +111,7 @@ end
 function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
     local layerName = layer.name
 
-    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" } ]], layerName, "root", layerName)
+    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], layerName, "root", layerName)
     
     if arrayContainsValue(slotsJson, slot) == false then
         slotsJson[#slotsJson + 1] = slot
@@ -135,15 +135,30 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
 
     if dlgData.groupsAsSkins == true then 
         local fileNameTemplate = fileNameTemplate:gsub("\\", "/")
-        local attachmentName = dlgData.skinAttachmentFormat:gsub("{layergroup}", layer.parent.name)
+        local skinName = dlgData.skinNameFormat:gsub("{layergroup}", layer.parent.name)
 
-        if arrayContainsKey(skinsJson, attachmentName) == false then
-            skinsJson[attachmentName] = {}
+        if arrayContainsKey(skinsJson, skinName) == false then
+            skinsJson[skinName] = {}
         end
 
-        skinsJson[attachmentName][#skinsJson[attachmentName] + 1] = string.format([[ "%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+        local slotName = layerName
+        local skinAttachmentName = layerName
+
+        if dlgData.separateSlotSkin == true then
+            local separatorPosition = string.find(layerName, dlgData.layerNameSeparator)
+
+            if separatorPosition then
+                local layerNamePrefix = string.sub(layerName, 1, separatorPosition - 1)
+                local layerNameSuffix = string.sub(layerName, separatorPosition + 1, #layerName)
+
+                slotName = dlgData.slotNameFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
+                skinAttachmentName = dlgData.skinAttachmentFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
+            end
+        end
+
+        skinsJson[skinName][#skinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     else
-        skinsJson[#skinsJson + 1] = string.format([[ "%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+        skinsJson[#skinsJson + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     end
 end
 
@@ -157,7 +172,7 @@ function exportSpineJsonEnd(dlgData)
 
         local parsedSkins = {}
         for key, value in pairs(skinsJson) do
-            parsedSkins[#parsedSkins + 1] = string.format([[ { "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. "} }"
+            parsedSkins[#parsedSkins + 1] = string.format([[{ "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. "} }"
         end
 
         json:write(table.concat(parsedSkins, ", "))
@@ -320,15 +335,61 @@ dlg:check{
     selected = true,
     onclick = function()
         dlg:modify{
+            id = "skinNameFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+        dlg:modify{
+            id = "slotNameFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+        dlg:modify{
             id = "skinAttachmentFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+        dlg:modify{
+            id = "layerNameSeparator",
             visible = dlg.data.groupsAsSkins
         }
     end
 }
 dlg:entry{
-    id = "skinAttachmentFormat",
-    label = "Skin Attachment Format:",
+    id = "skinNameFormat",
+    label = " Skin Name Format:",
     text = "weapon-{layergroup}"
+}
+dlg:check{
+    id = "separateSlotSkin",
+    label = " Separate Slot/Skin:",
+    selected = true,
+    onclick = function()
+        dlg:modify{
+            id = "slotNameFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+        dlg:modify{
+            id = "skinAttachmentFormat",
+            visible = dlg.data.groupsAsSkins
+        }
+        dlg:modify{
+            id = "layerNameSeparator",
+            visible = dlg.data.groupsAsSkins
+        }
+    end
+}
+dlg:entry{
+    id = "slotNameFormat",
+    label = "  Slot Name Format:",
+    text = "{layernameprefix}"
+}
+dlg:entry{
+    id = "skinAttachmentFormat",
+    label = "  Skin Attachment Format:",
+    text = "{layernameprefix}-{layernamesuffix}"
+}
+dlg:entry{
+    id = "layerNameSeparator",
+    label = "  Layer Name Separator:",
+    text = "-"
 }
 dlg:separator{
     id = "separator5"
