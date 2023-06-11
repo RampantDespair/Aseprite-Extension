@@ -112,10 +112,6 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
     local layerName = layer.name
 
     local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], layerName, "root", layerName)
-    
-    if arrayContainsValue(slotsJson, slot) == false then
-        slotsJson[#slotsJson + 1] = slot
-    end
 
     local layerCel = layer.cels[1]
     
@@ -153,12 +149,22 @@ function exportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
 
                 slotName = dlgData.slotNameFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
                 skinAttachmentName = dlgData.skinAttachmentFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
+
+                if slotName == skinAttachmentName then
+                    slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
+                else
+                    slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
+                end
             end
         end
 
         skinsJson[skinName][#skinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     else
         skinsJson[#skinsJson + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+    end
+
+    if arrayContainsValue(slotsJson, slot) == false then
+        slotsJson[#slotsJson + 1] = slot
     end
 end
 
