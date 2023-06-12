@@ -87,7 +87,7 @@ function exportSpriteSheet(activeSprite, layer, fileNameTemplate, dlgData)
         currentLayer:crop(cel.position.x, cel.position.y, cel.bounds.width, cel.bounds.height)
     end
 
-    currentLayer:saveCopyAs(app.fs.joinPath(dlgData.outputPath, fileNameTemplate))
+    currentLayer:saveCopyAs(app.fs.joinPath(dlgData.outputPath, fileNameTemplate .. "." .. dlgData.exportFileFormat))
     currentLayer:close()
 end
 
@@ -423,8 +423,7 @@ if dlg.data.outputPath == nil then
 end
 
 local fileName = app.fs.fileTitle(activeSprite.filename)
-local fileNameTemplate = dlg.data.exportFileNameFormat .. "." .. dlg.data.exportFileFormat
-fileNameTemplate = fileNameTemplate:gsub("{spritename}", fileName)
+local fileNameTemplate = dlg.data.exportFileNameFormat:gsub("{spritename}", fileName)
 
 if fileNameTemplate == nil then
     app.alert("No file name was specified, script aborted.")
