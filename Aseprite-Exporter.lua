@@ -37,6 +37,16 @@ function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
         ExportSpineJsonStart(fileName, dlgData)
     end
 
+    if dlgData.setRootPostion == true and dlgData.rootPostionMethod == "automatic" then
+        for _, layer in ipairs(rootLayer.layers) do
+            if layer.name == "root" then
+                RootPositon = layer.cels[1].position
+                break
+            end
+        end
+        app.alert("Automatic RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
+    end
+
     ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
 
     if dlgData.exportSpineSheet == true then
@@ -49,42 +59,44 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
         local _fileNameTemplate = fileNameTemplate
         local layerName = layer.name
 
-        if layer.isGroup then
-            local previousVisibility = layer.isVisible
-            layer.isVisible = true
+        if layerName ~= "root" then
+            if layer.isGroup then
+                local previousVisibility = layer.isVisible
+                layer.isVisible = true
 
-            if dlgData.groupsAsSkins == true then
-                _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
-            end
+                if dlgData.groupsAsSkins == true then
+                    _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
+                end
 
-            ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate, dlgData)
+                ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate, dlgData)
 
-            layer.isVisible = previousVisibility
-        else
-            layer.isVisible = true
-
-            local layerParentName
-            if pcall(function () layerParentName = layer.parent.name end) then
-                _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", layerParentName)
+                layer.isVisible = previousVisibility
             else
-                _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", "default")
-            end
+                layer.isVisible = true
 
-            _fileNameTemplate = _fileNameTemplate:gsub("{layername}", layerName)
-
-            if #layer.cels ~= 0 then
-                if dlgData.exportSpriteSheet then
-                    ExportSpriteSheet(activeSprite, layer, _fileNameTemplate, dlgData)
+                local layerParentName
+                if pcall(function () layerParentName = layer.parent.name end) then
+                    _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", layerParentName)
+                else
+                    _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", "default")
                 end
 
-                if dlgData.exportSpineSheet == true then
-                    ExportSpineJsonParse(activeSprite, layer, _fileNameTemplate, dlgData)
+                _fileNameTemplate = _fileNameTemplate:gsub("{layername}", layerName)
+
+                if #layer.cels ~= 0 then
+                    if dlgData.exportSpriteSheet then
+                        ExportSpriteSheet(activeSprite, layer, _fileNameTemplate, dlgData)
+                    end
+
+                    if dlgData.exportSpineSheet == true then
+                        ExportSpineJsonParse(activeSprite, layer, _fileNameTemplate, dlgData)
+                    end
+
+                    LayerCount = LayerCount + 1
                 end
 
-                LayerCount = LayerCount + 1
+                layer.isVisible = false
             end
-
-            layer.isVisible = false
         end
     end
 end
@@ -139,8 +151,21 @@ function ExportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
     local realPostionX = layerCelX + layerCelWidth / 2
     local realPositionY = layerCelY + layerCelHeight / 2
 
-    local spriteX = realPostionX - dlgData.rootPositionX
-    local spriteY = dlgData.rootPositionY - realPositionY
+    local spriteX
+    local spriteY
+
+    if dlgData.setRootPostion == true then
+        if dlgData.rootPostionMethod == "automatic" then
+            spriteX = realPostionX - RootPositon.x
+            spriteY = RootPositon.y - realPositionY
+        else
+            spriteX = realPostionX - dlgData.rootPositionX
+            spriteY = dlgData.rootPositionY - realPositionY
+        end
+    else
+        spriteX = realPostionX
+        spriteY = realPositionY
+    end
 
     if dlgData.groupsAsSkins == true then
         fileNameTemplate = fileNameTemplate:gsub("\\", "/")
@@ -341,9 +366,13 @@ dlg:check{
 }
 dlg:check{
     id = "setRootPostion",
-    label = "Set Root position",
+    label = "Set Root position:",
     selected = true,
     onclick = function()
+        dlg:modify{
+            id = "rootPostionMethod",
+            visible = dlg.data.setRootPostion
+        }
         dlg:modify{
             id = "rootPositionX",
             visible = dlg.data.setRootPostion
@@ -354,17 +383,35 @@ dlg:check{
         }
     end
 }
+dlg:combobox{
+    id = "rootPostionMethod",
+    label = " Root position method:",
+    option = "automatic",
+    options = {"manual", "automatic"},
+    onchange = function()
+        dlg:modify{
+            id = "rootPositionX",
+            visible = dlg.data.rootPostionMethod == "manual"
+        }
+        dlg:modify{
+            id = "rootPositionY",
+            visible = dlg.data.rootPostionMethod == "manual"
+        }
+    end
+}
 dlg:number{
     id = "rootPositionX",
-    label = " Root Postion X:",
+    label = "  Root Postion X:",
     text = "0",
-    decimals = 0
+    decimals = 0,
+    visible = false
 }
 dlg:number{
     id = "rootPositionY",
-    label = " Root Postion Y:",
+    label = "  Root Postion Y:",
     text = "0",
-    decimals = 0
+    decimals = 0,
+    visible = false
 }
 dlg:separator{
     id = "separator4",
@@ -444,7 +491,7 @@ dlg:button{id = "confirm", text = "Confirm"}
 dlg:button{id = "cancel", text = "Cancel"}
 dlg:show()
 
-if not dlg.data.confirm then 
+if not dlg.data.confirm then
     app.alert("Settings were not confirmed, script aborted.")
     return
 end

@@ -1,7 +1,7 @@
 # Aseprite-Exporter
 ---
 ### Showcase
-![showcase](media/showcase-v2.3.png)
+![showcase](media/showcase-v2.6.png)
 
 ### Features
 - Configurable output path
