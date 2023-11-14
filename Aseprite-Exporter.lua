@@ -37,7 +37,7 @@ function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
         ExportSpineJsonStart(fileName, dlgData)
     end
 
-    if dlgData.setRootPostion == true and dlgData.rootPostionMethod == "automatic" then
+    if dlgData.exportSpineSheet == true and dlgData.setRootPostion == true and dlgData.rootPostionMethod == "automatic" then
         for _, layer in ipairs(rootLayer.layers) do
             if layer.name == "root" then
                 RootPositon = layer.cels[1].position
@@ -121,8 +121,12 @@ function ExportSpineJsonStart(fileName, dlgData)
 
     Json:write('{ ')
     Json:write('"skeleton": { ')
-    Json:write(string.format([["images": "%s", ]], "./" .. dlgData.imagesPath .. "/"))
-    Json:write(string.format([["audio": "%s" ]], "./" .. dlgData.audioPath .. "/"))
+
+    if dlgData.setSpinePaths then
+        Json:write(string.format([["images": "%s", ]], "./" .. dlgData.spineImagesPath .. "/"))
+        Json:write(string.format([["audio": "%s" ]], "./" .. dlgData.spineAudioPath .. "/"))
+    end
+
     Json:write('}, ')
     Json:write('"bones": [ { ')
     Json:write('"name": "root" ')
@@ -291,30 +295,25 @@ dlg:file{
     onchange = function()
         dlg:modify{
             id = "outputPath",
-            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
+            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubdirectory)
         }
     end
 }
 dlg:entry{
-    id = "imagesPath",
-    label = "Images Path:",
-    text = "sprite",
+    id = "outputSubdirectory",
+    label = "Output Subdirectory:",
+    text = "images",
     onchange = function()
         dlg:modify{
             id = "outputPath",
-            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
+            text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubdirectory)
         }
     end
-}
-dlg:entry{
-    id = "audioPath",
-    label = "Audio Path:",
-    text = "sound"
 }
 dlg:label{
     id = "outputPath",
     label = "Output Path:",
-    text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.imagesPath)
+    text = app.fs.joinPath(app.fs.filePath(dlg.data.outputFile), dlg.data.outputSubdirectory)
 }
 dlg:separator{
     id = "separator2",
@@ -325,6 +324,10 @@ dlg:check{
     label = "Export SpriteSheet:",
     selected = true,
     onclick = function()
+        dlg:modify{
+            id = "exportSpriteNameTrim",
+            visible = dlg.data.exportSpriteSheet
+        }
         dlg:modify{
             id = "exportFileNameFormat",
             visible = dlg.data.exportSpriteSheet
@@ -338,6 +341,11 @@ dlg:check{
             visible = dlg.data.exportSpriteSheet
         }
     end
+}
+dlg:check{
+    id = "exportSpriteNameTrim",
+    label = " Sprite Name Trim:",
+    selected = true
 }
 dlg:entry{
     id = "exportFileNameFormat",
@@ -362,11 +370,41 @@ dlg:separator{
 dlg:check{
     id = "exportSpineSheet",
     label = "Export SpineSheet:",
-    selected = true
+    selected = true,
+    onclick = function()
+        dlg:modify{
+            id = "setRootPostion",
+            visible = dlg.data.exportSpineSheet
+        }
+        dlg:modify{
+            id = "rootPostionMethod",
+            visible = dlg.data.exportSpineSheet
+        }
+        dlg:modify{
+            id = "rootPositionX",
+            visible = dlg.data.exportSpineSheet and dlg.data.rootPostionMethod == "manual"
+        }
+        dlg:modify{
+            id = "rootPositionY",
+            visible = dlg.data.exportSpineSheet and dlg.data.rootPostionMethod == "manual"
+        }
+        dlg:modify{
+            id = "setSpinePaths",
+            visible = dlg.data.exportSpineSheet
+        }
+        dlg:modify{
+            id = "spineImagesPath",
+            visible = dlg.data.exportSpineSheet and dlg.data.setSpinePaths
+        }
+        dlg:modify{
+            id = "spineAudioPath",
+            visible = dlg.data.exportSpineSheet and dlg.data.setSpinePaths
+        }
+    end
 }
 dlg:check{
     id = "setRootPostion",
-    label = "Set Root position:",
+    label = " Set Root Position:",
     selected = true,
     onclick = function()
         dlg:modify{
@@ -375,17 +413,17 @@ dlg:check{
         }
         dlg:modify{
             id = "rootPositionX",
-            visible = dlg.data.setRootPostion
+            visible = dlg.data.setRootPostion and dlg.data.rootPostionMethod == "manual"
         }
         dlg:modify{
             id = "rootPositionY",
-            visible = dlg.data.setRootPostion
+            visible = dlg.data.setRootPostion and dlg.data.rootPostionMethod == "manual"
         }
     end
 }
 dlg:combobox{
     id = "rootPostionMethod",
-    label = " Root position method:",
+    label = "  Root position Method:",
     option = "automatic",
     options = {"manual", "automatic"},
     onchange = function()
@@ -401,17 +439,42 @@ dlg:combobox{
 }
 dlg:number{
     id = "rootPositionX",
-    label = "  Root Postion X:",
+    label = "   Root Postion X:",
     text = "0",
     decimals = 0,
     visible = false
 }
 dlg:number{
     id = "rootPositionY",
-    label = "  Root Postion Y:",
+    label = "   Root Postion Y:",
     text = "0",
     decimals = 0,
     visible = false
+}
+dlg:check{
+    id = "setSpinePaths",
+    label = " Set Spine Paths:",
+    selected = true,
+    onclick = function()
+        dlg:modify{
+            id = "spineImagesPath",
+            visible = dlg.data.setSpinePaths
+        }
+        dlg:modify{
+            id = "spineAudioPath",
+            visible = dlg.data.setSpinePaths
+        }
+    end
+}
+dlg:entry{
+    id = "spineImagesPath",
+    label = "  Images Path:",
+    text = "images"
+}
+dlg:entry{
+    id = "spineAudioPath",
+    label = "  Audio Path:",
+    text = "audio"
 }
 dlg:separator{
     id = "separator4",
@@ -486,6 +549,14 @@ dlg:entry{
 dlg:separator{
     id = "separator5"
 }
+dlg:entry{
+    id = "help",
+    label = "Need help? Visit my GitHub repository @",
+    text = "https://github.com/RampantDespair/Aseprite-Exporter"
+}
+dlg:separator{
+    id = "separator6"
+}
 
 dlg:button{id = "confirm", text = "Confirm"}
 dlg:button{id = "cancel", text = "Cancel"}
@@ -502,6 +573,14 @@ if dlg.data.outputPath == nil then
 end
 
 local fileName = app.fs.fileTitle(activeSprite.filename)
+
+if dlg.data.exportSpriteNameTrim then
+    local _index = string.find(fileName, "_")
+    if _index ~= nil then
+        fileName = string.sub(fileName, _index + 1, string.len(fileName))
+    end
+end
+
 local fileNameTemplate = dlg.data.exportFileNameFormat:gsub("{spritename}", fileName)
 
 if fileNameTemplate == nil then
