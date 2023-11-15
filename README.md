@@ -1,7 +1,7 @@
 # Aseprite-Exporter
 
 ## Showcase
-![showcase](media/showcase-v3.0.png)
+![showcase](media/showcase-v3.1.png)
 
 ## Features
 ### Generic
