@@ -78,6 +78,13 @@
 | Skin Attachement Format | The skins' attachement format with modifiable placeholders. | {layernameprefix}-{layernamesuffix} |
 | Layer Name Separator | The layers' name seperator. | - |
 
+## Buttons Information
+| Button | Description |
+| --- | --- |
+| Confirm | Confirms the settings for export. |
+| Cancel | Cancels the export altogether. |
+| Reset | Resets the settings to their default values. | 
+
 ## Credits
 Some portions of my code were inspired by the following repositories:
 - [aseprite-to-spine](https://github.com/jordanbleu/aseprite-to-spine) made by [jordanbleu](https://github.com/jordanbleu)
