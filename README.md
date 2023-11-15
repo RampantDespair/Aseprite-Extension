@@ -83,7 +83,10 @@
 | --- | --- |
 | Confirm | Confirms the settings for export. |
 | Cancel | Cancels the export altogether. |
-| Reset | Resets the settings to their default values. | 
+| Reset | Resets the settings to their default values. |
+
+## Links
+- [Esoteric Software Forums](https://esotericsoftware.com/forum/d/24339-aseprite-spine-script) (Spine Animation Forums)
 
 ## Credits
 Some portions of my code were inspired by the following repositories:
