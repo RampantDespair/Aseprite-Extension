@@ -39,20 +39,20 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 
 ### Generic
 
-- Configurable output path
-- Configurable images & sound paths
-- Ability to export Sprite sheet
-- Ability to trim a Sprite's file name
-- Ability to format the Sprite's file name
-- Configurable export file format
-- Ability to trim the Sprite sheet
+*   Configurable output path
+*   Configurable images & sound paths
+*   Ability to export Sprite sheet
+*   Ability to trim a Sprite's file name
+*   Ability to format the Sprite's file name
+*   Configurable export file format
+*   Ability to trim the Sprite sheet
 
 ### Spine
 
-- Ability to convert SpriteSheet into importable Spine data
-- Configurable root positioning
-- Ability to convert Aseprite groups into Spine skins
-- Ability to format slot and attachment names
+*   Ability to convert SpriteSheet into importable Spine data
+*   Configurable root positioning
+*   Ability to convert Aseprite groups into Spine skins
+*   Ability to format slot and attachment names
 
 <!-- INSTALLATION -->
 ## Installation
@@ -82,7 +82,7 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 <!-- IMPORTANT -->
 ## Important
 
-- You cannot name your skins "default" as this is reserved by Spine itself
+*   You cannot name your skins "default" as this is reserved by Spine itself
 
 <!-- SETTINGS -->
 ## Settings information
@@ -147,7 +147,7 @@ Any contributions you make are **greatly appreciated**.
 <!-- LINKS -->
 ## Links
 
-- [Esoteric Software Forums](https://esotericsoftware.com/forum/d/24339-aseprite-spine-script) (Spine Animation Forums)
+*   [Esoteric Software Forums](https://esotericsoftware.com/forum/d/24339-aseprite-spine-script) (Spine Animation Forums)
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
