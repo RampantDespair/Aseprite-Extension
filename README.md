@@ -19,8 +19,7 @@
   <a href="https://esotericsoftware.com/"><img alt="EsotericSoftware" src="https://img.shields.io/badge/EsotericSoftware-gray"></a>
 </div>
 <div align="center">
-  <a href="https://www.lua.org/"><img alt="Lua" src="https://img.shields.io/badge/v5.4.6-blue?logo=lua&label=Lua&labelColor=gray
-"></a>
+  <a href="https://www.lua.org/"><img alt="Lua" src="https://img.shields.io/badge/v5.4.6-blue?logo=lua&label=Lua&labelColor=gray"></a>
 </div>
 <hr>
 
