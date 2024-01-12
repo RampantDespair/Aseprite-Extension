@@ -136,7 +136,7 @@ function ExportSpineJsonStart(fileName, dlgData)
     SkinsJson = {}
 end
 
-function ExportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
+function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
     local layerName = layer.name
 
     local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], layerName, "root", layerName)
