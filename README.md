@@ -25,7 +25,7 @@
 
 <!-- PROJECT SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v3.1.png">
+  <img alt="Showcase" src="media/showcase-v3.2.png">
 </div>
 
 <!-- ABOUT THE PROJECT -->
