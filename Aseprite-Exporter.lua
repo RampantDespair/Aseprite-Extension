@@ -14,7 +14,7 @@ end
 
 function HideLayers(activeSprite)
     for _, layer in ipairs(activeSprite.layers) do
-        if (layer.isGroup) then
+        if layer.isGroup then
             HideLayers(layer)
         else
             layer.isVisible = false
@@ -291,7 +291,7 @@ end
 LayerCount = 0
 local activeSprite = app.activeSprite
 
-if (activeSprite == nil) then
+if activeSprite == nil then
     app.alert("No sprite selected, script aborted.")
     return
 end
