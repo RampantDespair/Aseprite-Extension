@@ -303,7 +303,7 @@ local scriptDirectory = scriptPath:match("(.*[/\\])")
 
 local configPath = app.fs.joinPath(scriptDirectory, "Aseprite-Exporter.conf")
 local configFile = io.open(configPath, "r")
-local configFileContents = {}
+local oldConfigFileContents = {}
 
 if configFile ~= nil then
     for line in configFile:lines() do
@@ -311,7 +311,7 @@ if configFile ~= nil then
         if index ~= nil then
             local key = string.sub(line, 1, index - 1)
             local value = string.sub(line, index + 1, string.len(line))
-            configFileContents[key] = value;
+            oldConfigFileContents[key] = value;
         end
     end
 end
@@ -336,7 +336,7 @@ dlg:file{
 dlg:entry{
     id = "outputSubdirectory",
     label = "Output Subdirectory:",
-    text = GetInitialValue(configFileContents["outputSubdirectory"], "images"),
+    text = GetInitialValue(oldConfigFileContents["outputSubdirectory"], "images"),
     onchange = function()
         dlg:modify{
             id = "outputPath",
@@ -356,7 +356,7 @@ dlg:separator{
 dlg:check{
     id = "exportSpriteSheet",
     label = "Export SpriteSheet:",
-    selected = GetInitialValue(configFileContents["exportSpriteSheet"], true),
+    selected = GetInitialValue(oldConfigFileContents["exportSpriteSheet"], true),
     onclick = function()
         dlg:modify{
             id = "exportSpriteNameTrim",
@@ -379,27 +379,27 @@ dlg:check{
 dlg:check{
     id = "exportSpriteNameTrim",
     label = " Sprite Name Trim:",
-    selected = GetInitialValue(configFileContents["exportSpriteNameTrim"], true),
-    visible = GetInitialValue(configFileContents["exportSpriteSheet"], true)
+    selected = GetInitialValue(oldConfigFileContents["exportSpriteNameTrim"], true),
+    visible = GetInitialValue(oldConfigFileContents["exportSpriteSheet"], true)
 }
 dlg:entry{
     id = "exportFileNameFormat",
     label = " File Name Format:",
-    text = GetInitialValue(configFileContents["exportFileNameFormat"], "{spritename}-{layergroup}-{layername}"),
-    visible = GetInitialValue(configFileContents["exportSpriteSheet"], true)
+    text = GetInitialValue(oldConfigFileContents["exportFileNameFormat"], "{spritename}-{layergroup}-{layername}"),
+    visible = GetInitialValue(oldConfigFileContents["exportSpriteSheet"], true)
 }
 dlg:combobox{
     id = "exportFileFormat",
     label = " File Format:",
-    option = GetInitialValue(configFileContents["exportFileFormat"], "png"),
+    option = GetInitialValue(oldConfigFileContents["exportFileFormat"], "png"),
     options = {"png", "gif", "jpg"},
-    visible = GetInitialValue(configFileContents["exportSpriteSheet"], true)
+    visible = GetInitialValue(oldConfigFileContents["exportSpriteSheet"], true)
 }
 dlg:check{
     id = "exportSpriteSheetTrim",
     label = " SpriteSheet Trim:",
-    selected = GetInitialValue(configFileContents["exportSpriteSheetTrim"], true),
-    visible = GetInitialValue(configFileContents["exportSpriteSheet"], true)
+    selected = GetInitialValue(oldConfigFileContents["exportSpriteSheetTrim"], true),
+    visible = GetInitialValue(oldConfigFileContents["exportSpriteSheet"], true)
 }
 dlg:separator{
     id = "separator3",
@@ -408,7 +408,7 @@ dlg:separator{
 dlg:check{
     id = "exportSpineSheet",
     label = "Export SpineSheet:",
-    selected = GetInitialValue(configFileContents["exportSpineSheet"], true),
+    selected = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true),
     onclick = function()
         dlg:modify{
             id = "setRootPostion",
@@ -439,8 +439,8 @@ dlg:check{
 dlg:check{
     id = "setRootPostion",
     label = " Set Root Position:",
-    selected = GetInitialValue(configFileContents["setRootPostion"], true),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true),
+    selected = GetInitialValue(oldConfigFileContents["setRootPostion"], true),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true),
     onclick = function()
         dlg:modify{
             id = "rootPostionMethod",
@@ -459,9 +459,9 @@ dlg:check{
 dlg:combobox{
     id = "rootPostionMethod",
     label = "  Root position Method:",
-    option = GetInitialValue(configFileContents["rootPostionMethod"], "automatic"),
+    option = GetInitialValue(oldConfigFileContents["rootPostionMethod"], "automatic"),
     options = {"manual", "automatic"},
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setRootPostion"], true),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true) and GetInitialValue(oldConfigFileContents["setRootPostion"], true),
     onchange = function()
         dlg:modify{
             id = "rootPositionX",
@@ -476,22 +476,22 @@ dlg:combobox{
 dlg:number{
     id = "rootPositionX",
     label = "   Root Postion X:",
-    text = GetInitialValue(configFileContents["rootPositionX"], "0"),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setRootPostion"], true) and GetInitialValue(configFileContents["rootPostionMethod"], "automatic") == "manual",
+    text = GetInitialValue(oldConfigFileContents["rootPositionX"], "0"),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true) and GetInitialValue(oldConfigFileContents["setRootPostion"], true) and GetInitialValue(oldConfigFileContents["rootPostionMethod"], "automatic") == "manual",
     decimals = 0
 }
 dlg:number{
     id = "rootPositionY",
     label = "   Root Postion Y:",
-    text = GetInitialValue(configFileContents["rootPositionY"], "0"),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setRootPostion"], true) and GetInitialValue(configFileContents["rootPostionMethod"], "automatic") == "manual",
+    text = GetInitialValue(oldConfigFileContents["rootPositionY"], "0"),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true) and GetInitialValue(oldConfigFileContents["setRootPostion"], true) and GetInitialValue(oldConfigFileContents["rootPostionMethod"], "automatic") == "manual",
     decimals = 0
 }
 dlg:check{
     id = "setImagesPath",
     label = " Set Images Path:",
-    selected = GetInitialValue(configFileContents["setImagesPath"], true),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true),
+    selected = GetInitialValue(oldConfigFileContents["setImagesPath"], true),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true),
     onclick = function()
         dlg:modify{
             id = "spineImagesPath",
@@ -502,8 +502,8 @@ dlg:check{
 dlg:entry{
     id = "spineImagesPath",
     label = "  Images Path:",
-    text = GetInitialValue(configFileContents["spineImagesPath"], "images"),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setImagesPath"], true)
+    text = GetInitialValue(oldConfigFileContents["spineImagesPath"], "images"),
+    visible = GetInitialValue(oldConfigFileContents["exportSpineSheet"], true) and GetInitialValue(oldConfigFileContents["setImagesPath"], true)
 }
 dlg:separator{
     id = "separator4",
@@ -512,7 +512,7 @@ dlg:separator{
 dlg:check{
     id = "groupsAsSkins",
     label = "Groups As Skins:",
-    selected = GetInitialValue(configFileContents["groupsAsSkins"], true),
+    selected = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true),
     onclick = function()
         dlg:modify{
             id = "skinNameFormat",
@@ -539,14 +539,14 @@ dlg:check{
 dlg:entry{
     id = "skinNameFormat",
     label = " Skin Name Format:",
-    text = GetInitialValue(configFileContents["skinNameFormat"], "weapon-{layergroup}"),
-    visible = GetInitialValue(configFileContents["groupsAsSkins"], true)
+    text = GetInitialValue(oldConfigFileContents["skinNameFormat"], "weapon-{layergroup}"),
+    visible = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true)
 }
 dlg:check{
     id = "separateSlotSkin",
     label = " Separate Slot/Skin:",
-    selected = GetInitialValue(configFileContents["separateSlotSkin"], true),
-    visible = GetInitialValue(configFileContents["groupsAsSkins"], true),
+    selected = GetInitialValue(oldConfigFileContents["separateSlotSkin"], true),
+    visible = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true),
     onclick = function()
         dlg:modify{
             id = "slotNameFormat",
@@ -565,20 +565,20 @@ dlg:check{
 dlg:entry{
     id = "slotNameFormat",
     label = "  Slot Name Format:",
-    text = GetInitialValue(configFileContents["slotNameFormat"], "{layernameprefix}"),
-    visible = GetInitialValue(configFileContents["groupsAsSkins"], true) and GetInitialValue(configFileContents["separateSlotSkin"], true)
+    text = GetInitialValue(oldConfigFileContents["slotNameFormat"], "{layernameprefix}"),
+    visible = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["separateSlotSkin"], true)
 }
 dlg:entry{
     id = "skinAttachmentFormat",
     label = "  Skin Attachment Format:",
-    text = GetInitialValue(configFileContents["skinAttachmentFormat"], "{layernameprefix}-{layernamesuffix}"),
-    visible = GetInitialValue(configFileContents["groupsAsSkins"], true) and GetInitialValue(configFileContents["separateSlotSkin"], true)
+    text = GetInitialValue(oldConfigFileContents["skinAttachmentFormat"], "{layernameprefix}-{layernamesuffix}"),
+    visible = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["separateSlotSkin"], true)
 }
 dlg:entry{
     id = "layerNameSeparator",
     label = "  Layer Name Separator:",
-    text = GetInitialValue(configFileContents["layerNameSeparator"], "-"),
-    visible = GetInitialValue(configFileContents["groupsAsSkins"], true) and GetInitialValue(configFileContents["separateSlotSkin"], true)
+    text = GetInitialValue(oldConfigFileContents["layerNameSeparator"], "-"),
+    visible = GetInitialValue(oldConfigFileContents["groupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["separateSlotSkin"], true)
 }
 dlg:separator{
     id = "separator5"
@@ -709,35 +709,37 @@ dlg:show()
 
 configFile = io.open(configPath, "w")
 
-configFileContents["outputSubdirectory"] = dlg.data.outputSubdirectory
-configFileContents["exportSpriteSheet"] = dlg.data.exportSpriteSheet
-configFileContents["exportSpriteNameTrim"] = dlg.data.exportSpriteNameTrim
-configFileContents["exportFileNameFormat"] = dlg.data.exportFileNameFormat
-configFileContents["exportFileFormat"] = dlg.data.exportFileFormat
-configFileContents["exportSpriteSheetTrim"] = dlg.data.exportSpriteSheetTrim
-configFileContents["exportSpineSheet"] = dlg.data.exportSpineSheet
-configFileContents["setRootPostion"] = dlg.data.setRootPostion
-configFileContents["rootPostionMethod"] = dlg.data.rootPostionMethod
-configFileContents["rootPositionX"] = dlg.data.rootPositionX
-configFileContents["rootPositionY"] = dlg.data.rootPositionY
-configFileContents["setImagesPath"] = dlg.data.setImagesPath
-configFileContents["spineImagesPath"] = dlg.data.spineImagesPath
-configFileContents["groupsAsSkins"] = dlg.data.groupsAsSkins
-configFileContents["skinNameFormat"] = dlg.data.skinNameFormat
-configFileContents["separateSlotSkin"] = dlg.data.separateSlotSkin
-configFileContents["slotNameFormat"] = dlg.data.slotNameFormat
-configFileContents["skinAttachmentFormat"] = dlg.data.skinAttachmentFormat
-configFileContents["layerNameSeparator"] = dlg.data.layerNameSeparator
+local newConfigFileContents = {}
 
-local configFileContentsKeys = {}
-for key, _ in pairs(configFileContents) do
-    table.insert(configFileContentsKeys, key)
+newConfigFileContents["outputSubdirectory"] = dlg.data.outputSubdirectory
+newConfigFileContents["exportSpriteSheet"] = dlg.data.exportSpriteSheet
+newConfigFileContents["exportSpriteNameTrim"] = dlg.data.exportSpriteNameTrim
+newConfigFileContents["exportFileNameFormat"] = dlg.data.exportFileNameFormat
+newConfigFileContents["exportFileFormat"] = dlg.data.exportFileFormat
+newConfigFileContents["exportSpriteSheetTrim"] = dlg.data.exportSpriteSheetTrim
+newConfigFileContents["exportSpineSheet"] = dlg.data.exportSpineSheet
+newConfigFileContents["setRootPostion"] = dlg.data.setRootPostion
+newConfigFileContents["rootPostionMethod"] = dlg.data.rootPostionMethod
+newConfigFileContents["rootPositionX"] = dlg.data.rootPositionX
+newConfigFileContents["rootPositionY"] = dlg.data.rootPositionY
+newConfigFileContents["setImagesPath"] = dlg.data.setImagesPath
+newConfigFileContents["spineImagesPath"] = dlg.data.spineImagesPath
+newConfigFileContents["groupsAsSkins"] = dlg.data.groupsAsSkins
+newConfigFileContents["skinNameFormat"] = dlg.data.skinNameFormat
+newConfigFileContents["separateSlotSkin"] = dlg.data.separateSlotSkin
+newConfigFileContents["slotNameFormat"] = dlg.data.slotNameFormat
+newConfigFileContents["skinAttachmentFormat"] = dlg.data.skinAttachmentFormat
+newConfigFileContents["layerNameSeparator"] = dlg.data.layerNameSeparator
+
+local newConfigFileContentsKeys = {}
+for key, _ in pairs(newConfigFileContents) do
+    table.insert(newConfigFileContentsKeys, key)
 end
-table.sort(configFileContentsKeys)
+table.sort(newConfigFileContentsKeys)
 
 if configFile ~= nil then
-    for _, value in ipairs(configFileContentsKeys) do
-        configFile:write(value .. "=" .. tostring(configFileContents[value]) .. "\n")
+    for _, value in ipairs(newConfigFileContentsKeys) do
+        configFile:write(value .. "=" .. tostring(newConfigFileContents[value]) .. "\n")
     end
 end
 
