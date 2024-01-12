@@ -351,7 +351,7 @@ dlg:label{
 }
 dlg:separator{
     id = "separator2",
-    text = "SpriteSheet Settings"
+    text = "Sprite Settings"
 }
 dlg:check{
     id = "spriteSheetExport",
@@ -434,6 +434,30 @@ dlg:check{
             id = "spineImagesPath",
             visible = dlg.data.spineExport and dlg.data.spineSetImagesPath
         }
+        dlg:modify{
+            id = "spineGroupsAsSkins",
+            visible = dlg.data.spineExport
+        }
+        dlg:modify{
+            id = "spineSkinNameFormat",
+            visible = dlg.data.spineExport and dlg.data.spineGroupsAsSkins
+        }
+        dlg:modify{
+            id = "spineSeparateSlotSkin",
+            visible = dlg.data.spineExport and dlg.data.spineGroupsAsSkins
+        }
+        dlg:modify{
+            id = "spineSlotNameFormat",
+            visible = dlg.data.spineExport and dlg.data.spineGroupsAsSkins and dlg.data.spineSeparateSlotSkin
+        }
+        dlg:modify{
+            id = "spineSkinAttachmentFormat",
+            visible = dlg.data.spineExport and dlg.data.spineGroupsAsSkins and dlg.data.spineSeparateSlotSkin
+        }
+        dlg:modify{
+            id = "spineLayerNameSeparator",
+            visible = dlg.data.spineExport and dlg.data.spineGroupsAsSkins and dlg.data.spineSeparateSlotSkin
+        }
     end
 }
 dlg:check{
@@ -505,13 +529,9 @@ dlg:entry{
     text = GetInitialValue(oldConfigFileContents["spineImagesPath"], "images"),
     visible = GetInitialValue(oldConfigFileContents["spineExport"], true) and GetInitialValue(oldConfigFileContents["spineSetImagesPath"], true)
 }
-dlg:separator{
-    id = "separator4",
-    text = "Group Settings"
-}
 dlg:check{
     id = "spineGroupsAsSkins",
-    label = "Groups As Skins:",
+    label = " Groups As Skins:",
     selected = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true),
     onclick = function()
         dlg:modify{
@@ -538,13 +558,13 @@ dlg:check{
 }
 dlg:entry{
     id = "spineSkinNameFormat",
-    label = " Skin Name Format:",
+    label = "  Skin Name Format:",
     text = GetInitialValue(oldConfigFileContents["spineSkinNameFormat"], "weapon-{layergroup}"),
     visible = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true)
 }
 dlg:check{
     id = "spineSeparateSlotSkin",
-    label = " Separate Slot/Skin:",
+    label = "  Separate Slot/Skin:",
     selected = GetInitialValue(oldConfigFileContents["spineSeparateSlotSkin"], true),
     visible = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true),
     onclick = function()
@@ -564,24 +584,24 @@ dlg:check{
 }
 dlg:entry{
     id = "spineSlotNameFormat",
-    label = "  Slot Name Format:",
+    label = "   Slot Name Format:",
     text = GetInitialValue(oldConfigFileContents["spineSlotNameFormat"], "{layernameprefix}"),
     visible = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["spineSeparateSlotSkin"], true)
 }
 dlg:entry{
     id = "spineSkinAttachmentFormat",
-    label = "  Skin Attachment Format:",
+    label = "   Skin Attachment Format:",
     text = GetInitialValue(oldConfigFileContents["spineSkinAttachmentFormat"], "{layernameprefix}-{layernamesuffix}"),
     visible = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["spineSeparateSlotSkin"], true)
 }
 dlg:entry{
     id = "spineLayerNameSeparator",
-    label = "  Layer Name Separator:",
+    label = "   Layer Name Separator:",
     text = GetInitialValue(oldConfigFileContents["spineLayerNameSeparator"], "-"),
     visible = GetInitialValue(oldConfigFileContents["spineGroupsAsSkins"], true) and GetInitialValue(oldConfigFileContents["spineSeparateSlotSkin"], true)
 }
 dlg:separator{
-    id = "separator5"
+    id = "separator4"
 }
 dlg:entry{
     id = "help",
@@ -589,7 +609,7 @@ dlg:entry{
     text = "https://github.com/RampantDespair/Aseprite-Exporter"
 }
 dlg:separator{
-    id = "separator6"
+    id = "separator5"
 }
 
 dlg:button{
