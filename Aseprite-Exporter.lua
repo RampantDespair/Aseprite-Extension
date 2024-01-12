@@ -122,9 +122,8 @@ function ExportSpineJsonStart(fileName, dlgData)
     Json:write('{ ')
     Json:write('"skeleton": { ')
 
-    if dlgData.setSpinePaths then
-        Json:write(string.format([["images": "%s", ]], "./" .. dlgData.spineImagesPath .. "/"))
-        Json:write(string.format([["audio": "%s" ]], "./" .. dlgData.spineAudioPath .. "/"))
+    if dlgData.setImagesPath then
+        Json:write(string.format([["images": "%s" ]], "./" .. dlgData.spineImagesPath .. "/"))
     end
 
     Json:write('}, ')
@@ -428,16 +427,12 @@ dlg:check{
             visible = dlg.data.exportSpineSheet and dlg.data.setRootPostion and dlg.data.rootPostionMethod == "manual"
         }
         dlg:modify{
-            id = "setSpinePaths",
+            id = "setImagesPath",
             visible = dlg.data.exportSpineSheet
         }
         dlg:modify{
             id = "spineImagesPath",
-            visible = dlg.data.exportSpineSheet and dlg.data.setSpinePaths
-        }
-        dlg:modify{
-            id = "spineAudioPath",
-            visible = dlg.data.exportSpineSheet and dlg.data.setSpinePaths
+            visible = dlg.data.exportSpineSheet and dlg.data.setImagesPath
         }
     end
 }
@@ -493,18 +488,14 @@ dlg:number{
     decimals = 0
 }
 dlg:check{
-    id = "setSpinePaths",
-    label = " Set Spine Paths:",
-    selected = GetInitialValue(configFileContents["setSpinePaths"], true),
+    id = "setImagesPath",
+    label = " Set Images Path:",
+    selected = GetInitialValue(configFileContents["setImagesPath"], true),
     visible = GetInitialValue(configFileContents["exportSpineSheet"], true),
     onclick = function()
         dlg:modify{
             id = "spineImagesPath",
-            visible = dlg.data.setSpinePaths
-        }
-        dlg:modify{
-            id = "spineAudioPath",
-            visible = dlg.data.setSpinePaths
+            visible = dlg.data.setImagesPath
         }
     end
 }
@@ -512,13 +503,7 @@ dlg:entry{
     id = "spineImagesPath",
     label = "  Images Path:",
     text = GetInitialValue(configFileContents["spineImagesPath"], "images"),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setSpinePaths"], true)
-}
-dlg:entry{
-    id = "spineAudioPath",
-    label = "  Audio Path:",
-    text = GetInitialValue(configFileContents["spineAudioPath"], "audio"),
-    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setSpinePaths"], true)
+    visible = GetInitialValue(configFileContents["exportSpineSheet"], true) and GetInitialValue(configFileContents["setImagesPath"], true)
 }
 dlg:separator{
     id = "separator4",
@@ -680,18 +665,13 @@ dlg:button{
             visible = false
         }
         dlg:modify{
-            id = "setSpinePaths",
+            id = "setImagesPath",
             selected = true,
             visible = true
         }
         dlg:modify{
             id = "spineImagesPath",
             text = "images",
-            visible = true
-        }
-        dlg:modify{
-            id = "spineAudioPath",
-            text = "audio",
             visible = true
         }
         dlg:modify{
@@ -740,9 +720,8 @@ configFileContents["setRootPostion"] = dlg.data.setRootPostion
 configFileContents["rootPostionMethod"] = dlg.data.rootPostionMethod
 configFileContents["rootPositionX"] = dlg.data.rootPositionX
 configFileContents["rootPositionY"] = dlg.data.rootPositionY
-configFileContents["setSpinePaths"] = dlg.data.setSpinePaths
+configFileContents["setImagesPath"] = dlg.data.setImagesPath
 configFileContents["spineImagesPath"] = dlg.data.spineImagesPath
-configFileContents["spineAudioPath"] = dlg.data.spineAudioPath
 configFileContents["groupsAsSkins"] = dlg.data.groupsAsSkins
 configFileContents["skinNameFormat"] = dlg.data.skinNameFormat
 configFileContents["separateSlotSkin"] = dlg.data.separateSlotSkin
