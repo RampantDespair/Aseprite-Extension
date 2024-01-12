@@ -95,7 +95,7 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 | Output Subdirectory | The subdirectory used for export. | images |
 | Output Path | The full path used for export. | Output File / Output Subdirectory |
 
-### SpriteSheet Settings
+### Sprite Settings
 
 | Option | Description | Default Value |
 | --- | --- | --- |
@@ -114,14 +114,8 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 | Root Position Method | The method which will be used for setting the position.<br> Automatic: To use this method, create a layer called "root" and place a single pixel where you want the root to be.<br> Manual: Input the coordinates manually in the subsequent fields. | automatic |
 | Root Position X | The X coordinate of the root. | 0 |
 | Root Position Y | The Y coordinate of the root. | 0 |
-| Set Spine Paths | If the paths whithin the exported spine file will be set. | true |
+| Set Images Paths | If the images path whithin the exported spine file will be set. | true |
 | Images Path | The images path. | images |
-| Audio Path | The audio path. | audio |
-
-### Group Settings
-
-| Option | Description | Default Value |
-| --- | --- | --- |
 | Groups As Skins | If you want to convert aseprite groups to spine skins. | true |
 | Skin Name Format | The skins' format with modifiable placeholders. | weapon-{layergroup} |
 | Seperate Slot/Skin | If you want to seperate the slots and skins. | true |
