@@ -317,8 +317,6 @@ if configFile ~= nil then
     end
 end
 
-configFile = io.open(configPath, "w")
-
 local dlg = Dialog("Aseprite-Exporter")
 dlg:separator{
     id = "separator1",
@@ -729,6 +727,8 @@ dlg:button{
 }
 dlg:show()
 
+configFile = io.open(configPath, "w")
+
 configFileContents["outputSubdirectory"] = dlg.data.outputSubdirectory
 configFileContents["exportSpriteSheet"] = dlg.data.exportSpriteSheet
 configFileContents["exportSpriteNameTrim"] = dlg.data.exportSpriteNameTrim
@@ -750,10 +750,15 @@ configFileContents["slotNameFormat"] = dlg.data.slotNameFormat
 configFileContents["skinAttachmentFormat"] = dlg.data.skinAttachmentFormat
 configFileContents["layerNameSeparator"] = dlg.data.layerNameSeparator
 
-table.sort(configFileContents)
+local configFileContentsKeys = {}
+for key, _ in pairs(configFileContents) do
+    table.insert(configFileContentsKeys, key)
+end
+table.sort(configFileContentsKeys)
+
 if configFile ~= nil then
-    for key, value in pairs(configFileContents) do
-        configFile:write(key .. "=" .. tostring(value) .. "\n")
+    for _, value in ipairs(configFileContentsKeys) do
+        configFile:write(value .. "=" .. tostring(configFileContents[value]) .. "\n")
     end
 end
 
