@@ -203,14 +203,14 @@ function ExportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
                 end
             end
 
-            SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+            SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
         else
             if ArrayContainsKey(SkinsJson, "default") == false then
                 SkinsJson["default"] = {}
             end
 
             fileNameTemplate = fileNameTemplate:gsub("{layergroup}", "default")
-            SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+            SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
         end
     else
         if ArrayContainsKey(SkinsJson, "default") == false then
@@ -218,7 +218,7 @@ function ExportSpineJsonParse(activeSprite, layer, fileNameTemplate, dlgData)
         end
 
         fileNameTemplate = fileNameTemplate:gsub("{layergroup}", "default")
-        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } } ]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     end
 
     if ArrayContainsValue(SlotsJson, slot) == false then
@@ -229,18 +229,18 @@ end
 function ExportSpineJsonEnd(dlgData)
     Json:write('"slots": [ ')
     Json:write(table.concat(SlotsJson, ", "))
-    Json:write("], ")
+    Json:write(" ], ")
 
     if dlgData.spineGroupsAsSkins == true then
         Json:write('"skins": [ ')
 
         local parsedSkins = {}
         for key, value in pairs(SkinsJson) do
-            parsedSkins[#parsedSkins + 1] = string.format([[{ "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. "} }"
+            parsedSkins[#parsedSkins + 1] = string.format([[{ "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. " } }"
         end
 
         Json:write(table.concat(parsedSkins, ", "))
-        Json:write('] ')
+        Json:write(' ] ')
     else
         Json:write('"skins": { ')
         Json:write('"default": { ')
