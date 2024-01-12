@@ -274,7 +274,7 @@ function ArrayContainsKey(table, targetKey)
 end
 
 function GetInitialValue(variable, defaultValue)
-    if variable ~= nil then
+    if variable ~= nil and type(variable) == type(defaultValue) then
         if variable == "true" then
             return true
         elseif variable == "false" then
