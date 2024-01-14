@@ -16,7 +16,7 @@
 <hr>
 <div align="center">
   <a href="https://www.aseprite.org/"><img alt="Aseprite" src="https://img.shields.io/badge/Aseprite-gray?logo=aseprite"></a>
-  <a href="https://esotericsoftware.com/"><img alt="EsotericSoftware" src="https://img.shields.io/badge/EsotericSoftware-gray"></a>
+  <a href="https://esotericsoftware.com/"><img alt="Spine" src="https://img.shields.io/badge/Spine-gray?logo=spine"></a>
 </div>
 <div align="center">
   <a href="https://www.lua.org/"><img alt="Lua" src="https://img.shields.io/badge/v5.4.6-blue?logo=lua&label=Lua&labelColor=gray"></a>
