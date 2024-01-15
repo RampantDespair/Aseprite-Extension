@@ -383,6 +383,10 @@ dlg:check{
             id = "spriteSheetTrim",
             visible = dlg.data.spriteSheetExport
         }
+        dlg:modify{
+            id = "spriteSheetGroupsAsDirectories",
+            visible = dlg.data.spriteSheetExport
+        }
     end
 }
 dlg:check{
