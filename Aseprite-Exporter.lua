@@ -257,14 +257,16 @@ function ExportSpineJsonEnd()
         end
 
         JsonFile:write(table.concat(parsedSkins, ", "))
-        JsonFile:write(' ] ')
+        JsonFile:write(' ], ')
     else
         JsonFile:write('"skins": { ')
         JsonFile:write('"default": { ')
         JsonFile:write(table.concat(SkinsJson["default"], ", "))
         JsonFile:write('} ')
-        JsonFile:write('} ')
+        JsonFile:write('}, ')
     end
+
+    JsonFile:write('"animations": { "animation": {} }')
 
     JsonFile:write("}")
 
