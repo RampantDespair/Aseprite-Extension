@@ -54,9 +54,7 @@ function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
         ExportSpineJsonStart(fileName, dlgData)
     end
 
-    if dlgData.spriteSheetExport == true then
-        ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
-    end
+    ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
 
     if dlgData.spineExport == true then
         ExportSpineJsonEnd(dlgData)
@@ -73,7 +71,7 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
                 local previousVisibility = layer.isVisible
                 layer.isVisible = true
 
-                if dlgData.spriteSheetGroupsAsDirectories == true then
+                if dlgData.outputGroupsAsDirectories == true then
                     _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
                 end
 
@@ -410,6 +408,13 @@ Config = {
         parent = nil,
         children = {},
     },
+    outputGroupsAsDirectories = {
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {},
+    },
     spriteSheetExport = {
         type = "check",
         default = true,
@@ -420,7 +425,6 @@ Config = {
             "spriteSheetFileNameFormat",
             "spriteSheetFileFormat",
             "spriteSheetTrim",
-            "spriteSheetGroupsAsDirectories",
         },
     },
     spriteSheetNameTrim = {
@@ -445,13 +449,6 @@ Config = {
         children = {},
     },
     spriteSheetTrim = {
-        type = "check",
-        default = true,
-        value = nil,
-        parent = nil,
-        children = {},
-    },
-    spriteSheetGroupsAsDirectories = {
         type = "check",
         default = true,
         value = nil,
@@ -611,6 +608,13 @@ Dlg:label {
     label = "Output Path:",
     text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory),
 }
+Dlg:check {
+    id = "outputGroupsAsDirectories",
+    label = " Groups As Directories:",
+    selected = Config.outputGroupsAsDirectories.value,
+    visible = Config.spriteSheetExport.value,
+    onclick = function() UpdateConfigValue("outputGroupsAsDirectories") end,
+}
 
 Dlg:tab {
     id = "spriteSettingsTab",
@@ -650,14 +654,6 @@ Dlg:check {
     visible = Config.spriteSheetExport.value,
     onclick = function() UpdateConfigValue("spriteSheetTrim") end,
 }
-Dlg:check {
-    id = "spriteSheetGroupsAsDirectories",
-    label = " Groups As Directories:",
-    selected = Config.spriteSheetGroupsAsDirectories.value,
-    visible = Config.spriteSheetExport.value,
-    onclick = function() UpdateConfigValue("spriteSheetGroupsAsDirectories") end,
-}
-
 
 Dlg:tab {
     id = "spineSettingsTab",
