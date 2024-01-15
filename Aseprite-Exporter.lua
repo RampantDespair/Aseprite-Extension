@@ -32,19 +32,27 @@ function RestoreLayers(activeSprite, layerVisibilityData)
      end
 end
 
+function GetRootPosition(activeSprite, rootLayer, _, _, dlgData)
+    if dlgData.spineExport == true and dlgData.spineSetRootPostion == true then
+        if dlgData.spineRootPostionMethod == "manual" then
+            return { x = dlgData.spineRootPostionX, y = dlgData.spineRootPostionY }
+        elseif dlgData.spineRootPostionMethod == "automatic" then
+            for _, layer in ipairs(rootLayer.layers) do
+                if layer.name == "root" then
+                    return { x = layer.cels[1].position.x, y = layer.cels[1].position.y }
+                end
+            end
+        elseif dlgData.spineRootPostionMethod == "center" then
+            return { x = activeSprite.width / 2, y = activeSprite.height / 2 }
+        else
+            return { x = 0, y = 0 }
+        end
+    end
+end
+
 function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
     if dlgData.spineExport == true then
         ExportSpineJsonStart(fileName, dlgData)
-    end
-
-    if dlgData.spineExport == true and dlgData.spineSetRootPostion == true and dlgData.spineRootPostionMethod == "automatic" then
-        for _, layer in ipairs(rootLayer.layers) do
-            if layer.name == "root" then
-                RootPositon = layer.cels[1].position
-                break
-            end
-        end
-        app.alert("Automatic RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
     end
 
     ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
@@ -158,13 +166,8 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
     local spriteY
 
     if dlgData.spineSetRootPostion == true then
-        if dlgData.spineRootPostionMethod == "automatic" then
-            spriteX = realPostionX - RootPositon.x
-            spriteY = RootPositon.y - realPositionY
-        else
-            spriteX = realPostionX - dlgData.spineRootPostionX
-            spriteY = dlgData.spineRootPostionY - realPositionY
-        end
+        spriteX = realPostionX - RootPositon.x
+        spriteY = RootPositon.y - realPositionY
     else
         spriteX = realPostionX
         spriteY = realPositionY
@@ -484,7 +487,7 @@ dlg:combobox{
     id = "spineRootPostionMethod",
     label = "  Root position Method:",
     option = GetInitialValue(oldConfigFileContents["spineRootPostionMethod"], "automatic"),
-    options = {"manual", "automatic"},
+    options = {"manual", "automatic", "center"},
     visible = GetInitialValue(oldConfigFileContents["spineExport"], true) and GetInitialValue(oldConfigFileContents["spineSetRootPostion"], true),
     onchange = function()
         dlg:modify{
@@ -792,6 +795,9 @@ if fileNameTemplate == nil then
     app.alert("No file name was specified, script aborted.")
     return
 end
+
+RootPositon = GetRootPosition(activeSprite, activeSprite, fileName, fileNameTemplate, dlg.data)
+app.alert("RootPosition is x:" .. RootPositon.x .. "y: " .. RootPositon.y)
 
 local layerVisibilityData = GetLayerVisibilityData(activeSprite)
 
