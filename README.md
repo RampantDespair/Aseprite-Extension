@@ -104,6 +104,7 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 | File Name Format | The file name's format with modifiable placeholders. | {spritename}-{layergroup}-{layername} |
 | File Format | The files' export format. | png |
 | SpriteSheet Trim | If the exported files' will have there excess space trimmed. | true |
+| Groups As Directories | If each group while be exported to it's own directory. | true |
 
 ### Spine Settings
 
