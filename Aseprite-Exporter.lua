@@ -291,7 +291,31 @@ function ArrayContainsKey(table, targetKey)
     return false
 end
 
-function InitializeConfig(configFile)
+function InitializeConfig()
+    local configFile
+
+    if Config.configSelect.value == nil then
+        configFile = io.open(ConfigPathGlobal, "r")
+        PopulateConfig(configFile)
+
+        if configFile ~= nil then
+            io.close(configFile)
+        end
+    end
+
+    if Config.configSelect.value == "local" then
+        configFile = io.open(ConfigPathLocal, "r")
+    else
+        configFile = io.open(ConfigPathGlobal, "r")
+    end
+    PopulateConfig(configFile)
+
+    if configFile ~= nil then
+        io.close(configFile)
+    end
+end
+
+function PopulateConfig(configFile)
     if configFile ~= nil then
         for line in configFile:lines() do
             local index = string.find(line, "=")
@@ -304,7 +328,6 @@ function InitializeConfig(configFile)
             end
         end
     end
-
     for _, value in pairs(Config) do
         if value.value == nil then
             value.value = value.default
@@ -313,13 +336,17 @@ function InitializeConfig(configFile)
                 value.value = true
             elseif value.value == "false" then
                 value.value = false
+            elseif value.value == "nil" then
+                value.value = nil
             end
         end
         if type(value.value) ~= type(value.default) then
             value.value = value.default
         end
     end
+end
 
+function InitializeConfigKeys()
     for key, _ in pairs(Config) do
         table.insert(ConfigKeys, key)
     end
@@ -327,9 +354,26 @@ function InitializeConfig(configFile)
     table.sort(ConfigKeys)
 end
 
-function UpdateConfigValue(configKey)
-    Config[configKey].value = Dlg.data[configKey]
-    UpdateChildrenVisibility(configKey, Dlg.data[configKey])
+function UpdateConfigFile(activeSprite)
+    WriteConfig()
+    InitializeConfig()
+
+    for key, value in pairs(Config) do
+        UpdateDialog(key, value.value)
+    end
+    Dlg:modify{
+        id = "outputFile",
+        filename = activeSprite.filename
+    }
+    Dlg:modify{
+        id = "outputPath",
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
+    }
+end
+
+function UpdateConfigValue(configKey, newValue)
+    Config[configKey].value = newValue
+    UpdateChildrenVisibility(configKey, newValue)
 end
 
 function UpdateChildrenVisibility(configKey, visibility)
@@ -347,7 +391,14 @@ function UpdateChildrenVisibility(configKey, visibility)
     end
 end
 
-function WriteConfig(configFile)
+function WriteConfig()
+    local configFile
+    if Config.configSelect.value == "local" then
+        configFile = io.open(ConfigPathLocal, "w")
+    else
+        configFile = io.open(ConfigPathGlobal, "w")
+    end
+
     if configFile ~= nil then
         for _, value in ipairs(ConfigKeys) do
             if type(Config[value].value) ~= "string" then
@@ -357,36 +408,40 @@ function WriteConfig(configFile)
             end
         end
     end
+
+    if configFile ~= nil then
+        io.close(configFile)
+    end
 end
 
-function UpdateDialog(configKey)
+function UpdateDialog(configKey, newValue)
     if Config[configKey].type == "check" or Config[configKey].type == "radio" then
         Dlg:modify {
             id = configKey,
-            selected = Config[configKey].default,
+            selected = newValue,
         }
     elseif Config[configKey].type == "combobox" then
         Dlg:modify {
             id = configKey,
-            option = Config[configKey].default,
+            option = newValue,
         }
     elseif Config[configKey].type == "entry" or Config[configKey].type == "number" then
         Dlg:modify {
             id = configKey,
-            text = Config[configKey].default,
+            text = newValue,
         }
     elseif Config[configKey].type == "slider" then
         Dlg:modify {
             id = configKey,
-            value = Config[configKey].default,
+            value = newValue,
         }
     end
-    UpdateConfigValue(configKey)
+    UpdateConfigValue(configKey, newValue)
 end
 
 function ResetConfig(activeSprite)
-    for key, _ in pairs(Config) do
-        UpdateDialog(key)
+    for key, value in pairs(Config) do
+        UpdateDialog(key, value.default)
     end
     Dlg:modify{
         id = "outputFile",
@@ -407,15 +462,24 @@ if activeSprite == nil then
     return
 end
 
+local spritePath = app.fs.filePath(activeSprite.filename)
 local scriptPath = debug.getinfo(1).source
 scriptPath = string.sub(scriptPath, 2, string.len(scriptPath))
 scriptPath = app.fs.normalizePath(scriptPath)
 
 local scriptDirectory = string.match(scriptPath, "(.*[/\\])")
 
-local configPath = app.fs.joinPath(scriptDirectory, "Aseprite-Exporter.conf")
+ConfigPathLocal = app.fs.joinPath(spritePath, "Aseprite-Exporter.conf")
+ConfigPathGlobal = app.fs.joinPath(scriptDirectory, "Aseprite-Exporter.conf")
 
 Config = {
+    configSelect = {
+        type = "combobox",
+        default = "global",
+        value = nil,
+        parent = nil,
+        children = {},
+    },
     outputSubdirectory = {
         type = "entry",
         default = "images",
@@ -602,10 +666,35 @@ Config = {
 
 ConfigKeys = {}
 
-local configFile = io.open(configPath, "r")
-InitializeConfig(configFile)
+InitializeConfig()
+InitializeConfigKeys()
 
 Dlg = Dialog("Aseprite-Exporter")
+
+Dlg:tab {
+    id = "configSettings",
+    text = "Config Settings",
+}
+Dlg:combobox {
+    id = "configSelect",
+    label = "Current Config:",
+    option = Config.configSelect.value,
+    options = { "global", "local" },
+    onchange = function()
+        UpdateConfigValue("configSelect", Dlg.data.configSelect)
+        UpdateConfigFile(activeSprite)
+    end,
+}
+Dlg:label {
+    id = "globalConfigPath",
+    label = "Global Config Path: ",
+    text = ConfigPathGlobal,
+}
+Dlg:label {
+    id = "globalConfigPath",
+    label = "Global Config Path: ",
+    text = ConfigPathLocal,
+}
 
 Dlg:tab {
     id = "outputSettings",
@@ -645,7 +734,7 @@ Dlg:check {
     label = "Groups As Directories:",
     selected = Config.outputGroupsAsDirectories.value,
     visible = Config.spriteSheetExport.value,
-    onclick = function() UpdateConfigValue("outputGroupsAsDirectories") end,
+    onclick = function() UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories) end,
 }
 
 Dlg:tab {
@@ -656,35 +745,35 @@ Dlg:check {
     id = "spriteSheetExport",
     label = "Export SpriteSheet:",
     selected = Config.spriteSheetExport.value,
-    onclick = function() UpdateConfigValue("spriteSheetExport") end,
+    onclick = function() UpdateConfigValue("spriteSheetExport", Dlg.data.spriteSheetExport) end,
 }
 Dlg:check {
     id = "spriteSheetNameTrim",
     label = " Sprite Name Trim:",
     selected = Config.spriteSheetNameTrim.value,
     visible = Config.spriteSheetExport.value,
-    onclick = function() UpdateConfigValue("spriteSheetNameTrim") end,
+    onclick = function() UpdateConfigValue("spriteSheetNameTrim", Dlg.data.spriteSheetNameTrim) end,
 }
 Dlg:entry {
     id = "spriteSheetFileNameFormat",
     label = " File Name Format:",
     text = Config.spriteSheetFileNameFormat.value,
     visible = Config.spriteSheetExport.value,
-    onchange = function() UpdateConfigValue("spriteSheetFileNameFormat") end,
+    onchange = function() UpdateConfigValue("spriteSheetFileNameFormat", Dlg.data.spriteSheetFileNameFormat) end,
 }
 Dlg:combobox {
     id = "spriteSheetFileFormat",
     label = " File Format:",
     option = Config.spriteSheetFileFormat.value,
-    options = {"png", "gif", "jpg"},
-    onchange = function() UpdateConfigValue("spriteSheetFileFormat") end,
+    options = { "png", "gif", "jpg" },
+    onchange = function() UpdateConfigValue("spriteSheetFileFormat", Dlg.data.spriteSheetFileFormat) end,
 }
 Dlg:check {
     id = "spriteSheetTrim",
     label = " SpriteSheet Trim:",
     selected = Config.spriteSheetTrim.value,
     visible = Config.spriteSheetExport.value,
-    onclick = function() UpdateConfigValue("spriteSheetTrim") end,
+    onclick = function() UpdateConfigValue("spriteSheetTrim", Dlg.data.spriteSheetTrim) end,
 }
 
 Dlg:tab {
@@ -695,36 +784,36 @@ Dlg:check {
     id = "spineExport",
     label = "Export SpineSheet:",
     selected = Config.spineExport.value,
-    onclick = function() UpdateConfigValue("spineExport") end,
+    onclick = function() UpdateConfigValue("spineExport", Dlg.data.spineExport) end,
 }
 Dlg:check {
     id = "spineSetStaticSlot",
     label = " Set Static Slot:",
     selected = Config.spineSetStaticSlot.value,
     visible = Config.spineExport.value,
-    onclick = function() UpdateConfigValue("spineSetStaticSlot") end,
+    onclick = function() UpdateConfigValue("spineSetStaticSlot", Dlg.data.spineSetStaticSlot) end,
 }
 Dlg:entry {
     id = "spineStaticSlotName",
     label = "  Static Slot Name:",
     text = Config.spineStaticSlotName.value,
     visible = Config.spineExport.value and Config.spineSetStaticSlot.value,
-    onchange = function() UpdateConfigValue("spineStaticSlotName") end,
+    onchange = function() UpdateConfigValue("spineStaticSlotName", Dlg.data.spineStaticSlotName) end,
 }
 Dlg:check {
     id = "spineSetRootPostion",
     label = " Set Root Position:",
     selected = Config.spineSetRootPostion.value,
     visible = Config.spineExport.value,
-    onclick = function() UpdateConfigValue("spineSetRootPostion") end,
+    onclick = function() UpdateConfigValue("spineSetRootPostion", Dlg.data.spineSetRootPostion) end,
 }
 Dlg:combobox {
     id = "spineRootPostionMethod",
     label = "  Root position Method:",
     option = Config.spineRootPostionMethod.value,
-    options = {"manual", "automatic", "center"},
+    options = { "manual", "automatic", "center" },
     visible = Config.spineExport.value and Config.spineSetRootPostion.value,
-    onchange = function() UpdateConfigValue("spineRootPostionMethod") end,
+    onchange = function() UpdateConfigValue("spineRootPostionMethod", Dlg.data.spineRootPostionMethod) end,
 }
 Dlg:number {
     id = "spineRootPostionX",
@@ -732,7 +821,7 @@ Dlg:number {
     text = Config.spineRootPostionX.value,
     visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
     decimals = 0,
-    onchange = function() UpdateConfigValue("spineRootPostionX") end,
+    onchange = function() UpdateConfigValue("spineRootPostionX", Dlg.data.spineRootPostionX) end,
 }
 Dlg:number {
     id = "spineRootPostionY",
@@ -740,63 +829,63 @@ Dlg:number {
     text = Config.spineRootPostionY.value,
     visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
     decimals = 0,
-    onchange = function() UpdateConfigValue("spineRootPostionY") end,
+    onchange = function() UpdateConfigValue("spineRootPostionY", Dlg.data.spineRootPostionY) end,
 }
 Dlg:check {
     id = "spineSetImagesPath",
     label = " Set Images Path:",
     selected = Config.spineSetImagesPath.value,
     visible = Config.spineExport.value,
-    onclick = function() UpdateConfigValue("spineSetImagesPath") end,
+    onclick = function() UpdateConfigValue("spineSetImagesPath", Dlg.data.spineSetImagesPath) end,
 }
 Dlg:entry {
     id = "spineImagesPath",
     label = "  Images Path:",
     text = Config.spineImagesPath.value,
     visible = Config.spineExport.value and Config.spineSetImagesPath.value,
-    onchange = function() UpdateConfigValue("spineImagesPath") end,
+    onchange = function() UpdateConfigValue("spineImagesPath", Dlg.data.spineImagesPath) end,
 }
 Dlg:check {
     id = "spineGroupsAsSkins",
     label = " Groups As Skins:",
     selected = Config.spineGroupsAsSkins.value,
     visible = Config.spineExport.value,
-    onclick = function() UpdateConfigValue("spineGroupsAsSkins") end,
+    onclick = function() UpdateConfigValue("spineGroupsAsSkins", Dlg.data.spineGroupsAsSkins) end,
 }
 Dlg:entry {
     id = "spineSkinNameFormat",
     label = "  Skin Name Format:",
     text = Config.spineSkinNameFormat.value,
     visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
-    onchange = function() UpdateConfigValue("spineSkinNameFormat") end,
+    onchange = function() UpdateConfigValue("spineSkinNameFormat", Dlg.data.spineSkinNameFormat) end,
 }
 Dlg:check {
     id = "spineSeparateSlotSkin",
     label = "  Separate Slot/Skin:",
     selected = Config.spineSeparateSlotSkin.value,
     visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
-    onclick = function() UpdateConfigValue("spineSeparateSlotSkin") end,
+    onclick = function() UpdateConfigValue("spineSeparateSlotSkin", Dlg.data.spineSeparateSlotSkin) end,
 }
 Dlg:entry {
     id = "spineSlotNameFormat",
     label = "   Slot Name Format:",
     text = Config.spineSlotNameFormat.value,
     visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-    onchange = function() UpdateConfigValue("spineSlotNameFormat") end,
+    onchange = function() UpdateConfigValue("spineSlotNameFormat", Dlg.data.spineSlotNameFormat) end,
 }
 Dlg:entry {
     id = "spineSkinAttachmentFormat",
     label = "   Skin Attachment Format:",
     text = Config.spineSkinAttachmentFormat.value,
     visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-    onchange = function() UpdateConfigValue("spineSkinAttachmentFormat") end,
+    onchange = function() UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat) end,
 }
 Dlg:entry {
     id = "spineLayerNameSeparator",
     label = "   Layer Name Separator:",
     text = Config.spineLayerNameSeparator.value,
     visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-    onchange = function() UpdateConfigValue("spineLayerNameSeparator") end,
+    onchange = function() UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator) end,
 }
 Dlg:endtabs {
     id = "spineSettingsTab",
@@ -827,8 +916,7 @@ Dlg:button {
 
 Dlg:show()
 
-configFile = io.open(configPath, "w")
-WriteConfig(configFile)
+WriteConfig()
 
 if Dlg.data.cancel then
     return
