@@ -610,7 +610,7 @@ Dlg:label {
 }
 Dlg:check {
     id = "outputGroupsAsDirectories",
-    label = " Groups As Directories:",
+    label = "Groups As Directories:",
     selected = Config.outputGroupsAsDirectories.value,
     visible = Config.spriteSheetExport.value,
     onclick = function() UpdateConfigValue("outputGroupsAsDirectories") end,
