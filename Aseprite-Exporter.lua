@@ -44,10 +44,9 @@ function GetRootPosition(activeSprite, rootLayer, _, _, dlgData)
             end
         elseif dlgData.spineRootPostionMethod == "center" then
             return { x = activeSprite.width / 2, y = activeSprite.height / 2 }
-        else
-            return { x = 0, y = 0 }
         end
     end
+    return { x = 0, y = 0 }
 end
 
 function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
@@ -55,7 +54,9 @@ function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
         ExportSpineJsonStart(fileName, dlgData)
     end
 
-    ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
+    if dlgData.spriteSheetExport == true then
+        ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
+    end
 
     if dlgData.spineExport == true then
         ExportSpineJsonEnd(dlgData)
@@ -276,14 +277,19 @@ function ArrayContainsKey(table, targetKey)
 end
 
 function GetInitialValue(variable, defaultValue)
-    if variable ~= nil and type(variable) == type(defaultValue) then
+    local ret
+    if variable ~= nil then
         if variable == "true" then
-            return true
+            ret = true
         elseif variable == "false" then
-            return false
+            ret = false
         else
-            return variable
+            ret = variable
         end
+    end
+
+    if type(ret) == type(defaultValue) then
+        return ret
     else
         return defaultValue
     end
@@ -797,7 +803,7 @@ if fileNameTemplate == nil then
 end
 
 RootPositon = GetRootPosition(activeSprite, activeSprite, fileName, fileNameTemplate, dlg.data)
-app.alert("RootPosition is x:" .. RootPositon.x .. "y: " .. RootPositon.y)
+app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
 
 local layerVisibilityData = GetLayerVisibilityData(activeSprite)
 
