@@ -32,36 +32,36 @@ function RestoreLayers(activeSprite, layerVisibilityData)
      end
 end
 
-function GetRootPosition(activeSprite, rootLayer, _, _, dlgData)
-    if dlgData.spineExport == true and dlgData.spineSetRootPostion == true then
-        if dlgData.spineRootPostionMethod == "manual" then
-            return { x = dlgData.spineRootPostionX, y = dlgData.spineRootPostionY }
-        elseif dlgData.spineRootPostionMethod == "automatic" then
-            for _, layer in ipairs(rootLayer.layers) do
+function GetRootPosition(activeSprite)
+    if Config.spineExport.value == true and Config.spineSetRootPostion.value == true then
+        if Config.spineRootPostionMethod.value == "manual" then
+            return { x = Config.spineRootPostionX.value, y = Config.spineRootPostionY.value }
+        elseif Config.spineRootPostionMethod.value == "automatic" then
+            for _, layer in ipairs(activeSprite.layers) do
                 if layer.name == "root" then
                     return { x = layer.cels[1].position.x, y = layer.cels[1].position.y }
                 end
             end
-        elseif dlgData.spineRootPostionMethod == "center" then
+        elseif Config.spineRootPostionMethod.value == "center" then
             return { x = activeSprite.width / 2, y = activeSprite.height / 2 }
         end
     end
     return { x = 0, y = 0 }
 end
 
-function Export(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
-    if dlgData.spineExport == true then
-        ExportSpineJsonStart(fileName, dlgData)
+function Export(activeSprite, rootLayer, fileName, fileNameTemplate)
+    if Config.spineExport.value == true then
+        ExportSpineJsonStart(fileName)
     end
 
-    ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
+    ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate)
 
-    if dlgData.spineExport == true then
-        ExportSpineJsonEnd(dlgData)
+    if Config.spineExport.value == true then
+        ExportSpineJsonEnd()
     end
 end
 
-function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate, dlgData)
+function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate)
     for _, layer in ipairs(rootLayer.layers) do
         local _fileNameTemplate = fileNameTemplate
         local layerName = layer.name
@@ -71,11 +71,11 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
                 local previousVisibility = layer.isVisible
                 layer.isVisible = true
 
-                if dlgData.outputGroupsAsDirectories == true then
+                if Config.outputGroupsAsDirectories.value == true then
                     _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
                 end
 
-                ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate, dlgData)
+                ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate)
 
                 layer.isVisible = previousVisibility
             else
@@ -83,20 +83,20 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
 
                 local layerParentName
                 if pcall(function () layerParentName = layer.parent.name end) then
-                    _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", layerParentName)
+                    _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", layerParentName)
                 else
-                    _fileNameTemplate = _fileNameTemplate:gsub("{layergroup}", "default")
+                    _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", "default")
                 end
 
-                _fileNameTemplate = _fileNameTemplate:gsub("{layername}", layerName)
+                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layername}", layerName)
 
                 if #layer.cels ~= 0 then
-                    if dlgData.spriteSheetExport then
-                        ExportSpriteSheet(activeSprite, layer, _fileNameTemplate, dlgData)
+                    if Config.spriteSheetExport.value == true then
+                        ExportSpriteSheet(activeSprite, layer, _fileNameTemplate)
                     end
 
-                    if dlgData.spineExport == true then
-                        ExportSpineJsonParse(activeSprite, layer, _fileNameTemplate, dlgData)
+                    if Config.spineExport.value == true then
+                        ExportSpineJsonParse(layer, _fileNameTemplate)
                     end
 
                     LayerCount = LayerCount + 1
@@ -108,45 +108,52 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
     end
 end
 
-function ExportSpriteSheet(activeSprite, layer, fileNameTemplate, dlgData)
+function ExportSpriteSheet(activeSprite, layer, fileNameTemplate)
     local cel = layer.cels[1]
     local currentLayer = Sprite(activeSprite)
 
-    if dlgData.spriteSheetTrim then
+    if Config.spriteSheetTrim.value == true then
         currentLayer:crop(cel.position.x, cel.position.y, cel.bounds.width, cel.bounds.height)
     end
 
-    currentLayer:saveCopyAs(app.fs.joinPath(dlgData.outputPath, fileNameTemplate .. "." .. dlgData.spriteSheetFileFormat))
+    currentLayer:saveCopyAs(app.fs.joinPath(Dlg.data.outputPath, fileNameTemplate .. "." .. Config.spriteSheetFileFormat.value))
     currentLayer:close()
 end
 
-function ExportSpineJsonStart(fileName, dlgData)
-    local jsonFileName = app.fs.joinPath(app.fs.filePath(dlgData.outputFile), fileName .. ".json")
+function ExportSpineJsonStart(fileName)
+    local jsonFileName = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), fileName .. ".json")
 
-    os.execute("mkdir " .. dlgData.outputPath)
-    Json = io.open(jsonFileName, "w")
+    os.execute("mkdir " .. Dlg.data.outputPath)
+    JsonFile = io.open(jsonFileName, "w")
 
-    Json:write('{ ')
-    Json:write('"skeleton": { ')
+    JsonFile:write('{ ')
+    JsonFile:write('"skeleton": { ')
 
-    if dlgData.spineSetImagesPath then
-        Json:write(string.format([["images": "%s" ]], "./" .. dlgData.spineImagesPath .. "/"))
+    if Config.spineSetImagesPath.value == true then
+        JsonFile:write(string.format([["images": "%s" ]], "./" .. Config.spineImagesPath.value .. "/"))
     end
 
-    Json:write('}, ')
-    Json:write('"bones": [ { ')
-    Json:write('"name": "root" ')
-    Json:write('} ')
-    Json:write('], ')
+    JsonFile:write('}, ')
+    JsonFile:write('"bones": [ { ')
+    JsonFile:write('"name": "root" ')
+    JsonFile:write('} ')
+    JsonFile:write('], ')
 
     SlotsJson = {}
     SkinsJson = {}
 end
 
-function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
+function ExportSpineJsonParse(layer, fileNameTemplate)
     local layerName = layer.name
 
-    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], layerName, "root", layerName)
+    local slotName
+    if Config.spineSetStaticSlot.value == true then
+        slotName = Config.spineStaticSlotName.value
+    else
+        slotName = layerName
+    end
+
+    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", slotName)
 
     local layerCel = layer.cels[1]
 
@@ -164,7 +171,7 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
     local spriteX
     local spriteY
 
-    if dlgData.spineSetRootPostion == true then
+    if Config.spineSetRootPostion.value == true then
         spriteX = realPostionX - RootPositon.x
         spriteY = RootPositon.y - realPositionY
     else
@@ -172,11 +179,11 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
         spriteY = realPositionY
     end
 
-    if dlgData.spineGroupsAsSkins == true then
-        fileNameTemplate = fileNameTemplate:gsub("\\", "/")
+    if Config.spineGroupsAsSkins.value == true then
+        fileNameTemplate = string.gsub(fileNameTemplate, "\\", "/")
         local skinName
         if pcall(function () skinName = layer.parent.name end) then
-            skinName = dlgData.spineSkinNameFormat:gsub("{layergroup}", layer.parent.name)
+            skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.parent.name)
         end
 
         if skinName ~= nil then
@@ -184,18 +191,26 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
                 SkinsJson[skinName] = {}
             end
 
-            local slotName = layerName
             local skinAttachmentName = layerName
 
-            if dlgData.spineSeparateSlotSkin == true then
-                local separatorPosition = string.find(layerName, dlgData.spineLayerNameSeparator)
+            if Config.spineSeparateSlotSkin.value == true then
+                local separatorPosition = string.find(layerName, Config.spineLayerNameSeparator.value)
 
                 if separatorPosition then
                     local layerNamePrefix = string.sub(layerName, 1, separatorPosition - 1)
                     local layerNameSuffix = string.sub(layerName, separatorPosition + 1, #layerName)
 
-                    slotName = dlgData.spineSlotNameFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
-                    skinAttachmentName = dlgData.spineSkinAttachmentFormat:gsub("{layernameprefix}", layerNamePrefix):gsub("{layernamesuffix}", layerNameSuffix)
+                    slotName = Config.spineSlotNameFormat.value
+                    if slotName ~= nil then
+                        slotName = string.gsub(slotName, "{layernameprefix}", layerNamePrefix)
+                        slotName = string.gsub(slotName, "{layernamesuffix}", layerNameSuffix)
+                    end
+
+                    skinAttachmentName = Config.spineSkinAttachmentFormat.value
+                    if skinAttachmentName ~= nil then
+                        skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
+                        skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix) 
+                    end
 
                     if slotName == skinAttachmentName then
                         slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
@@ -211,16 +226,16 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
                 SkinsJson["default"] = {}
             end
 
-            fileNameTemplate = fileNameTemplate:gsub("{layergroup}", "default")
-            SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+            fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
+            SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
         end
     else
         if ArrayContainsKey(SkinsJson, "default") == false then
             SkinsJson["default"] = {}
         end
 
-        fileNameTemplate = fileNameTemplate:gsub("{layergroup}", "default")
-        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], layerName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+        fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
+        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
     end
 
     if ArrayContainsValue(SlotsJson, slot) == false then
@@ -228,32 +243,32 @@ function ExportSpineJsonParse(_, layer, fileNameTemplate, dlgData)
     end
 end
 
-function ExportSpineJsonEnd(dlgData)
-    Json:write('"slots": [ ')
-    Json:write(table.concat(SlotsJson, ", "))
-    Json:write(" ], ")
+function ExportSpineJsonEnd()
+    JsonFile:write('"slots": [ ')
+    JsonFile:write(table.concat(SlotsJson, ", "))
+    JsonFile:write(" ], ")
 
-    if dlgData.spineGroupsAsSkins == true then
-        Json:write('"skins": [ ')
+    if Config.spineGroupsAsSkins.value == true then
+        JsonFile:write('"skins": [ ')
 
         local parsedSkins = {}
         for key, value in pairs(SkinsJson) do
             parsedSkins[#parsedSkins + 1] = string.format([[{ "name": "%s", "attachments": { ]], key) .. table.concat(value, ", ") .. " } }"
         end
 
-        Json:write(table.concat(parsedSkins, ", "))
-        Json:write(' ] ')
+        JsonFile:write(table.concat(parsedSkins, ", "))
+        JsonFile:write(' ] ')
     else
-        Json:write('"skins": { ')
-        Json:write('"default": { ')
-        Json:write(table.concat(SkinsJson["default"], ", "))
-        Json:write('} ')
-        Json:write('} ')
+        JsonFile:write('"skins": { ')
+        JsonFile:write('"default": { ')
+        JsonFile:write(table.concat(SkinsJson["default"], ", "))
+        JsonFile:write('} ')
+        JsonFile:write('} ')
     end
 
-    Json:write("}")
+    JsonFile:write("}")
 
-    Json:close()
+    JsonFile:close()
 end
 
 function ArrayContainsValue(table, targetValue)
@@ -394,7 +409,7 @@ local scriptPath = debug.getinfo(1).source
 scriptPath = string.sub(scriptPath, 2, string.len(scriptPath))
 scriptPath = app.fs.normalizePath(scriptPath)
 
-local scriptDirectory = scriptPath:match("(.*[/\\])")
+local scriptDirectory = string.match(scriptPath, "(.*[/\\])")
 
 local configPath = app.fs.joinPath(scriptDirectory, "Aseprite-Exporter.conf")
 
@@ -462,7 +477,24 @@ Config = {
             "spineSetRootPostion",
             "spineSetImagesPath",
             "spineGroupsAsSkins",
+            "spineSetStaticSlot",
         },
+    },
+    spineSetStaticSlot = {
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {
+            "spineStaticSlotName",
+        },
+    },
+    spineStaticSlotName = {
+        type = "entry",
+        default = "slot",
+        value = nil,
+        parent = nil,
+        children = {},
     },
     spineSetRootPostion = {
         type = "check",
@@ -664,6 +696,20 @@ Dlg:check {
     onclick = function() UpdateConfigValue("spineExport") end,
 }
 Dlg:check {
+    id = "spineSetStaticSlot",
+    label = " Set Static Slot:",
+    selected = Config.spineSetStaticSlot.value,
+    visible = Config.spineExport.value,
+    onclick = function() UpdateConfigValue("spineSetStaticSlot") end,
+}
+Dlg:entry {
+    id = "spineStaticSlotName",
+    label = "  Static Slot Name:",
+    text = Config.spineStaticSlotName.value,
+    visible = Config.spineExport.value and Config.spineSetStaticSlot.value,
+    onchange = function() UpdateConfigValue("spineStaticSlotName") end,
+}
+Dlg:check {
     id = "spineSetRootPostion",
     label = " Set Root Position:",
     selected = Config.spineSetRootPostion.value,
@@ -812,13 +858,13 @@ if fileNameTemplate == nil then
     return
 end
 
-RootPositon = GetRootPosition(activeSprite, activeSprite, fileName, fileNameTemplate, Dlg.data)
+RootPositon = GetRootPosition(activeSprite)
 app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
 
 local layerVisibilityData = GetLayerVisibilityData(activeSprite)
 
 HideLayers(activeSprite)
-Export(activeSprite, activeSprite, fileName, fileNameTemplate, Dlg.data)
+Export(activeSprite, activeSprite, fileName, fileNameTemplate)
 RestoreLayers(activeSprite, layerVisibilityData)
 
 app.alert("Exported " .. LayerCount .. " layers to " .. Dlg.data.outputPath)
