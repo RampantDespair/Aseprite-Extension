@@ -73,7 +73,7 @@ function ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate,
                 local previousVisibility = layer.isVisible
                 layer.isVisible = true
 
-                if dlgData.spineGroupsAsSkins == true then
+                if dlgData.spriteSheetGroupsAsDirectories == true then
                     _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
                 end
 
@@ -408,6 +408,12 @@ dlg:check{
     id = "spriteSheetTrim",
     label = " SpriteSheet Trim:",
     selected = GetInitialValue(oldConfigFileContents["spriteSheetTrim"], true),
+    visible = GetInitialValue(oldConfigFileContents["spriteSheetExport"], true)
+}
+dlg:check{
+    id = "spriteSheetGroupsAsDirectories",
+    label = " Groups As Directories:",
+    selected = GetInitialValue(oldConfigFileContents["spriteSheetGroupsAsDirectories"], true),
     visible = GetInitialValue(oldConfigFileContents["spriteSheetExport"], true)
 }
 dlg:separator{
@@ -747,6 +753,7 @@ newConfigFileContents["spriteSheetNameTrim"] = dlg.data.spriteSheetNameTrim
 newConfigFileContents["spriteSheetFileNameFormat"] = dlg.data.spriteSheetFileNameFormat
 newConfigFileContents["spriteSheetFileFormat"] = dlg.data.spriteSheetFileFormat
 newConfigFileContents["spriteSheetTrim"] = dlg.data.spriteSheetTrim
+newConfigFileContents["spriteSheetGroupsAsDirectories"] = dlg.data.spriteSheetGroupsAsDirectories
 newConfigFileContents["spineExport"] = dlg.data.spineExport
 newConfigFileContents["spineSetRootPostion"] = dlg.data.spineSetRootPostion
 newConfigFileContents["spineRootPostionMethod"] = dlg.data.spineRootPostionMethod
