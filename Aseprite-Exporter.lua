@@ -317,17 +317,15 @@ end
 
 function UpdateChildrenVisibility(configKey, visibility)
     for _, value in pairs(Config[configKey].children) do
-        if #Config[value].children == 0 then
-            Dlg:modify {
-                id = value,
-                visible = visibility,
-            }
-        else
-            if Config[value].parent ~= nil then
-                UpdateChildrenVisibility(value, visibility and Config[value].value == Config[value].parent)
-            else
-                UpdateChildrenVisibility(value, visibility and Config[value].value)
-            end
+        if Config[value].parent ~= nil then
+            visibility = visibility and Config[configKey].value == Config[value].parent
+        end
+        Dlg:modify {
+            id = value,
+            visible = visibility,
+        }
+        if #Config[value].children ~= 0 then
+            UpdateChildrenVisibility(value, visibility and Config[value].value)
         end
     end
 end
@@ -479,7 +477,7 @@ Config = {
     },
     spineRootPostionMethod = {
         type = "combobox",
-        default = "automatic",
+        default = "center",
         value = nil,
         parent = nil,
         children = {
