@@ -25,7 +25,7 @@
 
 <!-- PROJECT SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v3.2.png">
+  <img alt="Showcase" src="media/showcase-v4.0.gif">
 </div>
 
 <!-- ABOUT THE PROJECT -->
@@ -87,13 +87,19 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 <!-- SETTINGS -->
 ## Settings information
 
+### Config Settings
+
+| Option | Description | Default Value |
+| --- | --- | --- |
+| Current Config | The current config file that's being used. | global |
+
 ### Output Settings
 
 | Option | Description | Default Value |
 | --- | --- | --- |
 | Output File | The parent directory of the selected file will be used for export. | the file itself |
 | Output Subdirectory | The subdirectory used for export. | images |
-| Output Path | The full path used for export. | Output File / Output Subdirectory |
+| Groups As Directories | If each group while be exported to it's own directory. | true |
 
 ### Sprite Settings
 
@@ -104,15 +110,16 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 | File Name Format | The file name's format with modifiable placeholders. | {spritename}-{layergroup}-{layername} |
 | File Format | The files' export format. | png |
 | SpriteSheet Trim | If the exported files' will have there excess space trimmed. | true |
-| Groups As Directories | If each group while be exported to it's own directory. | true |
 
 ### Spine Settings
 
 | Option | Description | Default Value |
 | --- | --- | --- |
 | Export SpineSheet | If the spine sheet will be exported. | true |
+| Set Static Slot | If the same slot will be used for everything that's exported. | true |
+| Static Slot Name | The name of that static slot. | slot |
 | Set Root Position | If the root position will be set in the export file. | true |
-| Root Position Method | The method which will be used for setting the position.<br> Automatic: To use this method, create a layer called "root" and place a single pixel where you want the root to be.<br> Manual: Input the coordinates manually in the subsequent fields. | automatic |
+| Root Position Method | The method which will be used for setting the position.<br> <ins>Automatic</ins>: To use this method, create a layer called "root" and place a single pixel where you want the root to be.<br> <ins>Center</ins>: The center off the canvas will be used as root.<br> <ins>Manual</ins>: Input the coordinates manually in the subsequent fields. | center |
 | Root Position X | The X coordinate of the root. | 0 |
 | Root Position Y | The Y coordinate of the root. | 0 |
 | Set Images Paths | If the images path whithin the exported spine file will be set. | true |
