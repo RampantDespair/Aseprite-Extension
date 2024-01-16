@@ -62,7 +62,7 @@ function configHandler.InitializeConfigKeys()
     table.sort(ConfigKeys, function (a, b) return a.order < b.order end)
 end
 
-function configHandler.UpdateConfigFile(activeSprite, newValue)
+function configHandler.UpdateConfigFile(activeSprite, newValue, extraDialogModifications)
     configHandler.WriteConfig()
     configHandler.UpdateConfigValue("configSelect", newValue)
     configHandler.InitializeConfig()
@@ -70,14 +70,8 @@ function configHandler.UpdateConfigFile(activeSprite, newValue)
     for _, value in ipairs(ConfigKeys) do
         configHandler.UpdateDialog(value.key, Config[value.key].value)
     end
-    Dlg:modify{
-        id = "outputFile",
-        filename = activeSprite.filename
-    }
-    Dlg:modify{
-        id = "outputPath",
-        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
-    }
+
+    extraDialogModifications(activeSprite)
 end
 
 function configHandler.UpdateConfigValue(configKey, newValue)
@@ -153,18 +147,12 @@ function configHandler.UpdateDialog(configKey, newValue)
     configHandler.UpdateConfigValue(configKey, newValue)
 end
 
-function configHandler.ResetConfig(activeSprite)
+function configHandler.ResetConfig(activeSprite, extraDialogModifications)
     for _, value in ipairs(ConfigKeys) do
         configHandler.UpdateDialog(value.key, Config[value.key].default)
     end
-    Dlg:modify{
-        id = "outputFile",
-        filename = activeSprite.filename
-    }
-    Dlg:modify{
-        id = "outputPath",
-        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
-    }
+
+    extraDialogModifications(activeSprite)
 end
 
 return configHandler

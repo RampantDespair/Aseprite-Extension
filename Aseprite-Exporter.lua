@@ -291,6 +291,17 @@ function ArrayContainsKey(table, targetKey)
     return false
 end
 
+function ExtraDialogModifications(activeSprite)
+    Dlg:modify{
+        id = "outputFile",
+        filename = activeSprite.filename
+    }
+    Dlg:modify{
+        id = "outputPath",
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
+    }
+end
+
 -- EXECUTION
 LayerCount = 0
 local activeSprite = app.activeSprite
@@ -569,7 +580,7 @@ do
         label = "Current Config:",
         option = Config.configSelect.value,
         options = { "global", "local" },
-        onchange = function() configHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect) end,
+        onchange = function() configHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, ExtraDialogModifications) end,
     }
     Dlg:label {
         id = "globalConfigPath",
@@ -795,7 +806,7 @@ do
     Dlg:button {
         id = "reset",
         text = "Reset",
-        onclick = function () configHandler.ResetConfig(activeSprite) end,
+        onclick = function () configHandler.ResetConfig(activeSprite, ExtraDialogModifications) end,
     }
 end
 
