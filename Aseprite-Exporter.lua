@@ -1,37 +1,4 @@
 -- FUNCTIONS
-function GetLayerVisibilityData(activeSprite)
-    local layerVisibilityData = {}
-    for i, layer in ipairs(activeSprite.layers) do
-        if layer.isGroup then
-            layerVisibilityData[i] = GetLayerVisibilityData(layer)
-        else
-            layerVisibilityData[i] = layer.isVisible
-            layer.isVisible = false
-        end
-    end
-    return layerVisibilityData
-end
-
-function HideLayers(activeSprite)
-    for _, layer in ipairs(activeSprite.layers) do
-        if layer.isGroup then
-            HideLayers(layer)
-        else
-            layer.isVisible = false
-        end
-    end
-end
-
-function RestoreLayers(activeSprite, layerVisibilityData)
-    for i, layer in ipairs(activeSprite.layers) do
-        if layer.isGroup then
-            RestoreLayers(layer, layerVisibilityData[i])
-        else
-           layer.isVisible = layerVisibilityData[i]
-        end
-     end
-end
-
 function GetRootPosition(activeSprite)
     if Config.spineExport.value == true and Config.spineSetRootPostion.value == true then
         if Config.spineRootPostionMethod.value == "manual" then
@@ -829,11 +796,12 @@ end
 RootPositon = GetRootPosition(activeSprite)
 app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
 
-local layerVisibilityData = GetLayerVisibilityData(activeSprite)
+LayerHandler = dofile("Layer-Handler.lua")
+local layerVisibilityData = LayerHandler.GetLayerVisibilityData(activeSprite)
 
-HideLayers(activeSprite)
+LayerHandler.HideLayers(activeSprite)
 Export(activeSprite, activeSprite, fileName, fileNameTemplate)
-RestoreLayers(activeSprite, layerVisibilityData)
+LayerHandler.RestoreLayers(activeSprite, layerVisibilityData)
 
 app.alert("Exported " .. LayerCount .. " layers to " .. Dlg.data.outputPath)
 
