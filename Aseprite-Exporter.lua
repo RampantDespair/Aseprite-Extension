@@ -691,8 +691,8 @@ Dlg:label {
     text = ConfigPathGlobal,
 }
 Dlg:label {
-    id = "globalConfigPath",
-    label = "Global Config Path: ",
+    id = "localConfigPath",
+    label = "Local Config Path: ",
     text = ConfigPathLocal,
 }
 
