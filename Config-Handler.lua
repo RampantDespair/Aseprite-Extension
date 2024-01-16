@@ -4,7 +4,7 @@ function configHandler.InitializeConfig()
     local configFile
     if Config.configSelect.value == nil then
         configFile = io.open(ConfigPathGlobal, "r")
-        PopulateConfig(configFile)
+        configHandler.PopulateConfig(configFile)
 
         if configFile ~= nil then
             io.close(configFile)
@@ -16,7 +16,7 @@ function configHandler.InitializeConfig()
     else
         configFile = io.open(ConfigPathGlobal, "r")
     end
-    PopulateConfig(configFile)
+    configHandler.PopulateConfig(configFile)
 
     if configFile ~= nil then
         io.close(configFile)
@@ -63,12 +63,12 @@ function configHandler.InitializeConfigKeys()
 end
 
 function configHandler.UpdateConfigFile(activeSprite, newValue)
-    WriteConfig()
-    UpdateConfigValue("configSelect", newValue)
-    InitializeConfig()
+    configHandler.WriteConfig()
+    configHandler.UpdateConfigValue("configSelect", newValue)
+    configHandler.InitializeConfig()
 
     for _, value in ipairs(ConfigKeys) do
-        UpdateDialog(value.key, Config[value.key].value)
+        configHandler.UpdateDialog(value.key, Config[value.key].value)
     end
     Dlg:modify{
         id = "outputFile",
@@ -82,7 +82,7 @@ end
 
 function configHandler.UpdateConfigValue(configKey, newValue)
     Config[configKey].value = newValue
-    UpdateChildrenVisibility(configKey, newValue)
+    configHandler.UpdateChildrenVisibility(configKey, newValue)
 end
 
 function configHandler.UpdateChildrenVisibility(configKey, visibility)
@@ -100,7 +100,7 @@ function configHandler.UpdateChildrenVisibility(configKey, visibility)
             visible = visibility,
         }
         if #Config[value].children ~= 0 then
-            UpdateChildrenVisibility(value, visibility and Config[value].value)
+            configHandler.UpdateChildrenVisibility(value, visibility and Config[value].value)
         end
     end
 end
@@ -150,12 +150,12 @@ function configHandler.UpdateDialog(configKey, newValue)
             value = newValue,
         }
     end
-    UpdateConfigValue(configKey, newValue)
+    configHandler.UpdateConfigValue(configKey, newValue)
 end
 
 function configHandler.ResetConfig(activeSprite)
     for _, value in ipairs(ConfigKeys) do
-        UpdateDialog(value.key, Config[value.key].default)
+        configHandler.UpdateDialog(value.key, Config[value.key].default)
     end
     Dlg:modify{
         id = "outputFile",
