@@ -619,7 +619,6 @@ do
         id = "outputGroupsAsDirectories",
         label = "Groups As Directories:",
         selected = Config.outputGroupsAsDirectories.value,
-        visible = Config.spriteSheetExport.value,
         onclick = function() configHandler.UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories) end,
     }
 
