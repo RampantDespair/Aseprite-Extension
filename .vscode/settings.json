@@ -1,7 +1,8 @@
 {
     "Lua.diagnostics.globals": [
-        "Dialog",
         "app",
+        "Dialog",
+        "Image",
         "Sprite"
     ]
 }
