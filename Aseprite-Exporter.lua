@@ -354,8 +354,9 @@ function InitializeConfigKeys()
     table.sort(ConfigKeys)
 end
 
-function UpdateConfigFile(activeSprite)
+function UpdateConfigFile(activeSprite, newValue)
     WriteConfig()
+    UpdateConfigValue("configSelect", newValue)
     InitializeConfig()
 
     for key, value in pairs(Config) do
@@ -680,10 +681,7 @@ Dlg:combobox {
     label = "Current Config:",
     option = Config.configSelect.value,
     options = { "global", "local" },
-    onchange = function()
-        UpdateConfigValue("configSelect", Dlg.data.configSelect)
-        UpdateConfigFile(activeSprite)
-    end,
+    onchange = function() UpdateConfigFile(activeSprite, Dlg.data.configSelect) end,
 }
 Dlg:label {
     id = "globalConfigPath",
