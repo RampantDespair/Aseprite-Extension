@@ -1,5 +1,23 @@
 local configHandler = {}
 
+function configHandler.ArrayContainsValue(table, targetValue)
+    for _, value in ipairs(table) do
+        if value == targetValue then
+            return true
+        end
+    end
+    return false
+end
+
+function configHandler.ArrayContainsKey(table, targetKey)
+    for key, _ in pairs(table) do
+        if key == targetKey then
+            return true
+        end
+    end
+    return false
+end
+
 function configHandler.InitializeConfig()
     local configFile
     if Config.configSelect.value == nil then
