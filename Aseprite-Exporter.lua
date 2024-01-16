@@ -379,8 +379,13 @@ end
 
 function UpdateChildrenVisibility(configKey, visibility)
     for _, value in pairs(Config[configKey].children) do
-        if Config[value].parent ~= nil then
-            visibility = visibility and Config[configKey].value == Config[value].parent
+        local parent = Config[value].parent
+        while parent ~= nil do
+            visibility = visibility and Config[parent].value
+            parent = Config[parent].parent
+        end
+        if Config[value].condition ~= nil then
+            visibility = visibility and Config[configKey].value == Config[value].condition
         end
         Dlg:modify {
             id = value,
@@ -481,6 +486,7 @@ Config = {
         value = nil,
         parent = nil,
         children = {},
+        condition = nil,
     },
     outputSubdirectory = {
         order = 200,
@@ -489,6 +495,7 @@ Config = {
         value = nil,
         parent = nil,
         children = {},
+        condition = nil,
     },
     outputGroupsAsDirectories = {
         order = 201,
@@ -497,6 +504,7 @@ Config = {
         value = nil,
         parent = nil,
         children = {},
+        condition = nil,
     },
     spriteSheetExport = {
         order = 300,
@@ -510,38 +518,43 @@ Config = {
             "spriteSheetFileFormat",
             "spriteSheetTrim",
         },
+        condition = nil,
     },
     spriteSheetNameTrim = {
         order = 301,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spriteSheetExport",
         children = {},
+        condition = nil,
     },
     spriteSheetFileNameFormat = {
         order = 302,
         type = "entry",
         default = "{spritename}-{layergroup}-{layername}",
         value = nil,
-        parent = nil,
+        parent = "spriteSheetExport",
         children = {},
+        condition = nil,
     },
     spriteSheetFileFormat = {
         order = 303,
         type = "combobox",
         default = "png",
         value = nil,
-        parent = nil,
+        parent = "spriteSheetExport",
         children = {},
+        condition = nil,
     },
     spriteSheetTrim = {
         order = 304,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spriteSheetExport",
         children = {},
+        condition = nil,
     },
     spineExport = {
         order = 400,
@@ -555,136 +568,151 @@ Config = {
             "spineGroupsAsSkins",
             "spineSetStaticSlot",
         },
+        condition = nil,
     },
     spineSetStaticSlot = {
         order = 401,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spineExport",
         children = {
             "spineStaticSlotName",
         },
+        condition = nil,
     },
     spineStaticSlotName = {
         order = 402,
         type = "entry",
         default = "slot",
         value = nil,
-        parent = nil,
+        parent = "spineSetStaticSlot",
         children = {},
+        condition = nil,
     },
     spineSetRootPostion = {
         order = 403,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spineExport",
         children = {
             "spineRootPostionMethod",
             "spineRootPostionX",
             "spineRootPostionY",
         },
+        condition = nil,
     },
     spineRootPostionMethod = {
         order = 404,
         type = "combobox",
         default = "center",
         value = nil,
-        parent = nil,
+        parent = "spineSetRootPostion",
         children = {
             "spineRootPostionX",
             "spineRootPostionY",
         },
+        condition = nil,
     },
     spineRootPostionX = {
         order = 405,
         type = "number",
         default = 0,
         value = nil,
-        parent = "manual",
+        parent = "spineRootPostionMethod",
         children = {},
+        condition = "manual",
     },
     spineRootPostionY = {
         order = 406,
         type = "number",
         default = 0,
         value = nil,
-        parent = "manual",
+        parent = "spineRootPostionMethod",
         children = {},
+        condition = "manual",
     },
     spineSetImagesPath = {
         order = 407,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spineExport",
         children = {
             "spineImagesPath",
         },
+        condition = nil,
     },
     spineImagesPath = {
         order = 408,
         type = "entry",
         default = "images",
         value = nil,
-        parent = nil,
+        parent = "spineSetImagesPath",
         children = {},
+        condition = nil,
     },
     spineGroupsAsSkins = {
         order = 409,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spineExport",
         children = {
             "spineSkinNameFormat",
             "spineSeparateSlotSkin",
         },
+        condition = nil,
     },
     spineSkinNameFormat = {
         order = 410,
         type = "entry",
         default = "weapon-{layergroup}",
         value = nil,
-        parent = nil,
+        parent = "spineGroupsAsSkins",
         children = {},
+        condition = nil,
     },
     spineSeparateSlotSkin = {
         order = 411,
         type = "check",
         default = true,
         value = nil,
-        parent = nil,
+        parent = "spineGroupsAsSkins",
         children = {
             "spineSlotNameFormat",
             "spineSkinAttachmentFormat",
             "spineLayerNameSeparator",
         },
+        condition = nil,
     },
     spineSlotNameFormat = {
         order = 412,
         type = "entry",
         default = "{layernameprefix}",
         value = nil,
-        parent = nil,
+        parent = "spineSeparateSlotSkin",
         children = {},
+        condition = nil,
     },
     spineSkinAttachmentFormat = {
         order = 413,
         type = "entry",
         default = "{layernameprefix}-{layernamesuffix}",
         value = nil,
-        parent = nil,
+        parent = "spineSeparateSlotSkin",
         children = {},
+        condition = nil,
     },
     spineLayerNameSeparator = {
         order = 414,
         type = "entry",
         default = "-",
         value = nil,
-        parent = nil,
+        parent = "spineSeparateSlotSkin",
         children = {},
+        condition = nil,
     },
 }
 
