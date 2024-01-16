@@ -347,11 +347,11 @@ function PopulateConfig(configFile)
 end
 
 function InitializeConfigKeys()
-    for key, _ in pairs(Config) do
-        table.insert(ConfigKeys, key)
+    for key, value in pairs(Config) do
+        table.insert(ConfigKeys, { key = key, order = value.order })
     end
 
-    table.sort(ConfigKeys)
+    table.sort(ConfigKeys, function (a, b) return a.order < b.order end)
 end
 
 function UpdateConfigFile(activeSprite, newValue)
@@ -359,8 +359,8 @@ function UpdateConfigFile(activeSprite, newValue)
     UpdateConfigValue("configSelect", newValue)
     InitializeConfig()
 
-    for key, value in pairs(Config) do
-        UpdateDialog(key, value.value)
+    for _, value in ipairs(ConfigKeys) do
+        UpdateDialog(value.key, Config[value.key].value)
     end
     Dlg:modify{
         id = "outputFile",
@@ -402,10 +402,10 @@ function WriteConfig()
 
     if configFile ~= nil then
         for _, value in ipairs(ConfigKeys) do
-            if type(Config[value].value) ~= "string" then
-                configFile:write(value .. "=" .. tostring(Config[value].value) .. "\n")
+            if type(Config[value.key].value) ~= "string" then
+                configFile:write(value.key .. "=" .. tostring(Config[value.key].value) .. "\n")
             else
-                configFile:write(value .. "=" .. Config[value].value .. "\n")
+                configFile:write(value.key .. "=" .. Config[value.key].value .. "\n")
             end
         end
     end
@@ -441,8 +441,8 @@ function UpdateDialog(configKey, newValue)
 end
 
 function ResetConfig(activeSprite)
-    for key, value in pairs(Config) do
-        UpdateDialog(key, value.default)
+    for _, value in ipairs(ConfigKeys) do
+        UpdateDialog(value.key, Config[value.key].default)
     end
     Dlg:modify{
         id = "outputFile",
@@ -475,6 +475,7 @@ ConfigPathGlobal = app.fs.joinPath(scriptDirectory, "Aseprite-Exporter.conf")
 
 Config = {
     configSelect = {
+        order = 100,
         type = "combobox",
         default = "global",
         value = nil,
@@ -482,6 +483,7 @@ Config = {
         children = {},
     },
     outputSubdirectory = {
+        order = 200,
         type = "entry",
         default = "images",
         value = nil,
@@ -489,6 +491,7 @@ Config = {
         children = {},
     },
     outputGroupsAsDirectories = {
+        order = 201,
         type = "check",
         default = true,
         value = nil,
@@ -496,6 +499,7 @@ Config = {
         children = {},
     },
     spriteSheetExport = {
+        order = 300,
         type = "check",
         default = true,
         value = nil,
@@ -508,6 +512,7 @@ Config = {
         },
     },
     spriteSheetNameTrim = {
+        order = 301,
         type = "check",
         default = true,
         value = nil,
@@ -515,6 +520,7 @@ Config = {
         children = {},
     },
     spriteSheetFileNameFormat = {
+        order = 302,
         type = "entry",
         default = "{spritename}-{layergroup}-{layername}",
         value = nil,
@@ -522,6 +528,7 @@ Config = {
         children = {},
     },
     spriteSheetFileFormat = {
+        order = 303,
         type = "combobox",
         default = "png",
         value = nil,
@@ -529,6 +536,7 @@ Config = {
         children = {},
     },
     spriteSheetTrim = {
+        order = 304,
         type = "check",
         default = true,
         value = nil,
@@ -536,6 +544,7 @@ Config = {
         children = {},
     },
     spineExport = {
+        order = 400,
         type = "check",
         default = true,
         value = nil,
@@ -548,6 +557,7 @@ Config = {
         },
     },
     spineSetStaticSlot = {
+        order = 401,
         type = "check",
         default = true,
         value = nil,
@@ -557,6 +567,7 @@ Config = {
         },
     },
     spineStaticSlotName = {
+        order = 402,
         type = "entry",
         default = "slot",
         value = nil,
@@ -564,6 +575,7 @@ Config = {
         children = {},
     },
     spineSetRootPostion = {
+        order = 403,
         type = "check",
         default = true,
         value = nil,
@@ -575,6 +587,7 @@ Config = {
         },
     },
     spineRootPostionMethod = {
+        order = 404,
         type = "combobox",
         default = "center",
         value = nil,
@@ -585,6 +598,7 @@ Config = {
         },
     },
     spineRootPostionX = {
+        order = 405,
         type = "number",
         default = 0,
         value = nil,
@@ -592,6 +606,7 @@ Config = {
         children = {},
     },
     spineRootPostionY = {
+        order = 406,
         type = "number",
         default = 0,
         value = nil,
@@ -599,6 +614,7 @@ Config = {
         children = {},
     },
     spineSetImagesPath = {
+        order = 407,
         type = "check",
         default = true,
         value = nil,
@@ -608,6 +624,7 @@ Config = {
         },
     },
     spineImagesPath = {
+        order = 408,
         type = "entry",
         default = "images",
         value = nil,
@@ -615,6 +632,7 @@ Config = {
         children = {},
     },
     spineGroupsAsSkins = {
+        order = 409,
         type = "check",
         default = true,
         value = nil,
@@ -625,6 +643,7 @@ Config = {
         },
     },
     spineSkinNameFormat = {
+        order = 410,
         type = "entry",
         default = "weapon-{layergroup}",
         value = nil,
@@ -632,6 +651,7 @@ Config = {
         children = {},
     },
     spineSeparateSlotSkin = {
+        order = 411,
         type = "check",
         default = true,
         value = nil,
@@ -643,6 +663,7 @@ Config = {
         },
     },
     spineSlotNameFormat = {
+        order = 412,
         type = "entry",
         default = "{layernameprefix}",
         value = nil,
@@ -650,6 +671,7 @@ Config = {
         children = {},
     },
     spineSkinAttachmentFormat = {
+        order = 413,
         type = "entry",
         default = "{layernameprefix}-{layernamesuffix}",
         value = nil,
@@ -657,6 +679,7 @@ Config = {
         children = {},
     },
     spineLayerNameSeparator = {
+        order = 414,
         type = "entry",
         default = "-",
         value = nil,
