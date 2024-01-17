@@ -3,6 +3,7 @@
         "app",
         "Dialog",
         "Image",
+        "Point",
         "Sprite"
     ]
 }
