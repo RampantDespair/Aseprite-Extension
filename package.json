@@ -1,0 +1,34 @@
+{
+  "name": "aseprite-import-export-extension",
+  "version": "4.1.1",
+  "description": "An Aseprite import and export extension.",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "",
+    "dev": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RampantDespair/Aseprite-Exporter.git"
+  },
+  "keywords": [
+    "Aseprite",
+    "Extension",
+    "Plugin",
+    "Script",
+    "Import",
+    "Export",
+    "Spine",
+    "ExotericSoftware"
+  ],
+  "author": "RampantDespair",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/RampantDespair/Aseprite-Exporter/issues"
+  },
+  "homepage": "https://github.com/RampantDespair/Aseprite-Exporter#readme"
+}
