@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <div align="center">
-  <img src="media/logo.png" alt="Logo" width="240" height="135">
+  <img src="media/logo.png" alt="Logo" width="200" height="200">
   <h2>Aseprite-Exporter</h3>
   <p>A lua script that lets you exports Aseprite files to importable Spine data</p>
   <div>
