@@ -8,8 +8,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "",
-    "dev": ""
+    "build": "rimraf out/* --glob && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.zip *",
+    "dev": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,17 @@
     "Import",
     "Export",
     "Spine",
-    "ExotericSoftware"
+    "EsotericSoftware"
   ],
   "author": "RampantDespair",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/RampantDespair/Aseprite-Exporter/issues"
   },
-  "homepage": "https://github.com/RampantDespair/Aseprite-Exporter#readme"
+  "homepage": "https://github.com/RampantDespair/Aseprite-Exporter#readme",
+  "devDependencies": {
+    "bestzip": "^2.2.1",
+    "cpx": "^1.5.0",
+    "rimraf": "^5.0.5"
+  }
 }
