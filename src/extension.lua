@@ -2,7 +2,13 @@
 local configHandler = dofile("Config-Handler.lua")
 local layerHandler = dofile("Layer-Handler.lua")
 
-local extensionPath = app.fs.joinPath(os.getenv("APPDATA"), "Aseprite/extensions/aseprite-import-export-extension")
+local appData = os.getenv("APPDATA")
+
+if appData == nil then
+    app.alert("APPDATA was nil, scripts won't load.")
+end
+
+local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/aseprite-import-export-extension")
 extensionPath = app.fs.normalizePath(extensionPath)
 
 local asepriteExporterPath = app.fs.joinPath(extensionPath, "Aseprite-Exporter.lua")
@@ -33,7 +39,7 @@ function init(plugin)
             asepriteImporter.Initialize(configHandler, layerHandler)
             asepriteImporter.Execute()
         end,
-        onenabled = function() return app.activeSprite ~= nil end,
+        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
     }
 
     plugin:newCommand {
@@ -45,7 +51,7 @@ function init(plugin)
             asepriteExporter.Initialize(configHandler, layerHandler)
             asepriteExporter.Execute()
         end,
-        onenabled = function() return app.activeSprite ~= nil end,
+        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
     }
 end
 
