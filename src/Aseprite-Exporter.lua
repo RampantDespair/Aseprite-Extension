@@ -1,6 +1,7 @@
 local asepriteExporter = {}
 
 -- FUNCTIONS
+---@param activeSprite Sprite
 function asepriteExporter.GetRootPosition(activeSprite)
     if Config.spineExport.value == true and Config.spineSetRootPostion.value == true then
         if Config.spineRootPostionMethod.value == "manual" then
@@ -18,6 +19,10 @@ function asepriteExporter.GetRootPosition(activeSprite)
     return { x = 0, y = 0 }
 end
 
+---@param activeSprite Sprite
+---@param rootLayer Sprite | Layer
+---@param fileName string
+---@param fileNameTemplate string
 function asepriteExporter.Export(activeSprite, rootLayer, fileName, fileNameTemplate)
     if Config.spineExport.value == true then
         asepriteExporter.ExportSpineJsonStart(fileName)
@@ -30,6 +35,10 @@ function asepriteExporter.Export(activeSprite, rootLayer, fileName, fileNameTemp
     end
 end
 
+---@param activeSprite Sprite
+---@param rootLayer Sprite | Layer
+---@param fileName string
+---@param fileNameTemplate string
 function asepriteExporter.ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate)
     for _, layer in ipairs(rootLayer.layers) do
         local _fileNameTemplate = fileNameTemplate
@@ -77,6 +86,9 @@ function asepriteExporter.ExportSpriteLayers(activeSprite, rootLayer, fileName, 
     end
 end
 
+---@param activeSprite Sprite
+---@param layer Layer
+---@param fileNameTemplate string
 function asepriteExporter.ExportSpriteSheet(activeSprite, layer, fileNameTemplate)
     local cel = layer.cels[1]
     local currentLayer = Sprite(activeSprite)
@@ -89,6 +101,7 @@ function asepriteExporter.ExportSpriteSheet(activeSprite, layer, fileNameTemplat
     currentLayer:close()
 end
 
+---@param fileName string
 function asepriteExporter.ExportSpineJsonStart(fileName)
     local jsonFileName = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), fileName .. ".json")
 
@@ -112,6 +125,8 @@ function asepriteExporter.ExportSpineJsonStart(fileName)
     SkinsJson = {}
 end
 
+---@param layer Layer
+---@param fileNameTemplate string
 function asepriteExporter.ExportSpineJsonParse(layer, fileNameTemplate)
     local layerName = layer.name
 
@@ -242,6 +257,7 @@ function asepriteExporter.ExportSpineJsonEnd()
     JsonFile:close()
 end
 
+---@param activeSprite Sprite
 function asepriteExporter.ExtraDialogModifications(activeSprite)
     Dlg:modify{
         id = "outputFile",

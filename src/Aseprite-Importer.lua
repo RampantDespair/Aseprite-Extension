@@ -1,6 +1,7 @@
 local asepriteImporter = {}
 
 -- FUNCTIONS
+---@param activeSprite Sprite
 function asepriteImporter.Import(activeSprite)
     local importFiles = app.fs.listFiles(Dlg.data.inputPath)
     for _, value in ipairs(importFiles) do
@@ -27,6 +28,7 @@ function asepriteImporter.Import(activeSprite)
     end
 end
 
+---@param activeSprite Sprite
 function asepriteImporter.ExtraDialogModifications(activeSprite)
     Dlg:modify{
         id = "inputFile",
