@@ -810,4 +810,4 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
     LayerHandler = layerHandler
 end
 
-return
+return asepriteExporter
