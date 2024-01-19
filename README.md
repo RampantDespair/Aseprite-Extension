@@ -2,7 +2,7 @@
 <div align="center">
   <img src="media/logo.png" alt="Logo" width="200" height="120">
   <h2>Aseprite-Exporter</h3>
-  <p>A lua script that lets you exports Aseprite files to importable Spine data</p>
+  <p>An Aseprite extension that lets you mass-import images and export importable Spine data</p>
   <div>
     <a href="https://github.com/RampantDespair/Aseprite-Exporter/issues"><img alt="Report Bug" src="https://img.shields.io/badge/Report%20Bug-red"></a>
     <a href="https://github.com/RampantDespair/Aseprite-Exporter/issues"><img alt="Request Feature" src="https://img.shields.io/badge/Request%20Feature-green"></a>
