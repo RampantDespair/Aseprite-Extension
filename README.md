@@ -32,6 +32,7 @@
 ## About The Project
 
 This project was made to remove the hassle of exporting Aseprite files to Spine importable data.
+<br>
 With that in mind, this lua script lets you do so, with ease, and lets you export/import skins.
 
 <!-- FEATURES -->
@@ -143,7 +144,9 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 ## Contributing
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request.
+<br>
 You can also simply open an issue with the tag "enhancement".
+<br>
 Any contributions you make are **greatly appreciated**.
 
 <!-- LINKS -->
