@@ -1,5 +1,6 @@
 {
     "Lua.workspace.library": [
-        "lib\\Aseprite-Library\\Aseprite-Library.lua"
+        "lib\\Aseprite-Library\\Aseprite-Library.lua",
+        "lib\\Local-Library\\Local-Library.lua"
     ]
 }
