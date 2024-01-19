@@ -1,5 +1,9 @@
+-- INSTANCE DECLARATION
 local configHandler = {}
 
+-- FIELDS
+
+-- FUNCTIONS
 function configHandler.ArrayContainsValue(table, targetValue)
     for _, value in ipairs(table) do
         if value == targetValue then
@@ -173,4 +177,5 @@ function configHandler.ResetConfig(activeSprite, extraDialogModifications)
     extraDialogModifications(activeSprite)
 end
 
+-- INSTANCE RETURN
 return configHandler

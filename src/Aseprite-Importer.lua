@@ -1,4 +1,53 @@
+-- INSTANCE DECLARATION
 local asepriteImporter = {}
+
+-- FIELDS
+LayerCount = 0
+ConfigHandler = nil
+LayerHandler = nil
+Config = {
+    configSelect = {
+        order = 100,
+        type = "combobox",
+        default = "global",
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    inputSubdirectory = {
+        order = 200,
+        type = "entry",
+        default = "sprite",
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    inputDirectoriesAsGroups = {
+        order = 201,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    inputCenterImages = {
+        order = 202,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+}
+ConfigKeys = {}
+ConfigPathLocal = ""
+ConfigPathGlobal = ""
+Dlg = Dialog("X")
+ImportFileExtensions = { "png", "gif", "jpg", "jpeg" }
 
 -- FUNCTIONS
 ---@param activeSprite Sprite
@@ -29,24 +78,128 @@ function asepriteImporter.Import(activeSprite)
 end
 
 ---@param activeSprite Sprite
+function asepriteImporter.BuildDialog(activeSprite)
+    Dlg:tab {
+        id = "configSettings",
+        text = "Config Settings",
+    }
+    Dlg:combobox {
+        id = "configSelect",
+        label = "Current Config:",
+        option = Config.configSelect.value,
+        options = { "global", "local" },
+        onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteImporter.ExtraDialogModifications) end,
+    }
+    Dlg:label {
+        id = "globalConfigPath",
+        label = "Global Config Path: ",
+        text = ConfigPathGlobal,
+    }
+    Dlg:label {
+        id = "localConfigPath",
+        label = "Local Config Path: ",
+        text = ConfigPathLocal,
+    }
+
+    Dlg:tab {
+        id = "inputSettings",
+        text = "Input Settings",
+    }
+    Dlg:file {
+        id = "inputFile",
+        label = "input File:",
+        filename = activeSprite.filename,
+        open = false,
+        onchange = function()
+            Dlg:modify {
+                id = "inputPath",
+                text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
+            }
+        end,
+    }
+    Dlg:entry {
+        id = "inputSubdirectory",
+        label = "Input Subdirectory:",
+        text = Config.inputSubdirectory.value,
+        onchange = function()
+            Config.inputSubdirectory.value = Dlg.data.inputSubdirectory
+            Dlg:modify {
+                id = "inputPath",
+                text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
+            }
+        end,
+    }
+    Dlg:label {
+        id = "inputPath",
+        label = "Input Path:",
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory),
+    }
+    Dlg:check {
+        id = "inputDirectoriesAsGroups",
+        label = "Directories As Groups:",
+        selected = Config.inputDirectoriesAsGroups.value,
+        onclick = function() asepriteImporter.ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
+    }
+    Dlg:check {
+        id = "inputCenterImages",
+        label = "Center Images:",
+        selected = Config.inputCenterImages.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("inputCenterImages", Dlg.data.inputCenterImages) end,
+    }
+
+    Dlg:endtabs {}
+
+    Dlg:entry {
+        id = "help",
+        label = "Need help? Visit my GitHub repository @",
+        text = "https://github.com/RampantDespair/Aseprite-Exporter",
+    }
+    Dlg:separator {
+        id = "helpSeparator",
+    }
+
+    Dlg:button {
+        id = "confirm",
+        text = "Confirm",
+    }
+    Dlg:button {
+        id = "cancel",
+        text = "Cancel",
+    }
+    Dlg:button {
+        id = "reset",
+        text = "Reset",
+        onclick = function () ConfigHandler.ResetConfig(activeSprite, asepriteImporter.ExtraDialogModifications) end,
+    }
+end
+
+---@param activeSprite Sprite
 function asepriteImporter.ExtraDialogModifications(activeSprite)
     Dlg:modify {
         id = "inputFile",
-        filename = activeSprite.filename
+        filename = activeSprite.filename,
     }
     Dlg:modify {
         id = "inputPath",
-        text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory),
     }
 end
 
 function asepriteImporter.Execute()
-    LayerCount = 0
+    if ConfigHandler == nil then
+        app.alert("Failed to get ConfigHandler.")
+        return
+    end
+
+    if LayerHandler == nil then
+        app.alert("Failed to get LayerHandler.")
+        return
+    end
+
     local activeSprite = app.sprite
 
     if activeSprite == nil then
         app.alert("No sprite selected, script aborted.")
-        app.alert{ title="Title", text="Text", buttons="OK" }
         return
     end
 
@@ -62,146 +215,12 @@ function asepriteImporter.Execute()
     ConfigPathLocal = app.fs.joinPath(spritePath, scriptName .. ".conf")
     ConfigPathGlobal = app.fs.joinPath(scriptDirectory, scriptName .. ".conf")
 
-    Config = {
-        configSelect = {
-            order = 100,
-            type = "combobox",
-            default = "global",
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        inputSubdirectory = {
-            order = 200,
-            type = "entry",
-            default = "sprite",
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        inputDirectoriesAsGroups = {
-            order = 201,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        inputCenterImages = {
-            order = 202,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-    }
-
-    ConfigKeys = {}
-
     Dlg = Dialog(scriptName)
 
     ConfigHandler.InitializeConfig()
     ConfigHandler.InitializeConfigKeys()
 
-    do
-        Dlg:tab {
-            id = "configSettings",
-            text = "Config Settings",
-        }
-        Dlg:combobox {
-            id = "configSelect",
-            label = "Current Config:",
-            option = Config.configSelect.value,
-            options = { "global", "local" },
-            onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteImporter.ExtraDialogModifications) end,
-        }
-        Dlg:label {
-            id = "globalConfigPath",
-            label = "Global Config Path: ",
-            text = ConfigPathGlobal,
-        }
-        Dlg:label {
-            id = "localConfigPath",
-            label = "Local Config Path: ",
-            text = ConfigPathLocal,
-        }
-
-        Dlg:tab {
-            id = "inputSettings",
-            text = "Input Settings",
-        }
-        Dlg:file {
-            id = "inputFile",
-            label = "input File:",
-            filename = activeSprite.filename,
-            open = false,
-            onchange = function()
-                Dlg:modify {
-                    id = "inputPath",
-                    text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
-                }
-            end,
-        }
-        Dlg:entry {
-            id = "inputSubdirectory",
-            label = "Input Subdirectory:",
-            text = Config.inputSubdirectory.value,
-            onchange = function()
-                Config.inputSubdirectory.value = Dlg.data.inputSubdirectory
-                Dlg:modify {
-                    id = "inputPath",
-                    text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
-                }
-            end,
-        }
-        Dlg:label {
-            id = "inputPath",
-            label = "Input Path:",
-            text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory),
-        }
-        Dlg:check {
-            id = "inputDirectoriesAsGroups",
-            label = "Directories As Groups:",
-            selected = Config.inputDirectoriesAsGroups.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
-        }
-        Dlg:check {
-            id = "inputCenterImages",
-            label = "Center Images:",
-            selected = Config.inputCenterImages.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("inputCenterImages", Dlg.data.inputCenterImages) end,
-        }
-
-        Dlg:endtabs {}
-
-        Dlg:entry {
-            id = "help",
-            label = "Need help? Visit my GitHub repository @",
-            text = "https://github.com/RampantDespair/Aseprite-Exporter",
-        }
-        Dlg:separator {
-            id = "helpSeparator",
-        }
-
-        Dlg:button {
-            id = "confirm",
-            text = "Confirm",
-        }
-        Dlg:button {
-            id = "cancel",
-            text = "Cancel",
-        }
-        Dlg:button {
-            id = "reset",
-            text = "Reset",
-            onclick = function () ConfigHandler.ResetConfig(activeSprite, asepriteImporter.ExtraDialogModifications) end,
-        }
-    end
+    asepriteImporter.BuildDialog(activeSprite)
 
     Dlg:show()
 
@@ -221,7 +240,6 @@ function asepriteImporter.Execute()
         return
     end
 
-    ImportFileExtensions = { "png", "gif", "jpg", "jpeg" }
     asepriteImporter.Import(activeSprite)
 end
 
@@ -230,4 +248,5 @@ function asepriteImporter.Initialize(configHandler, layerHandler)
     LayerHandler = layerHandler
 end
 
+-- INSTANCE RETURN
 return asepriteImporter

@@ -1,4 +1,251 @@
+-- INSTANCE DECLARATION
 local asepriteExporter = {}
+
+-- FIELDS
+LayerCount = 0
+ConfigHandler = nil
+LayerHandler = nil
+Config = {
+    configSelect = {
+        order = 100,
+        type = "combobox",
+        default = "global",
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    outputSubdirectory = {
+        order = 200,
+        type = "entry",
+        default = "images",
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    outputGroupsAsDirectories = {
+        order = 201,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    },
+    spriteSheetExport = {
+        order = 300,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {
+            "spriteSheetNameTrim",
+            "spriteSheetFileNameFormat",
+            "spriteSheetFileFormat",
+            "spriteSheetTrim",
+        },
+        condition = nil,
+    },
+    spriteSheetNameTrim = {
+        order = 301,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spriteSheetExport",
+        children = {},
+        condition = nil,
+    },
+    spriteSheetFileNameFormat = {
+        order = 302,
+        type = "entry",
+        default = "{spritename}-{layergroup}-{layername}",
+        value = nil,
+        parent = "spriteSheetExport",
+        children = {},
+        condition = nil,
+    },
+    spriteSheetFileFormat = {
+        order = 303,
+        type = "combobox",
+        default = "png",
+        value = nil,
+        parent = "spriteSheetExport",
+        children = {},
+        condition = nil,
+    },
+    spriteSheetTrim = {
+        order = 304,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spriteSheetExport",
+        children = {},
+        condition = nil,
+    },
+    spineExport = {
+        order = 400,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {
+            "spineSetRootPostion",
+            "spineSetImagesPath",
+            "spineGroupsAsSkins",
+            "spineSetStaticSlot",
+        },
+        condition = nil,
+    },
+    spineSetStaticSlot = {
+        order = 401,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spineExport",
+        children = {
+            "spineStaticSlotName",
+        },
+        condition = nil,
+    },
+    spineStaticSlotName = {
+        order = 402,
+        type = "entry",
+        default = "slot",
+        value = nil,
+        parent = "spineSetStaticSlot",
+        children = {},
+        condition = nil,
+    },
+    spineSetRootPostion = {
+        order = 403,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spineExport",
+        children = {
+            "spineRootPostionMethod",
+            "spineRootPostionX",
+            "spineRootPostionY",
+        },
+        condition = nil,
+    },
+    spineRootPostionMethod = {
+        order = 404,
+        type = "combobox",
+        default = "center",
+        value = nil,
+        parent = "spineSetRootPostion",
+        children = {
+            "spineRootPostionX",
+            "spineRootPostionY",
+        },
+        condition = nil,
+    },
+    spineRootPostionX = {
+        order = 405,
+        type = "number",
+        default = 0,
+        value = nil,
+        parent = "spineRootPostionMethod",
+        children = {},
+        condition = "manual",
+    },
+    spineRootPostionY = {
+        order = 406,
+        type = "number",
+        default = 0,
+        value = nil,
+        parent = "spineRootPostionMethod",
+        children = {},
+        condition = "manual",
+    },
+    spineSetImagesPath = {
+        order = 407,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spineExport",
+        children = {
+            "spineImagesPath",
+        },
+        condition = nil,
+    },
+    spineImagesPath = {
+        order = 408,
+        type = "entry",
+        default = "images",
+        value = nil,
+        parent = "spineSetImagesPath",
+        children = {},
+        condition = nil,
+    },
+    spineGroupsAsSkins = {
+        order = 409,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spineExport",
+        children = {
+            "spineSkinNameFormat",
+            "spineSeparateSlotSkin",
+        },
+        condition = nil,
+    },
+    spineSkinNameFormat = {
+        order = 410,
+        type = "entry",
+        default = "weapon-{layergroup}",
+        value = nil,
+        parent = "spineGroupsAsSkins",
+        children = {},
+        condition = nil,
+    },
+    spineSeparateSlotSkin = {
+        order = 411,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = "spineGroupsAsSkins",
+        children = {
+            "spineSlotNameFormat",
+            "spineSkinAttachmentFormat",
+            "spineLayerNameSeparator",
+        },
+        condition = nil,
+    },
+    spineSlotNameFormat = {
+        order = 412,
+        type = "entry",
+        default = "{layernameprefix}",
+        value = nil,
+        parent = "spineSeparateSlotSkin",
+        children = {},
+        condition = nil,
+    },
+    spineSkinAttachmentFormat = {
+        order = 413,
+        type = "entry",
+        default = "{layernameprefix}-{layernamesuffix}",
+        value = nil,
+        parent = "spineSeparateSlotSkin",
+        children = {},
+        condition = nil,
+    },
+    spineLayerNameSeparator = {
+        order = 414,
+        type = "entry",
+        default = "-",
+        value = nil,
+        parent = "spineSeparateSlotSkin",
+        children = {},
+        condition = nil,
+    },
+}
+ConfigKeys = {}
+ConfigPathLocal = ""
+ConfigPathGlobal = ""
+Dlg = Dialog("X")
 
 -- FUNCTIONS
 ---@param activeSprite Sprite
@@ -258,19 +505,269 @@ function asepriteExporter.ExportSpineJsonEnd()
 end
 
 ---@param activeSprite Sprite
+function asepriteExporter.BuildDialog(activeSprite)
+    Dlg:tab {
+        id = "configSettings",
+        text = "Config Settings",
+    }
+    Dlg:combobox {
+        id = "configSelect",
+        label = "Current Config:",
+        option = Config.configSelect.value,
+        options = { "global", "local" },
+        onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteExporter.ExtraDialogModifications) end,
+    }
+    Dlg:label {
+        id = "globalConfigPath",
+        label = "Global Config Path: ",
+        text = ConfigPathGlobal,
+    }
+    Dlg:label {
+        id = "localConfigPath",
+        label = "Local Config Path: ",
+        text = ConfigPathLocal,
+    }
+
+    Dlg:tab {
+        id = "outputSettings",
+        text = "Output Settings",
+    }
+    Dlg:file {
+        id = "outputFile",
+        label = "Output File:",
+        filename = activeSprite.filename,
+        open = false,
+        onchange = function()
+            Dlg:modify {
+                id = "outputPath",
+                text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
+            }
+        end,
+    }
+    Dlg:entry {
+        id = "outputSubdirectory",
+        label = "Output Subdirectory:",
+        text = Config.outputSubdirectory.value,
+        onchange = function()
+            Config.outputSubdirectory.value = Dlg.data.outputSubdirectory
+            Dlg:modify {
+                id = "outputPath",
+                text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
+            }
+        end,
+    }
+    Dlg:label {
+        id = "outputPath",
+        label = "Output Path:",
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory),
+    }
+    Dlg:check {
+        id = "outputGroupsAsDirectories",
+        label = "Groups As Directories:",
+        selected = Config.outputGroupsAsDirectories.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories) end,
+    }
+
+    Dlg:tab {
+        id = "spriteSettingsTab",
+        text = "Sprite Settings",
+    }
+    Dlg:check {
+        id = "spriteSheetExport",
+        label = "Export SpriteSheet:",
+        selected = Config.spriteSheetExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetExport", Dlg.data.spriteSheetExport) end,
+    }
+    Dlg:check {
+        id = "spriteSheetNameTrim",
+        label = " Sprite Name Trim:",
+        selected = Config.spriteSheetNameTrim.value,
+        visible = Config.spriteSheetExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetNameTrim", Dlg.data.spriteSheetNameTrim) end,
+    }
+    Dlg:entry {
+        id = "spriteSheetFileNameFormat",
+        label = " File Name Format:",
+        text = Config.spriteSheetFileNameFormat.value,
+        visible = Config.spriteSheetExport.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spriteSheetFileNameFormat", Dlg.data.spriteSheetFileNameFormat) end,
+    }
+    Dlg:combobox {
+        id = "spriteSheetFileFormat",
+        label = " File Format:",
+        option = Config.spriteSheetFileFormat.value,
+        options = { "png", "gif", "jpg" },
+        onchange = function() ConfigHandler.UpdateConfigValue("spriteSheetFileFormat", Dlg.data.spriteSheetFileFormat) end,
+    }
+    Dlg:check {
+        id = "spriteSheetTrim",
+        label = " SpriteSheet Trim:",
+        selected = Config.spriteSheetTrim.value,
+        visible = Config.spriteSheetExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetTrim", Dlg.data.spriteSheetTrim) end,
+    }
+
+    Dlg:tab {
+        id = "spineSettingsTab",
+        text = "Spine Settings",
+    }
+    Dlg:check {
+        id = "spineExport",
+        label = "Export SpineSheet:",
+        selected = Config.spineExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineExport", Dlg.data.spineExport) end,
+    }
+    Dlg:check {
+        id = "spineSetStaticSlot",
+        label = " Set Static Slot:",
+        selected = Config.spineSetStaticSlot.value,
+        visible = Config.spineExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSetStaticSlot", Dlg.data.spineSetStaticSlot) end,
+    }
+    Dlg:entry {
+        id = "spineStaticSlotName",
+        label = "  Static Slot Name:",
+        text = Config.spineStaticSlotName.value,
+        visible = Config.spineExport.value and Config.spineSetStaticSlot.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineStaticSlotName", Dlg.data.spineStaticSlotName) end,
+    }
+    Dlg:check {
+        id = "spineSetRootPostion",
+        label = " Set Root Position:",
+        selected = Config.spineSetRootPostion.value,
+        visible = Config.spineExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSetRootPostion", Dlg.data.spineSetRootPostion) end,
+    }
+    Dlg:combobox {
+        id = "spineRootPostionMethod",
+        label = "  Root position Method:",
+        option = Config.spineRootPostionMethod.value,
+        options = { "manual", "automatic", "center" },
+        visible = Config.spineExport.value and Config.spineSetRootPostion.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionMethod", Dlg.data.spineRootPostionMethod) end,
+    }
+    Dlg:number {
+        id = "spineRootPostionX",
+        label = "   Root Postion X:",
+        text = Config.spineRootPostionX.value,
+        visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
+        decimals = 0,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionX", Dlg.data.spineRootPostionX) end,
+    }
+    Dlg:number {
+        id = "spineRootPostionY",
+        label = "   Root Postion Y:",
+        text = Config.spineRootPostionY.value,
+        visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
+        decimals = 0,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionY", Dlg.data.spineRootPostionY) end,
+    }
+    Dlg:check {
+        id = "spineSetImagesPath",
+        label = " Set Images Path:",
+        selected = Config.spineSetImagesPath.value,
+        visible = Config.spineExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSetImagesPath", Dlg.data.spineSetImagesPath) end,
+    }
+    Dlg:entry {
+        id = "spineImagesPath",
+        label = "  Images Path:",
+        text = Config.spineImagesPath.value,
+        visible = Config.spineExport.value and Config.spineSetImagesPath.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineImagesPath", Dlg.data.spineImagesPath) end,
+    }
+    Dlg:check {
+        id = "spineGroupsAsSkins",
+        label = " Groups As Skins:",
+        selected = Config.spineGroupsAsSkins.value,
+        visible = Config.spineExport.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineGroupsAsSkins", Dlg.data.spineGroupsAsSkins) end,
+    }
+    Dlg:entry {
+        id = "spineSkinNameFormat",
+        label = "  Skin Name Format:",
+        text = Config.spineSkinNameFormat.value,
+        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineSkinNameFormat", Dlg.data.spineSkinNameFormat) end,
+    }
+    Dlg:check {
+        id = "spineSeparateSlotSkin",
+        label = "  Separate Slot/Skin:",
+        selected = Config.spineSeparateSlotSkin.value,
+        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSeparateSlotSkin", Dlg.data.spineSeparateSlotSkin) end,
+    }
+    Dlg:entry {
+        id = "spineSlotNameFormat",
+        label = "   Slot Name Format:",
+        text = Config.spineSlotNameFormat.value,
+        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineSlotNameFormat", Dlg.data.spineSlotNameFormat) end,
+    }
+    Dlg:entry {
+        id = "spineSkinAttachmentFormat",
+        label = "   Skin Attachment Format:",
+        text = Config.spineSkinAttachmentFormat.value,
+        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat) end,
+    }
+    Dlg:entry {
+        id = "spineLayerNameSeparator",
+        label = "   Layer Name Separator:",
+        text = Config.spineLayerNameSeparator.value,
+        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator) end,
+    }
+
+    Dlg:endtabs {}
+
+    Dlg:entry {
+        id = "help",
+        label = "Need help? Visit my GitHub repository @",
+        text = "https://github.com/RampantDespair/Aseprite-Exporter",
+    }
+    Dlg:separator {
+        id = "helpSeparator",
+    }
+
+    Dlg:button {
+        id = "confirm",
+        text = "Confirm",
+    }
+    Dlg:button {
+        id = "cancel",
+        text = "Cancel",
+    }
+    Dlg:button {
+        id = "reset",
+        text = "Reset",
+        onclick = function () ConfigHandler.ResetConfig(activeSprite, asepriteExporter.ExtraDialogModifications) end,
+    }
+end
+
+---@param activeSprite Sprite
 function asepriteExporter.ExtraDialogModifications(activeSprite)
     Dlg:modify {
         id = "outputFile",
-        filename = activeSprite.filename
+        filename = activeSprite.filename,
     }
     Dlg:modify {
         id = "outputPath",
-        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
+        text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory),
     }
 end
 
 function asepriteExporter.Execute()
-    LayerCount = 0
+    if ConfigHandler == nil then
+        app.alert("Failed to get ConfigHandler.")
+        return
+    end
+
+    if LayerHandler == nil then
+        app.alert("Failed to get LayerHandler.")
+        return
+    end
+
     local activeSprite = app.activeSprite
 
     if activeSprite == nil then
@@ -290,490 +787,12 @@ function asepriteExporter.Execute()
     ConfigPathLocal = app.fs.joinPath(spritePath, scriptName .. ".conf")
     ConfigPathGlobal = app.fs.joinPath(scriptDirectory, scriptName .. ".conf")
 
-    Config = {
-        configSelect = {
-            order = 100,
-            type = "combobox",
-            default = "global",
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        outputSubdirectory = {
-            order = 200,
-            type = "entry",
-            default = "images",
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        outputGroupsAsDirectories = {
-            order = 201,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
-        spriteSheetExport = {
-            order = 300,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = nil,
-            children = {
-                "spriteSheetNameTrim",
-                "spriteSheetFileNameFormat",
-                "spriteSheetFileFormat",
-                "spriteSheetTrim",
-            },
-            condition = nil,
-        },
-        spriteSheetNameTrim = {
-            order = 301,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spriteSheetExport",
-            children = {},
-            condition = nil,
-        },
-        spriteSheetFileNameFormat = {
-            order = 302,
-            type = "entry",
-            default = "{spritename}-{layergroup}-{layername}",
-            value = nil,
-            parent = "spriteSheetExport",
-            children = {},
-            condition = nil,
-        },
-        spriteSheetFileFormat = {
-            order = 303,
-            type = "combobox",
-            default = "png",
-            value = nil,
-            parent = "spriteSheetExport",
-            children = {},
-            condition = nil,
-        },
-        spriteSheetTrim = {
-            order = 304,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spriteSheetExport",
-            children = {},
-            condition = nil,
-        },
-        spineExport = {
-            order = 400,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = nil,
-            children = {
-                "spineSetRootPostion",
-                "spineSetImagesPath",
-                "spineGroupsAsSkins",
-                "spineSetStaticSlot",
-            },
-            condition = nil,
-        },
-        spineSetStaticSlot = {
-            order = 401,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spineExport",
-            children = {
-                "spineStaticSlotName",
-            },
-            condition = nil,
-        },
-        spineStaticSlotName = {
-            order = 402,
-            type = "entry",
-            default = "slot",
-            value = nil,
-            parent = "spineSetStaticSlot",
-            children = {},
-            condition = nil,
-        },
-        spineSetRootPostion = {
-            order = 403,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spineExport",
-            children = {
-                "spineRootPostionMethod",
-                "spineRootPostionX",
-                "spineRootPostionY",
-            },
-            condition = nil,
-        },
-        spineRootPostionMethod = {
-            order = 404,
-            type = "combobox",
-            default = "center",
-            value = nil,
-            parent = "spineSetRootPostion",
-            children = {
-                "spineRootPostionX",
-                "spineRootPostionY",
-            },
-            condition = nil,
-        },
-        spineRootPostionX = {
-            order = 405,
-            type = "number",
-            default = 0,
-            value = nil,
-            parent = "spineRootPostionMethod",
-            children = {},
-            condition = "manual",
-        },
-        spineRootPostionY = {
-            order = 406,
-            type = "number",
-            default = 0,
-            value = nil,
-            parent = "spineRootPostionMethod",
-            children = {},
-            condition = "manual",
-        },
-        spineSetImagesPath = {
-            order = 407,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spineExport",
-            children = {
-                "spineImagesPath",
-            },
-            condition = nil,
-        },
-        spineImagesPath = {
-            order = 408,
-            type = "entry",
-            default = "images",
-            value = nil,
-            parent = "spineSetImagesPath",
-            children = {},
-            condition = nil,
-        },
-        spineGroupsAsSkins = {
-            order = 409,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spineExport",
-            children = {
-                "spineSkinNameFormat",
-                "spineSeparateSlotSkin",
-            },
-            condition = nil,
-        },
-        spineSkinNameFormat = {
-            order = 410,
-            type = "entry",
-            default = "weapon-{layergroup}",
-            value = nil,
-            parent = "spineGroupsAsSkins",
-            children = {},
-            condition = nil,
-        },
-        spineSeparateSlotSkin = {
-            order = 411,
-            type = "check",
-            default = true,
-            value = nil,
-            parent = "spineGroupsAsSkins",
-            children = {
-                "spineSlotNameFormat",
-                "spineSkinAttachmentFormat",
-                "spineLayerNameSeparator",
-            },
-            condition = nil,
-        },
-        spineSlotNameFormat = {
-            order = 412,
-            type = "entry",
-            default = "{layernameprefix}",
-            value = nil,
-            parent = "spineSeparateSlotSkin",
-            children = {},
-            condition = nil,
-        },
-        spineSkinAttachmentFormat = {
-            order = 413,
-            type = "entry",
-            default = "{layernameprefix}-{layernamesuffix}",
-            value = nil,
-            parent = "spineSeparateSlotSkin",
-            children = {},
-            condition = nil,
-        },
-        spineLayerNameSeparator = {
-            order = 414,
-            type = "entry",
-            default = "-",
-            value = nil,
-            parent = "spineSeparateSlotSkin",
-            children = {},
-            condition = nil,
-        },
-    }
-
-    ConfigKeys = {}
-
     Dlg = Dialog(scriptName)
 
     ConfigHandler.InitializeConfig()
     ConfigHandler.InitializeConfigKeys()
 
-    do
-        Dlg:tab {
-            id = "configSettings",
-            text = "Config Settings",
-        }
-        Dlg:combobox {
-            id = "configSelect",
-            label = "Current Config:",
-            option = Config.configSelect.value,
-            options = { "global", "local" },
-            onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteExporter.ExtraDialogModifications) end,
-        }
-        Dlg:label {
-            id = "globalConfigPath",
-            label = "Global Config Path: ",
-            text = ConfigPathGlobal,
-        }
-        Dlg:label {
-            id = "localConfigPath",
-            label = "Local Config Path: ",
-            text = ConfigPathLocal,
-        }
-
-        Dlg:tab {
-            id = "outputSettings",
-            text = "Output Settings",
-        }
-        Dlg:file {
-            id = "outputFile",
-            label = "Output File:",
-            filename = activeSprite.filename,
-            open = false,
-            onchange = function()
-                Dlg:modify {
-                    id = "outputPath",
-                    text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
-                }
-            end,
-        }
-        Dlg:entry {
-            id = "outputSubdirectory",
-            label = "Output Subdirectory:",
-            text = Config.outputSubdirectory.value,
-            onchange = function()
-                Config.outputSubdirectory.value = Dlg.data.outputSubdirectory
-                Dlg:modify {
-                    id = "outputPath",
-                    text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
-                }
-            end,
-        }
-        Dlg:label {
-            id = "outputPath",
-            label = "Output Path:",
-            text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory),
-        }
-        Dlg:check {
-            id = "outputGroupsAsDirectories",
-            label = "Groups As Directories:",
-            selected = Config.outputGroupsAsDirectories.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories) end,
-        }
-
-        Dlg:tab {
-            id = "spriteSettingsTab",
-            text = "Sprite Settings",
-        }
-        Dlg:check {
-            id = "spriteSheetExport",
-            label = "Export SpriteSheet:",
-            selected = Config.spriteSheetExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetExport", Dlg.data.spriteSheetExport) end,
-        }
-        Dlg:check {
-            id = "spriteSheetNameTrim",
-            label = " Sprite Name Trim:",
-            selected = Config.spriteSheetNameTrim.value,
-            visible = Config.spriteSheetExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetNameTrim", Dlg.data.spriteSheetNameTrim) end,
-        }
-        Dlg:entry {
-            id = "spriteSheetFileNameFormat",
-            label = " File Name Format:",
-            text = Config.spriteSheetFileNameFormat.value,
-            visible = Config.spriteSheetExport.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spriteSheetFileNameFormat", Dlg.data.spriteSheetFileNameFormat) end,
-        }
-        Dlg:combobox {
-            id = "spriteSheetFileFormat",
-            label = " File Format:",
-            option = Config.spriteSheetFileFormat.value,
-            options = { "png", "gif", "jpg" },
-            onchange = function() ConfigHandler.UpdateConfigValue("spriteSheetFileFormat", Dlg.data.spriteSheetFileFormat) end,
-        }
-        Dlg:check {
-            id = "spriteSheetTrim",
-            label = " SpriteSheet Trim:",
-            selected = Config.spriteSheetTrim.value,
-            visible = Config.spriteSheetExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spriteSheetTrim", Dlg.data.spriteSheetTrim) end,
-        }
-
-        Dlg:tab {
-            id = "spineSettingsTab",
-            text = "Spine Settings",
-        }
-        Dlg:check {
-            id = "spineExport",
-            label = "Export SpineSheet:",
-            selected = Config.spineExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineExport", Dlg.data.spineExport) end,
-        }
-        Dlg:check {
-            id = "spineSetStaticSlot",
-            label = " Set Static Slot:",
-            selected = Config.spineSetStaticSlot.value,
-            visible = Config.spineExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineSetStaticSlot", Dlg.data.spineSetStaticSlot) end,
-        }
-        Dlg:entry {
-            id = "spineStaticSlotName",
-            label = "  Static Slot Name:",
-            text = Config.spineStaticSlotName.value,
-            visible = Config.spineExport.value and Config.spineSetStaticSlot.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineStaticSlotName", Dlg.data.spineStaticSlotName) end,
-        }
-        Dlg:check {
-            id = "spineSetRootPostion",
-            label = " Set Root Position:",
-            selected = Config.spineSetRootPostion.value,
-            visible = Config.spineExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineSetRootPostion", Dlg.data.spineSetRootPostion) end,
-        }
-        Dlg:combobox {
-            id = "spineRootPostionMethod",
-            label = "  Root position Method:",
-            option = Config.spineRootPostionMethod.value,
-            options = { "manual", "automatic", "center" },
-            visible = Config.spineExport.value and Config.spineSetRootPostion.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionMethod", Dlg.data.spineRootPostionMethod) end,
-        }
-        Dlg:number {
-            id = "spineRootPostionX",
-            label = "   Root Postion X:",
-            text = Config.spineRootPostionX.value,
-            visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
-            decimals = 0,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionX", Dlg.data.spineRootPostionX) end,
-        }
-        Dlg:number {
-            id = "spineRootPostionY",
-            label = "   Root Postion Y:",
-            text = Config.spineRootPostionY.value,
-            visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
-            decimals = 0,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionY", Dlg.data.spineRootPostionY) end,
-        }
-        Dlg:check {
-            id = "spineSetImagesPath",
-            label = " Set Images Path:",
-            selected = Config.spineSetImagesPath.value,
-            visible = Config.spineExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineSetImagesPath", Dlg.data.spineSetImagesPath) end,
-        }
-        Dlg:entry {
-            id = "spineImagesPath",
-            label = "  Images Path:",
-            text = Config.spineImagesPath.value,
-            visible = Config.spineExport.value and Config.spineSetImagesPath.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineImagesPath", Dlg.data.spineImagesPath) end,
-        }
-        Dlg:check {
-            id = "spineGroupsAsSkins",
-            label = " Groups As Skins:",
-            selected = Config.spineGroupsAsSkins.value,
-            visible = Config.spineExport.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineGroupsAsSkins", Dlg.data.spineGroupsAsSkins) end,
-        }
-        Dlg:entry {
-            id = "spineSkinNameFormat",
-            label = "  Skin Name Format:",
-            text = Config.spineSkinNameFormat.value,
-            visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineSkinNameFormat", Dlg.data.spineSkinNameFormat) end,
-        }
-        Dlg:check {
-            id = "spineSeparateSlotSkin",
-            label = "  Separate Slot/Skin:",
-            selected = Config.spineSeparateSlotSkin.value,
-            visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
-            onclick = function() ConfigHandler.UpdateConfigValue("spineSeparateSlotSkin", Dlg.data.spineSeparateSlotSkin) end,
-        }
-        Dlg:entry {
-            id = "spineSlotNameFormat",
-            label = "   Slot Name Format:",
-            text = Config.spineSlotNameFormat.value,
-            visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineSlotNameFormat", Dlg.data.spineSlotNameFormat) end,
-        }
-        Dlg:entry {
-            id = "spineSkinAttachmentFormat",
-            label = "   Skin Attachment Format:",
-            text = Config.spineSkinAttachmentFormat.value,
-            visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat) end,
-        }
-        Dlg:entry {
-            id = "spineLayerNameSeparator",
-            label = "   Layer Name Separator:",
-            text = Config.spineLayerNameSeparator.value,
-            visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
-            onchange = function() ConfigHandler.UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator) end,
-        }
-
-        Dlg:endtabs {}
-
-        Dlg:entry {
-            id = "help",
-            label = "Need help? Visit my GitHub repository @",
-            text = "https://github.com/RampantDespair/Aseprite-Exporter",
-        }
-        Dlg:separator {
-            id = "helpSeparator",
-        }
-
-        Dlg:button {
-            id = "confirm",
-            text = "Confirm",
-        }
-        Dlg:button {
-            id = "cancel",
-            text = "Cancel",
-        }
-        Dlg:button {
-            id = "reset",
-            text = "Reset",
-            onclick = function () ConfigHandler.ResetConfig(activeSprite, asepriteExporter.ExtraDialogModifications) end,
-        }
-    end
+    asepriteExporter.BuildDialog(activeSprite)
 
     Dlg:show()
 
@@ -826,4 +845,5 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
     LayerHandler = layerHandler
 end
 
+-- INSTANCE RETURN
 return asepriteExporter
