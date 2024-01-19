@@ -1,10 +1,12 @@
-local asepriteExporter = dofile("Aseprite-Exporter.lua")
-local asepriteImporter = dofile("Aseprite-Importer.lua")
+-- FIELDS
 local configHandler = dofile("Config-Handler.lua")
 local layerHandler = dofile("Layer-Handler.lua")
 
-asepriteExporter.Initialize(configHandler, layerHandler)
-asepriteImporter.Initialize(configHandler, layerHandler)
+local extensionPath = app.fs.joinPath(os.getenv("APPDATA"), "Aseprite/extensions/aseprite-import-export-extension")
+extensionPath = app.fs.normalizePath(extensionPath)
+
+local asepriteExporterPath = app.fs.joinPath(extensionPath, "Aseprite-Exporter.lua")
+local asepriteImporterPath = app.fs.joinPath(extensionPath, "Aseprite-Importer.lua")
 
 -- FUNCTIONS
 ---@param plugin Plugin
@@ -26,7 +28,11 @@ function init(plugin)
         id = "asepriteImport",
         title = "Import",
         group = extensionGroup,
-        onclick = function() asepriteImporter.Execute() end,
+        onclick = function()
+            local asepriteImporter = dofile(asepriteImporterPath)
+            asepriteImporter.Initialize(configHandler, layerHandler)
+            asepriteImporter.Execute()
+        end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
 
@@ -34,7 +40,11 @@ function init(plugin)
         id = "asepriteExport",
         title = "Export",
         group = extensionGroup,
-        onclick = function() asepriteExporter.Execute() end,
+        onclick = function()
+            local asepriteExporter = dofile(asepriteExporterPath)
+            asepriteExporter.Initialize(configHandler, layerHandler)
+            asepriteExporter.Execute()
+        end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
 end
