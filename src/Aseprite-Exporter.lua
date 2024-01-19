@@ -259,11 +259,11 @@ end
 
 ---@param activeSprite Sprite
 function asepriteExporter.ExtraDialogModifications(activeSprite)
-    Dlg:modify{
+    Dlg:modify {
         id = "outputFile",
         filename = activeSprite.filename
     }
-    Dlg:modify{
+    Dlg:modify {
         id = "outputPath",
         text = app.fs.joinPath(app.fs.filePath(Dlg.data.outputFile), Dlg.data.outputSubdirectory)
     }
