@@ -30,11 +30,11 @@ end
 
 ---@param activeSprite Sprite
 function asepriteImporter.ExtraDialogModifications(activeSprite)
-    Dlg:modify{
+    Dlg:modify {
         id = "inputFile",
         filename = activeSprite.filename
     }
-    Dlg:modify{
+    Dlg:modify {
         id = "inputPath",
         text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory)
     }
@@ -46,7 +46,7 @@ function asepriteImporter.Execute()
 
     if activeSprite == nil then
         app.alert("No sprite selected, script aborted.")
-        app.alert{title="Title", text="Text", buttons="OK"}
+        app.alert{ title="Title", text="Text", buttons="OK" }
         return
     end
 
