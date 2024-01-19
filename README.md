@@ -1,14 +1,14 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <img src="media/logo.png" alt="Logo" width="200" height="120">
-  <h2>Aseprite-Exporter</h3>
+  <h2>Aseprite-Import-Export-Extension</h3>
   <p>An Aseprite extension that lets you mass-import images and export importable Spine data</p>
   <div>
-    <a href="https://github.com/RampantDespair/Aseprite-Exporter/issues"><img alt="Report Bug" src="https://img.shields.io/badge/Report%20Bug-red"></a>
-    <a href="https://github.com/RampantDespair/Aseprite-Exporter/issues"><img alt="Request Feature" src="https://img.shields.io/badge/Request%20Feature-green"></a>
+    <a href="https://github.com/RampantDespair/Aseprite-Import-Export-Extension/issues"><img alt="Report Bug" src="https://img.shields.io/badge/Report%20Bug-red"></a>
+    <a href="https://github.com/RampantDespair/Aseprite-Import-Export-Extension/issues"><img alt="Request Feature" src="https://img.shields.io/badge/Request%20Feature-green"></a>
   </div>
-  <a href="https://github.com/RampantDespair/Aseprite-Exporter?tab=GPL-2.0-1-ov-file">
-    <img alt="License" src="https://img.shields.io/github/license/RampantDespair/Aseprite-Exporter">
+  <a href="https://github.com/RampantDespair/Aseprite-Import-Export-Extension?tab=GPL-2.0-1-ov-file">
+    <img alt="License" src="https://img.shields.io/github/license/RampantDespair/Aseprite-Import-Export-Extension">
   </a>
 </div>
 
@@ -57,7 +57,7 @@ With that in mind, this lua script lets you do so, with ease, and lets you expor
 <!-- INSTALLATION -->
 ## Installation
 
-1.  Download the [latest-release](https://github.com/RampantDespair/Aseprite-Exporter/releases)
+1.  Download the [latest-release](https://github.com/RampantDespair/Aseprite-Import-Export-Extension/releases)
 2.  Open the Aseprite software
 3.  Go to **File > Scripts > Open Scripts Folder**
 4.  Copy the downloaded lua script to the scripts folder
@@ -153,7 +153,6 @@ Any contributions you make are **greatly appreciated**.
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
 
 *   [aseprite-to-spine](https://github.com/jordanbleu/aseprite-to-spine) made by [jordanbleu](https://github.com/jordanbleu)
 *   [AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts) made by [PKGaspi](https://github.com/PKGaspi)
