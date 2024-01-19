@@ -7,7 +7,7 @@ asepriteExporter.Initialize(configHandler, layerHandler)
 asepriteImporter.Initialize(configHandler, layerHandler)
 
 -- FUNCTIONS
----@param plugin plugin
+---@param plugin Plugin
 function init(plugin)
     local parentGroup = "file_scripts"
     local extensionGroup = "import_importy_export"
@@ -39,5 +39,5 @@ function init(plugin)
     }
 end
 
----@param plugin plugin
+---@param plugin Plugin
 function exit(plugin) end
