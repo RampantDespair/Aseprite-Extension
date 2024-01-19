@@ -1,5 +1,13 @@
--- FUNCTIONS
+local asepriteExporter = dofile("Aseprite-Exporter.lua")
+local asepriteImporter = dofile("Aseprite-Importer.lua")
+local configHandler = dofile("Config-Handler.lua")
+local layerHandler = dofile("Layer-Handler.lua")
 
+asepriteExporter.Initialize(configHandler, layerHandler)
+asepriteImporter.Initialize(configHandler, layerHandler)
+
+-- FUNCTIONS
+---@param plugin plugin
 function init(plugin)
     local parentGroup = "file_scripts"
     local extensionGroup = "import_importy_export"
@@ -18,9 +26,7 @@ function init(plugin)
         id = "asepriteImport",
         title = "Import",
         group = extensionGroup,
-        onclick = function()
-            
-        end,
+        onclick = function() asepriteImporter.Execute() end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
 
@@ -28,11 +34,10 @@ function init(plugin)
         id = "asepriteExport",
         title = "Export",
         group = extensionGroup,
-        onclick = function()
-            
-        end,
+        onclick = function() asepriteExporter.Execute() end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
 end
 
+---@param plugin plugin
 function exit(plugin) end
