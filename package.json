@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RampantDespair/Aseprite-Exporter.git"
+    "url": "git+https://github.com/RampantDespair/Aseprite-Import-Export-Extension.git"
   },
   "keywords": [
     "Aseprite",
@@ -29,9 +29,9 @@
   "author": "RampantDespair",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/RampantDespair/Aseprite-Exporter/issues"
+    "url": "https://github.com/RampantDespair/Aseprite-Import-Export-Extension/issues"
   },
-  "homepage": "https://github.com/RampantDespair/Aseprite-Exporter#readme",
+  "homepage": "https://github.com/RampantDespair/Aseprite-Import-Export-Extension#readme",
   "devDependencies": {
     "bestzip": "^2.2.1",
     "cpx2": "^7.0.1",
