@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "rimraf out/* --glob && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.zip *",
-    "dev": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch"
+    "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
+    "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
   },
   "repository": {
     "type": "git",
