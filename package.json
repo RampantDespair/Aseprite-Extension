@@ -34,7 +34,7 @@
   "homepage": "https://github.com/RampantDespair/Aseprite-Exporter#readme",
   "devDependencies": {
     "bestzip": "^2.2.1",
-    "cpx": "^1.5.0",
+    "cpx2": "^7.0.1",
     "rimraf": "^5.0.5"
   }
 }
