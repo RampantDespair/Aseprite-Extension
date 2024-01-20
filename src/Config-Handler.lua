@@ -4,6 +4,8 @@ local configHandler = {}
 -- FIELDS
 
 -- FUNCTIONS
+---@param table table
+---@param targetValue any
 function configHandler.ArrayContainsValue(table, targetValue)
     for _, value in ipairs(table) do
         if value == targetValue then
@@ -13,6 +15,8 @@ function configHandler.ArrayContainsValue(table, targetValue)
     return false
 end
 
+---@param table table
+---@param targetKey any
 function configHandler.ArrayContainsKey(table, targetKey)
     for key, _ in pairs(table) do
         if key == targetKey then
@@ -45,6 +49,7 @@ function configHandler.InitializeConfig()
     end
 end
 
+---@param configFile file*?
 function configHandler.PopulateConfig(configFile)
     if configFile ~= nil then
         for line in configFile:lines() do
@@ -84,6 +89,9 @@ function configHandler.InitializeConfigKeys()
     table.sort(ConfigKeys, function (a, b) return a.order < b.order end)
 end
 
+---@param activeSprite Sprite
+---@param newValue any
+---@param extraDialogModifications fun()
 function configHandler.UpdateConfigFile(activeSprite, newValue, extraDialogModifications)
     configHandler.WriteConfig()
     configHandler.UpdateConfigValue("configSelect", newValue)
@@ -101,6 +109,8 @@ function configHandler.UpdateConfigValue(configKey, newValue)
     configHandler.UpdateChildrenVisibility(configKey, newValue)
 end
 
+---@param configKey string
+---@param visibility boolean
 function configHandler.UpdateChildrenVisibility(configKey, visibility)
     for _, value in pairs(Config[configKey].children) do
         local parent = Config[value].parent
@@ -144,6 +154,8 @@ function configHandler.WriteConfig()
     end
 end
 
+---@param configKey string
+---@param newValue any
 function configHandler.UpdateDialog(configKey, newValue)
     if Config[configKey].type == "check" or Config[configKey].type == "radio" then
         Dlg:modify {
@@ -171,6 +183,8 @@ function configHandler.UpdateDialog(configKey, newValue)
     configHandler.UpdateConfigValue(configKey, newValue)
 end
 
+---@param activeSprite Sprite
+---@param extraDialogModifications fun(activeSprite: Sprite)
 function configHandler.ResetConfig(activeSprite, extraDialogModifications)
     for _, value in ipairs(ConfigKeys) do
         configHandler.UpdateDialog(value.key, Config[value.key].default)
