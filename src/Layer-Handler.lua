@@ -1,5 +1,10 @@
+-- INSTANCE DECLARATION
 local layerHandler = {}
 
+-- FIELDS
+
+-- FUNCTIONS
+---@param activeSprite Sprite | Layer
 function layerHandler.GetLayerVisibilityData(activeSprite)
     local layerVisibilityData = {}
     for i, layer in ipairs(activeSprite.layers) do
@@ -13,6 +18,7 @@ function layerHandler.GetLayerVisibilityData(activeSprite)
     return layerVisibilityData
 end
 
+---@param activeSprite Sprite | Layer
 function layerHandler.HideLayers(activeSprite)
     for _, layer in ipairs(activeSprite.layers) do
         if layer.isGroup then
@@ -23,6 +29,8 @@ function layerHandler.HideLayers(activeSprite)
     end
 end
 
+---@param activeSprite Sprite | Layer
+---@param layerVisibilityData boolean
 function layerHandler.RestoreLayers(activeSprite, layerVisibilityData)
     for i, layer in ipairs(activeSprite.layers) do
         if layer.isGroup then
@@ -33,4 +41,5 @@ function layerHandler.RestoreLayers(activeSprite, layerVisibilityData)
      end
 end
 
+-- INSTANCE RETURN
 return layerHandler
