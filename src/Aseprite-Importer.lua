@@ -42,6 +42,26 @@ Config = {
         children = {},
         condition = nil,
     },
+    inputCheckDuplicates = {
+        order = 203,
+        type = "check",
+        default = true,
+        value = nil,
+        parent = nil,
+        children = {
+            "inputCheckDuplicatesMode",
+        },
+        condition = nil,
+    },
+    inputCheckDuplicatesMode = {
+        order = 203,
+        type = "combobox",
+        default = "override",
+        value = nil,
+        parent = "inputCheckDuplicates",
+        children = {},
+        condition = nil,
+    },
 }
 ConfigKeys = {}
 ConfigPathLocal = ""
@@ -50,8 +70,38 @@ Dlg = Dialog("X")
 ImportFileExtensions = { "png", "gif", "jpg", "jpeg" }
 
 -- FUNCTIONS
+---@return string
+---@param colorMode ColorMode
+function asepriteImporter.GetColorMode(colorMode)
+    if (colorMode == ColorMode.RGB) then
+        return "rgb"
+    elseif (colorMode == ColorMode.GRAY) then
+        return "gray"
+    elseif (colorMode == ColorMode.INDEXED) then
+        return "indexed"
+    elseif (colorMode == ColorMode.TILEMAP) then
+        return "tilemap"
+    else
+        return ""
+    end
+end
+
+---@return Layer | nil
+---@param layers Layer[]
+---@param layerName string
+function asepriteImporter.GetLayerByName(layers, layerName)
+    for _, value in ipairs(layers) do
+        if value.name == layerName then
+            return value
+        end
+    end
+    return nil
+end
+
 ---@param activeSprite Sprite
 function asepriteImporter.Import(activeSprite)
+    local activeColorMode = activeSprite.colorMode
+    local activeColorModeName = asepriteImporter.GetColorMode(activeColorMode)
     local importFiles = app.fs.listFiles(Dlg.data.inputPath)
     for _, value in ipairs(importFiles) do
         local importFile = app.fs.joinPath(Dlg.data.inputPath, value)
@@ -62,17 +112,37 @@ function asepriteImporter.Import(activeSprite)
             local importFileExtension = app.fs.fileExtension(importFile)
             importFileExtension = string.lower(importFileExtension)
             if ConfigHandler.ArrayContainsValue(ImportFileExtensions, importFileExtension) then
-                local newLayer = activeSprite:newLayer()
-                newLayer.stackIndex = 1
                 local importFileName = app.fs.fileTitle(importFile)
                 -- TODO add formatting
-                newLayer.name = importFileName
-                local newImage = Image { fromFile = importFile }
-                activeSprite:newCel(newLayer, activeSprite.frames[1], newImage, Point {0, 0})
-            else
-                app.alert("no")
+
+                local otherSprite = Sprite({ fromFile = importFile })
+                app.command.ChangePixelFormat {
+                    format = activeColorModeName
+                }
+                local otherLayer = otherSprite.layers[1]
+                local otherCel = otherLayer.cels[1]
+
+                local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileName)
+
+                if Config.inputCheckDuplicates.value == true and newLayer ~= nil then
+                    if Config.inputCheckDuplicatesMode.value == "override" then
+                        newLayer = otherLayer
+                    elseif Config.inputCheckDuplicatesMode.value == "ignore" then
+
+                    else
+                        app.alert("Invalid inputCheckDuplicatesMode value (" .. tostring(Config.inputCheckDuplicatesMode.value) .. ")")
+                        return
+                    end
+                else
+                    newLayer = activeSprite:newLayer()
+                    newLayer.stackIndex = 1
+                    newLayer.name = importFileName
+
+                    activeSprite:newCel(newLayer, activeSprite.frames[1], otherCel.image, Point {0, 0})
+                end
+
+                otherSprite:close()
             end
-            --return
         end
     end
 end
@@ -145,6 +215,19 @@ function asepriteImporter.BuildDialog(activeSprite)
         label = "Center Images:",
         selected = Config.inputCenterImages.value,
         onclick = function() ConfigHandler.UpdateConfigValue("inputCenterImages", Dlg.data.inputCenterImages) end,
+    }
+    Dlg:check {
+        id = "inputCheckDuplicates",
+        label = "Check Duplicates:",
+        selected = Config.inputCheckDuplicates.value,
+        onclick = function() ConfigHandler.UpdateConfigValue("inputCheckDuplicates", Dlg.data.inputCheckDuplicates) end,
+    }
+    Dlg:combobox {
+        id = "inputCheckDuplicatesMode",
+        label = " Check Duplicates Mode:",
+        option = Config.inputCheckDuplicatesMode.value,
+        options = { "override", "ignore" },
+        onchange = function() ConfigHandler.UpdateConfigValue("inputCheckDuplicatesMode", Dlg.data.inputCheckDuplicatesMode) end,
     }
 
     Dlg:endtabs {}
