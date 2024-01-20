@@ -91,7 +91,7 @@ end
 
 ---@param activeSprite Sprite
 ---@param newValue any
----@param extraDialogModifications fun()
+---@param extraDialogModifications fun(activeSprite: Sprite)
 function configHandler.UpdateConfigFile(activeSprite, newValue, extraDialogModifications)
     configHandler.WriteConfig()
     configHandler.UpdateConfigValue("configSelect", newValue)
