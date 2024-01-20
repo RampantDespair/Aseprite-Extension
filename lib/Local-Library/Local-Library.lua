@@ -17,3 +17,13 @@ ConfigHandler = {}
 ---@field HideLayers fun(activeSprite: Sprite)
 ---@field RestoreLayers fun(activeSprite: Sprite, layerVisibilityData: table)
 LayerHandler = {}
+
+---@class (exact) ConfigEntry
+---@field order integer
+---@field type "check" | "combobox" | "entry" | "number" | "radio" | "slider",
+---@field default any,
+---@field value any,
+---@field parent string | nil,
+---@field children table,
+---@field condition any,
+ConfigEntry = {}
