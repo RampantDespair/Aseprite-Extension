@@ -6,6 +6,7 @@ local appData = os.getenv("APPDATA")
 
 if appData == nil then
     app.alert("APPDATA was nil, scripts won't load.")
+    return
 end
 
 local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/aseprite-import-export-extension")
