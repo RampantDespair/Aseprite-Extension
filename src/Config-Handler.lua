@@ -165,6 +165,8 @@ function configHandler.UpdateDialog(configKey, newValue)
             id = configKey,
             value = newValue,
         }
+    else
+        app.alert("Unknown config entry type (" .. tostring(Config[configKey].type) .. ") for config key (" .. tostring(configKey) .. ")")
     end
     configHandler.UpdateConfigValue(configKey, newValue)
 end
