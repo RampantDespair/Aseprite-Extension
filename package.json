@@ -8,7 +8,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "rimraf out/* --glob && make-dir out && cd src/ && bestzip ../out/%npm_package_name%_v%npm_package_version%.aseprite-extension *",
+    "build": "make-dir out && rimraf out/* --glob && cpx src/**/*.{lua,json} out && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.aseprite-extension *",
     "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
     "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
   },
