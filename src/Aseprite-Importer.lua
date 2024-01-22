@@ -119,28 +119,36 @@ function asepriteImporter.Import(activeSprite)
                 app.command.ChangePixelFormat {
                     format = activeColorModeName
                 }
-                local otherLayer = otherSprite.layers[1]
-                local otherCel = otherLayer.cels[1]
 
-                local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileName)
-
-                if Config.inputCheckDuplicates.value == true and newLayer ~= nil then
-                    if Config.inputCheckDuplicatesMode.value == "override" then
-                        newLayer = otherLayer
-                    elseif Config.inputCheckDuplicatesMode.value == "ignore" then
-
-                    else
-                        app.alert("Invalid inputCheckDuplicatesMode value (" .. tostring(Config.inputCheckDuplicatesMode.value) .. ")")
-                        return
-                    end
-                else
-                    newLayer = activeSprite:newLayer()
-                    newLayer.stackIndex = 1
-                    newLayer.name = importFileName
-
-                    activeSprite:newCel(newLayer, activeSprite.frames[1], otherCel.image, Point {0, 0})
+                while #activeSprite.frames < #otherSprite.frames do
+                    activeSprite:newEmptyFrame(#activeSprite.frames + 1)
                 end
 
+                for _, otherLayer in ipairs(otherSprite.layers) do
+                    local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileName)
+                    if newLayer == nil then
+                        newLayer = activeSprite:newLayer()
+                        newLayer.stackIndex = 1
+                        newLayer.name = importFileName
+
+                        for _, otherCel in ipairs(otherLayer.cels) do
+                            activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                        end
+                    else
+                        if Config.inputCheckDuplicates.value == true then
+                            if Config.inputCheckDuplicatesMode.value == "override" then
+                                for _, otherCel in ipairs(otherLayer.cels) do
+                                    activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                                end
+                            elseif Config.inputCheckDuplicatesMode.value == "ignore" then
+
+                            else
+                                app.alert("Invalid inputCheckDuplicatesMode value (" .. tostring(Config.inputCheckDuplicatesMode.value) .. ")")
+                                return
+                            end
+                        end
+                    end
+                end
                 otherSprite:close()
             end
         end
