@@ -63,20 +63,20 @@ function configHandler.PopulateConfig(configFile)
             end
         end
     end
-    for _, value in pairs(Config) do
-        if value.value == nil then
-            value.value = value.default
+    for _, entry in pairs(Config) do
+        if entry.value == nil then
+            entry.value = entry.default
         else
-            if value.value == "true" then
-                value.value = true
-            elseif value.value == "false" then
-                value.value = false
-            elseif value.value == "nil" then
-                value.value = nil
+            if entry.value == "true" then
+                entry.value = true
+            elseif entry.value == "false" then
+                entry.value = false
+            elseif entry.value == "nil" then
+                entry.value = nil
             end
         end
-        if type(value.value) ~= type(value.default) then
-            value.value = value.default
+        if type(entry.value) ~= type(entry.default) or entry.defaults ~= nil and not configHandler.ArrayContainsValue(entry.defaults, entry.value) then
+            entry.value = entry.default
         end
     end
 end

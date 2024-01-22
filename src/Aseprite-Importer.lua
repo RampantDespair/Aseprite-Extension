@@ -10,6 +10,10 @@ Config = {
         order = 100,
         type = "combobox",
         default = "global",
+        defaults = {
+            "global",
+            "local",
+        },
         value = nil,
         parent = nil,
         children = {},
@@ -19,6 +23,7 @@ Config = {
         order = 200,
         type = "entry",
         default = "sprite",
+        defaults = nil,
         value = nil,
         parent = nil,
         children = {},
@@ -28,6 +33,7 @@ Config = {
         order = 201,
         type = "check",
         default = true,
+        defaults = nil,
         value = nil,
         parent = nil,
         children = {},
@@ -37,6 +43,7 @@ Config = {
         order = 202,
         type = "check",
         default = true,
+        defaults = nil,
         value = nil,
         parent = nil,
         children = {},
@@ -46,6 +53,7 @@ Config = {
         order = 203,
         type = "check",
         default = true,
+        defaults = nil,
         value = nil,
         parent = nil,
         children = {
@@ -54,13 +62,54 @@ Config = {
         condition = nil,
     },
     inputCheckDuplicatesMode = {
-        order = 203,
+        order = 204,
         type = "combobox",
         default = "override",
+        defaults = {
+            "override",
+            "ignore",
+        },
         value = nil,
         parent = "inputCheckDuplicates",
         children = {},
         condition = nil,
+    },
+    inputSpritePosition = {
+        order = 205,
+        type = "combobox",
+        default = "center",
+        defaults = {
+            "center",
+            "inherit",
+            "manual",
+        },
+        value = nil,
+        parent = nil,
+        children = {
+            "inputSpritePositionX",
+            "inputSpritePositionY",
+        },
+        condition = nil,
+    },
+    inputSpritePositionX = {
+        order = 206,
+        type = "number",
+        default = 0,
+        defaults = nil,
+        value = nil,
+        parent = "inputSpritePosition",
+        children = {},
+        condition = "manual",
+    },
+    inputSpritePositionY = {
+        order = 207,
+        type = "number",
+        default = 0,
+        defaults = nil,
+        value = nil,
+        parent = "inputSpritePosition",
+        children = {},
+        condition = "manual",
     },
 }
 ConfigKeys = {}
@@ -165,7 +214,7 @@ function asepriteImporter.BuildDialog(activeSprite)
         id = "configSelect",
         label = "Current Config:",
         option = Config.configSelect.value,
-        options = { "global", "local" },
+        options = Config.configSelect.defaults,
         onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteImporter.ExtraDialogModifications) end,
     }
     Dlg:label {
@@ -185,7 +234,7 @@ function asepriteImporter.BuildDialog(activeSprite)
     }
     Dlg:file {
         id = "inputFile",
-        label = "input File:",
+        label = "Input File:",
         filename = activeSprite.filename,
         open = false,
         onchange = function()
@@ -234,8 +283,32 @@ function asepriteImporter.BuildDialog(activeSprite)
         id = "inputCheckDuplicatesMode",
         label = " Check Duplicates Mode:",
         option = Config.inputCheckDuplicatesMode.value,
-        options = { "override", "ignore" },
+        options = Config.inputCheckDuplicatesMode.defaults,
+        visible = Config.inputCheckDuplicates.value,
         onchange = function() ConfigHandler.UpdateConfigValue("inputCheckDuplicatesMode", Dlg.data.inputCheckDuplicatesMode) end,
+    }
+    Dlg:combobox {
+        id = "inputSpritePosition",
+        label = "Sprite Position Method:",
+        option = Config.inputSpritePosition.value,
+        options = Config.inputSpritePosition.defaults,
+        onchange = function() ConfigHandler.UpdateConfigValue("inputSpritePosition", Dlg.data.inputSpritePosition) end,
+    }
+    Dlg:number {
+        id = "inputSpritePositionX",
+        label = " Sprite Postion X:",
+        text = Config.inputSpritePositionX.value,
+        visible = Config.inputSpritePosition.value == "manual",
+        decimals = 0,
+        onchange = function() ConfigHandler.UpdateConfigValue("inputSpritePositionX", Dlg.data.inputSpritePositionX) end,
+    }
+    Dlg:number {
+        id = "inputSpritePositionY",
+        label = " Sprite Postion Y:",
+        text = Config.inputSpritePositionY.value,
+        visible = Config.inputSpritePosition.value == "manual",
+        decimals = 0,
+        onchange = function() ConfigHandler.UpdateConfigValue("inputSpritePositionY", Dlg.data.inputSpritePositionY) end,
     }
 
     Dlg:endtabs {}
