@@ -30,10 +30,10 @@
 
 This project was made to remove a few hassles I had when working with Asperite:
 
--  Exporting a sprite to Spine.
--  Mass importing images into a Sprite.
--  Renaming sprite layers.
--  Sorting sprite layers.
+*  Exporting a sprite to Spine
+*  Mass importing images into a Sprite
+*  Renaming sprite layers
+*  Sorting sprite layers
 
 With that in mind, this Aseprite extension lets you do all of the above with ease.
 
