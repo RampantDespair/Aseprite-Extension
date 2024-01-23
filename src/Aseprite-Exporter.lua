@@ -775,7 +775,7 @@ function asepriteExporter.BuildDialog(activeSprite)
     Dlg:button {
         id = "reset",
         text = "Reset",
-        onclick = function () ConfigHandler.ResetConfig(activeSprite, asepriteExporter.ExtraDialogModifications) end,
+        onclick = function() ConfigHandler.ResetConfig(activeSprite, asepriteExporter.ExtraDialogModifications) end,
     }
 end
 
