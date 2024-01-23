@@ -39,18 +39,8 @@ Config = {
         children = {},
         condition = nil,
     },
-    inputCenterImages = {
-        order = 202,
-        type = "check",
-        default = true,
-        defaults = nil,
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
     inputCheckDuplicates = {
-        order = 203,
+        order = 202,
         type = "check",
         default = true,
         defaults = nil,
@@ -62,7 +52,7 @@ Config = {
         condition = nil,
     },
     inputCheckDuplicatesMode = {
-        order = 204,
+        order = 203,
         type = "combobox",
         default = "override",
         defaults = {
@@ -75,7 +65,7 @@ Config = {
         condition = nil,
     },
     inputSpritePosition = {
-        order = 205,
+        order = 204,
         type = "combobox",
         default = "center",
         defaults = {
@@ -92,7 +82,7 @@ Config = {
         condition = nil,
     },
     inputSpritePositionX = {
-        order = 206,
+        order = 205,
         type = "number",
         default = 0,
         defaults = nil,
@@ -102,7 +92,7 @@ Config = {
         condition = "manual",
     },
     inputSpritePositionY = {
-        order = 207,
+        order = 206,
         type = "number",
         default = 0,
         defaults = nil,
@@ -284,12 +274,6 @@ function asepriteImporter.BuildDialog(activeSprite)
         label = "Directories As Groups:",
         selected = Config.inputDirectoriesAsGroups.value,
         onclick = function() asepriteImporter.ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
-    }
-    Dlg:check {
-        id = "inputCenterImages",
-        label = "Center Images:",
-        selected = Config.inputCenterImages.value,
-        onclick = function() ConfigHandler.UpdateConfigValue("inputCenterImages", Dlg.data.inputCenterImages) end,
     }
     Dlg:check {
         id = "inputCheckDuplicates",
