@@ -253,7 +253,6 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Sort Method | The method which will be used for sorting layers.<br> <ins>Ascending</ins>: The layers will be sorted ascendingly.<br> <ins>Descending</ins>: The layers will be sorted descendingly. | ascending |
 
 </details>
-<br>
 
 <!-- CONTRIBUTING -->
 ## Contributing
