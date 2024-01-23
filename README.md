@@ -82,7 +82,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 
 <!-- SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v4.0.gif">
+  <img alt="Showcase" src="media/showcase-exporter-v5.0.0.gif">
 </div>
 
 <!-- EXAMPLE -->
@@ -171,7 +171,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 
 <!-- SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v4.0.gif">
+  <img alt="Showcase" src="media/showcase-importer-v5.0.0.gif">
 </div>
 
 <!-- FEATURES -->
@@ -206,7 +206,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 
 <!-- SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v4.0.gif">
+  <img alt="Showcase" src="media/showcase-renamer-v5.0.0.gif">
 </div>
 
 <!-- FEATURES -->
@@ -235,7 +235,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 
 <!-- SHOWCASE -->
 <div align="center">
-  <img alt="Showcase" src="media/showcase-v4.0.gif">
+  <img alt="Showcase" src="media/showcase-sorter-v5.0.0.gif">
 </div>
 
 <!-- FEATURES -->
