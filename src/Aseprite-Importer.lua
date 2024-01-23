@@ -181,13 +181,31 @@ function asepriteImporter.Import(activeSprite)
                         newLayer.name = importFileName
 
                         for _, otherCel in ipairs(otherLayer.cels) do
-                            activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                            if Config.inputSpritePosition.value == "center" then
+                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(math.floor(activeSprite.width / 2) - math.floor(otherCel.bounds.width / 2), math.floor(activeSprite.height / 2) - math.floor(otherCel.bounds.height / 2)))
+                            elseif Config.inputSpritePosition.value == "inherit" then
+                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                            elseif Config.inputSpritePosition.value == "manual" then
+                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
+                            else
+                                app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
+                                return
+                            end
                         end
                     else
                         if Config.inputCheckDuplicates.value == true then
                             if Config.inputCheckDuplicatesMode.value == "override" then
                                 for _, otherCel in ipairs(otherLayer.cels) do
-                                    activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                                    if Config.inputSpritePosition.value == "center" then
+                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(math.floor(activeSprite.width / 2) - math.floor(otherCel.bounds.width / 2), math.floor(activeSprite.height / 2) - math.floor(otherCel.bounds.height / 2)))
+                                    elseif Config.inputSpritePosition.value == "inherit" then
+                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+                                    elseif Config.inputSpritePosition.value == "manual" then
+                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
+                                    else
+                                        app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
+                                        return
+                                    end
                                 end
                             elseif Config.inputCheckDuplicatesMode.value == "ignore" then
 
