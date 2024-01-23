@@ -122,14 +122,7 @@ end
 
 ---@param activeSprite Sprite
 function asepriteSorter.ExtraDialogModifications(activeSprite)
-    Dlg:modify {
-        id = "inputFile",
-        filename = activeSprite.filename,
-    }
-    Dlg:modify {
-        id = "inputPath",
-        text = app.fs.joinPath(app.fs.filePath(Dlg.data.inputFile), Dlg.data.inputSubdirectory),
-    }
+
 end
 
 function asepriteSorter.Execute()
