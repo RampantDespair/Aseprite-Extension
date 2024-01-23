@@ -9,7 +9,7 @@ if appData == nil then
     return
 end
 
-local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/aseprite-extension")
+local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/despair-extension")
 extensionPath = app.fs.normalizePath(extensionPath)
 
 local asepriteExporterPath = app.fs.joinPath(extensionPath, "Aseprite-Exporter.lua")
