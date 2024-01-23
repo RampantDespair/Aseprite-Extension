@@ -39,33 +39,22 @@ Config = {
         children = {},
         condition = nil,
     },
-    inputCheckDuplicates = {
+    inputDuplicatesMode = {
         order = 202,
-        type = "check",
-        default = true,
-        defaults = nil,
-        value = nil,
-        parent = nil,
-        children = {
-            "inputCheckDuplicatesMode",
-        },
-        condition = nil,
-    },
-    inputCheckDuplicatesMode = {
-        order = 203,
         type = "combobox",
         default = "override",
         defaults = {
             "override",
             "ignore",
+            "skip",
         },
         value = nil,
-        parent = "inputCheckDuplicates",
+        parent = nil,
         children = {},
         condition = nil,
     },
     inputSpritePosition = {
-        order = 204,
+        order = 203,
         type = "combobox",
         default = "center",
         defaults = {
@@ -82,7 +71,7 @@ Config = {
         condition = nil,
     },
     inputSpritePositionX = {
-        order = 205,
+        order = 204,
         type = "number",
         default = 0,
         defaults = nil,
@@ -92,7 +81,7 @@ Config = {
         condition = "manual",
     },
     inputSpritePositionY = {
-        order = 206,
+        order = 205,
         type = "number",
         default = 0,
         defaults = nil,
@@ -138,6 +127,24 @@ function asepriteImporter.GetLayerByName(layers, layerName)
 end
 
 ---@param activeSprite Sprite
+---@param newLayer Layer
+---@param otherLayer Layer
+function asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
+    for _, otherCel in ipairs(otherLayer.cels) do
+        if Config.inputSpritePosition.value == "center" then
+            activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(math.floor(activeSprite.width / 2) - math.floor(otherCel.bounds.width / 2), math.floor(activeSprite.height / 2) - math.floor(otherCel.bounds.height / 2)))
+        elseif Config.inputSpritePosition.value == "inherit" then
+            activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
+        elseif Config.inputSpritePosition.value == "manual" then
+            activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
+        else
+            app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
+            return
+        end
+    end
+end
+
+---@param activeSprite Sprite
 function asepriteImporter.Import(activeSprite)
     local activeColorMode = activeSprite.colorMode
     local activeColorModeName = asepriteImporter.GetColorMode(activeColorMode)
@@ -165,46 +172,20 @@ function asepriteImporter.Import(activeSprite)
 
                 for _, otherLayer in ipairs(otherSprite.layers) do
                     local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileName)
-                    if newLayer == nil then
+                    if newLayer == nil or Config.inputDuplicatesMode.value == "ignore" then
                         newLayer = activeSprite:newLayer()
                         newLayer.stackIndex = 1
                         newLayer.name = importFileName
-
-                        for _, otherCel in ipairs(otherLayer.cels) do
-                            if Config.inputSpritePosition.value == "center" then
-                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(math.floor(activeSprite.width / 2) - math.floor(otherCel.bounds.width / 2), math.floor(activeSprite.height / 2) - math.floor(otherCel.bounds.height / 2)))
-                            elseif Config.inputSpritePosition.value == "inherit" then
-                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
-                            elseif Config.inputSpritePosition.value == "manual" then
-                                activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
-                            else
-                                app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
-                                return
-                            end
-                        end
+                        asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
+                    elseif Config.inputDuplicatesMode.value == "override" then
+                        asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
+                    elseif Config.inputDuplicatesMode.value == "skip" then
+                        LayerCount = LayerCount - 1
                     else
-                        if Config.inputCheckDuplicates.value == true then
-                            if Config.inputCheckDuplicatesMode.value == "override" then
-                                for _, otherCel in ipairs(otherLayer.cels) do
-                                    if Config.inputSpritePosition.value == "center" then
-                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(math.floor(activeSprite.width / 2) - math.floor(otherCel.bounds.width / 2), math.floor(activeSprite.height / 2) - math.floor(otherCel.bounds.height / 2)))
-                                    elseif Config.inputSpritePosition.value == "inherit" then
-                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, otherCel.position)
-                                    elseif Config.inputSpritePosition.value == "manual" then
-                                        activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
-                                    else
-                                        app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
-                                        return
-                                    end
-                                end
-                            elseif Config.inputCheckDuplicatesMode.value == "ignore" then
-
-                            else
-                                app.alert("Invalid inputCheckDuplicatesMode value (" .. tostring(Config.inputCheckDuplicatesMode.value) .. ")")
-                                return
-                            end
-                        end
+                        app.alert("Invalid inputDuplicatesMode value (" .. tostring(Config.inputDuplicatesMode.value) .. ")")
+                        return
                     end
+                    LayerCount = LayerCount + 1
                 end
                 otherSprite:close()
             end
@@ -275,19 +256,12 @@ function asepriteImporter.BuildDialog(activeSprite)
         selected = Config.inputDirectoriesAsGroups.value,
         onclick = function() asepriteImporter.ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
     }
-    Dlg:check {
-        id = "inputCheckDuplicates",
-        label = "Check Duplicates:",
-        selected = Config.inputCheckDuplicates.value,
-        onclick = function() ConfigHandler.UpdateConfigValue("inputCheckDuplicates", Dlg.data.inputCheckDuplicates) end,
-    }
     Dlg:combobox {
-        id = "inputCheckDuplicatesMode",
-        label = " Check Duplicates Mode:",
-        option = Config.inputCheckDuplicatesMode.value,
-        options = Config.inputCheckDuplicatesMode.defaults,
-        visible = Config.inputCheckDuplicates.value,
-        onchange = function() ConfigHandler.UpdateConfigValue("inputCheckDuplicatesMode", Dlg.data.inputCheckDuplicatesMode) end,
+        id = "inputDuplicatesMode",
+        label = "Duplicates Mode:",
+        option = Config.inputDuplicatesMode.value,
+        options = Config.inputDuplicatesMode.defaults,
+        onchange = function() ConfigHandler.UpdateConfigValue("inputDuplicatesMode", Dlg.data.inputDuplicatesMode) end,
     }
     Dlg:combobox {
         id = "inputSpritePosition",
@@ -407,6 +381,8 @@ function asepriteImporter.Execute()
     end
 
     asepriteImporter.Import(activeSprite)
+
+    app.alert("Imported " .. LayerCount .. " layers")
 end
 
 function asepriteImporter.Initialize(configHandler, layerHandler)
