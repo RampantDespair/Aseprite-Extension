@@ -758,7 +758,7 @@ function asepriteExporter.BuildDialog(activeSprite)
     Dlg:entry {
         id = "help",
         label = "Need help? Visit my GitHub repository @",
-        text = "https://github.com/RampantDespair/Aseprite-Exporter",
+        text = "https://github.com/RampantDespair/Aseprite-Extension",
     }
     Dlg:separator {
         id = "helpSeparator",
