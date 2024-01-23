@@ -9,11 +9,13 @@ if appData == nil then
     return
 end
 
-local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/aseprite-import-export-extension")
+local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/aseprite-extension")
 extensionPath = app.fs.normalizePath(extensionPath)
 
 local asepriteExporterPath = app.fs.joinPath(extensionPath, "Aseprite-Exporter.lua")
 local asepriteImporterPath = app.fs.joinPath(extensionPath, "Aseprite-Importer.lua")
+local asepriteRenamerPath = app.fs.joinPath(extensionPath, "Aseprite-Renamer.lua")
+local asepriteSorterPath = app.fs.joinPath(extensionPath, "Aseprite-Sorter.lua")
 
 -- FUNCTIONS
 ---@param plugin Plugin
@@ -32,6 +34,18 @@ function init(plugin)
     }
 
     plugin:newCommand {
+        id = "asepriteExport",
+        title = "Export",
+        group = extensionGroup,
+        onclick = function()
+            local asepriteExporter = dofile(asepriteExporterPath)
+            asepriteExporter.Initialize(configHandler, layerHandler)
+            asepriteExporter.Execute()
+        end,
+        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+    }
+
+    plugin:newCommand {
         id = "asepriteImport",
         title = "Import",
         group = extensionGroup,
@@ -44,13 +58,25 @@ function init(plugin)
     }
 
     plugin:newCommand {
-        id = "asepriteExport",
-        title = "Export",
+        id = "asepriteRename",
+        title = "Rename",
         group = extensionGroup,
         onclick = function()
-            local asepriteExporter = dofile(asepriteExporterPath)
-            asepriteExporter.Initialize(configHandler, layerHandler)
-            asepriteExporter.Execute()
+            local asepriteRenamer = dofile(asepriteRenamerPath)
+            asepriteRenamer.Initialize(configHandler, layerHandler)
+            asepriteRenamer.Execute()
+        end,
+        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+    }
+
+    plugin:newCommand {
+        id = "asepriteSort",
+        title = "Sort",
+        group = extensionGroup,
+        onclick = function()
+            local asepriteSorter = dofile(asepriteSorterPath)
+            asepriteSorter.Initialize(configHandler, layerHandler)
+            asepriteSorter.Execute()
         end,
         onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
     }

@@ -4,6 +4,7 @@ local configHandler = {}
 -- FIELDS
 
 -- FUNCTIONS
+---@return boolean
 ---@param table table
 ---@param targetValue any
 function configHandler.ArrayContainsValue(table, targetValue)
@@ -15,6 +16,7 @@ function configHandler.ArrayContainsValue(table, targetValue)
     return false
 end
 
+---@return boolean
 ---@param table table
 ---@param targetKey any
 function configHandler.ArrayContainsKey(table, targetKey)
@@ -24,6 +26,18 @@ function configHandler.ArrayContainsKey(table, targetKey)
         end
     end
     return false
+end
+
+---@return integer
+---@param table table
+---@param targetValue any
+function configHandler.ArrayGetValueIndex(table, targetValue)
+    for index, value in ipairs(table) do
+        if value == targetValue then
+            return index
+        end
+    end
+    return -1
 end
 
 function configHandler.InitializeConfig()

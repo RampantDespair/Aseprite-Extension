@@ -1,6 +1,7 @@
 ---@class (exact) ConfigHandler
 ---@field ArrayContainsValue fun(table: table, targetValue: any): boolean
 ---@field ArrayContainsKey fun(table: table, targetKey: any): boolean
+---@field ArrayGetValueIndex fun(table: table, targetValue: any): integer
 ---@field InitializeConfig fun()
 ---@field PopulateConfig fun(configFile: string)
 ---@field InitializeConfigKeys fun()
