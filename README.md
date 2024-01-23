@@ -130,7 +130,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | --- | --- | --- |
 | Output File | The parent directory of the selected file will be used for export. | the file itself |
 | Output Subdirectory | The subdirectory used for export. | images |
-| Groups As Directories | If each group while be exported to it's own directory. | true |
+| Groups As Directories | If each group will be exported to it's own directory. | true |
 
 #### Sprite Settings
 
@@ -140,7 +140,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Sprite Name Trim | If the sprite name will be trimmed.<br> Trims the first instance "_" and everything preceding it. | true |
 | File Name Format | The file name's format with modifiable placeholders. | {spritename}-{layergroup}-{layername} |
 | File Format | The files' export format. | png |
-| SpriteSheet Trim | If the exported files' will have there excess space trimmed. | true |
+| SpriteSheet Trim | If the exported files' will have their excess space trimmed. | true |
 
 #### Spine Settings
 
@@ -150,7 +150,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Set Static Slot | If the same slot will be used for everything that's exported. | true |
 | Static Slot Name | The name of that static slot. | slot |
 | Set Root Position | If the root position will be set in the export file. | true |
-| Root Position Method | The method which will be used for setting the position.<br> <ins>Automatic</ins>: To use this method, create a layer called "root" and place a single pixel where you want the root to be.<br> <ins>Center</ins>: The center off the canvas will be used as root.<br> <ins>Manual</ins>: Input the coordinates manually in the subsequent fields. | center |
+| Root Position Method | The method which will be used for setting the position.<br> <ins>Automatic</ins>: To use this method, create a layer called "root" and place a single pixel where you want the root to be.<br> <ins>Center</ins>: The center of the canvas will be used as root.<br> <ins>Manual</ins>: Input the coordinates manually in the subsequent fields. | center |
 | Root Position X | The X coordinate of the root. | 0 |
 | Root Position Y | The Y coordinate of the root. | 0 |
 | Set Images Paths | If the images path whithin the exported spine file will be set. | true |
@@ -194,6 +194,8 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Directories As Groups | If each directory will be imported to it's own group. | true |
 | Duplicates Mode | The method which will be used for handling duplicate layers.<br> <ins>Ignore</ins>: The duplicates will be ignored and a new copy will be created.<br> <ins>Override</ins>: The duplicates will be updated with the newly imported cels.<br> <ins>Skips</ins>: The duplicates will be skipped (nothing will happen). | override |
 | Sprite Position Method | The method which will be used for positioning cels.<br> <ins>Center</ins>: The cels will be centered to canvas.<br> <ins>Inherit</ins>: The cels will keep their position from the imported file.<br> <ins>Manual</ins>: The cels will have the position specified. | center |
+| Sprite Position X | The X coordinate of the sprite. | 0 |
+| Sprite Position Y | The Y coordinate of the sprite. | 0 |
 
 </details>
 <br>
