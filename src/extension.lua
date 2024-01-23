@@ -19,7 +19,7 @@ local asepriteImporterPath = app.fs.joinPath(extensionPath, "Aseprite-Importer.l
 ---@param plugin Plugin
 function init(plugin)
     local parentGroup = "file_scripts"
-    local extensionGroup = "import_importy_export"
+    local extensionGroup = "despair_extension"
 
     plugin:newMenuSeparator {
         group = parentGroup,
@@ -27,7 +27,7 @@ function init(plugin)
 
     plugin:newMenuGroup {
         id = extensionGroup,
-        title = "Import/Export",
+        title = "Despair Extension",
         group = parentGroup,
     }
 
