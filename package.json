@@ -1,7 +1,7 @@
 {
-  "name": "aseprite-import-export-extension",
+  "name": "aseprite-extension",
   "version": "4.1.1",
-  "description": "An Aseprite import and export extension.",
+  "description": "An Aseprite import, export and layer manipulation extension.",
   "main": "index.js",
   "directories": {
     "example": "example",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RampantDespair/Aseprite-Import-Export-Extension.git"
+    "url": "git+https://github.com/RampantDespair/Aseprite-Extension.git"
   },
   "keywords": [
     "Aseprite",
@@ -29,9 +29,9 @@
   "author": "RampantDespair",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/RampantDespair/Aseprite-Import-Export-Extension/issues"
+    "url": "https://github.com/RampantDespair/Aseprite-Extension/issues"
   },
-  "homepage": "https://github.com/RampantDespair/Aseprite-Import-Export-Extension#readme",
+  "homepage": "https://github.com/RampantDespair/Aseprite-Extension#readme",
   "devDependencies": {
     "bestzip": "^2.2.1",
     "cpx2": "^7.0.1",
