@@ -78,6 +78,7 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 
 <details>
 <summary>Exporter</summary>
+<br>
 
 <!-- SHOWCASE -->
 <div align="center">
@@ -162,8 +163,8 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Layer Name Separator | The layers' name seperator. | - |
 
 </details>
-
 <br>
+
 <details>
 <summary>Importer</summary>
 <br>
@@ -195,8 +196,8 @@ With that in mind, this Aseprite extension lets you do all of the above with eas
 | Sprite Position Method | The method which will be used for positioning cels.<br> <ins>Center</ins>: The cels will be centered to canvas.<br> <ins>Inherit</ins>: The cels will keep their position from the imported file.<br> <ins>Manual</ins>: The cels will have the position specified. | center |
 
 </details>
-
 <br>
+
 <details>
 <summary>Renamer</summary>
 <br>
