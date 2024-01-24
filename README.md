@@ -266,6 +266,7 @@ Any contributions you make are **greatly appreciated**.
 <!-- LINKS -->
 ## Links
 
+*   [Aseprite Forums](https://community.aseprite.org/t/aseprite-extension-for-import-export-and-layer-manipulation/21295)
 *   [Esoteric Software Forums](https://esotericsoftware.com/forum/d/24339-aseprite-spine-script) (Spine Animation Forums)
 
 <!-- ACKNOWLEDGMENTS -->
