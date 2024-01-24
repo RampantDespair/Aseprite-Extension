@@ -867,9 +867,11 @@ function asepriteExporter.Execute()
 
     local layerVisibilityData = LayerHandler.GetLayerVisibilityData(activeSprite)
 
-    LayerHandler.HideLayers(activeSprite)
-    asepriteExporter.Export(activeSprite, activeSprite, fileName, fileNameTemplate)
-    LayerHandler.RestoreLayers(activeSprite, layerVisibilityData)
+    app.transaction("Exporter", function()
+        LayerHandler.HideLayers(activeSprite)
+        asepriteExporter.Export(activeSprite, activeSprite, fileName, fileNameTemplate)
+        LayerHandler.RestoreLayers(activeSprite, layerVisibilityData)
+    end)
 
     app.alert("Exported " .. LayerCount .. " layers to " .. Dlg.data.outputPath)
 end

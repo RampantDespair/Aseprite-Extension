@@ -380,7 +380,7 @@ function asepriteImporter.Execute()
         return
     end
 
-    asepriteImporter.Import(activeSprite)
+    app.transaction("Importer", function() asepriteImporter.Import(activeSprite) end)
 
     app.alert("Imported " .. LayerCount .. " layers")
 end
