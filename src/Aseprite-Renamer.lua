@@ -70,6 +70,7 @@ Dlg = Dialog("X")
 function asepriteRenamer.Rename(activeSprite)
     for _, layer in ipairs(activeSprite.layers) do
         layer.name = Config.renamePrefix.value .. string.gsub(layer.name, Config.renameMatch.value, Config.renameReplace.value) .. Config.renameSuffix.value
+        LayerCount = LayerCount + 1
     end
 end
 
@@ -227,7 +228,9 @@ function asepriteRenamer.Execute()
         return
     end
 
-    asepriteRenamer.Rename(activeSprite)
+    app.transaction("Renamer", function() asepriteRenamer.Rename(activeSprite) end)
+
+    app.alert("Renamed " .. LayerCount .. " layers")
 end
 
 function asepriteRenamer.Initialize(configHandler, layerHandler)

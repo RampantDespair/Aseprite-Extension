@@ -42,6 +42,7 @@ function asepriteSorter.Sort(activeSprite)
     for _, layer in ipairs(activeSprite.layers) do
         table.insert(layerNames, layer.name)
     end
+
     if Config.sortMethod.value == "ascending" then
         table.sort(layerNames, function (a, b) return a > b end)
     elseif Config.sortMethod.value == "descending" then
@@ -55,6 +56,7 @@ function asepriteSorter.Sort(activeSprite)
         while activeSprite.layers[i].name ~= layerNames[i] do
             activeSprite.layers[i].stackIndex = #activeSprite.layers
         end
+        LayerCount = LayerCount + 1
     end
 end
 
@@ -175,7 +177,9 @@ function asepriteSorter.Execute()
         return
     end
 
-    asepriteSorter.Sort(activeSprite)
+    app.transaction("Sorter", function() asepriteSorter.Sort(activeSprite) end)
+
+    app.alert("Sorted " .. LayerCount .. " layers")
 end
 
 function asepriteSorter.Initialize(configHandler, layerHandler)
