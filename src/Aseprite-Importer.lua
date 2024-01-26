@@ -138,8 +138,7 @@ function asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
         elseif Config.inputSpritePosition.value == "manual" then
             activeSprite:newCel(newLayer, otherCel.frameNumber, otherCel.image, Point(Config.inputSpritePositionX.value, Config.inputSpritePositionY.value))
         else
-            app.alert("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
-            return
+            error("Invalid inputSpritePosition value (" .. tostring(Config.inputSpritePosition.value) .. ")")
         end
     end
 end
@@ -181,8 +180,7 @@ function asepriteImporter.Import(activeSprite)
                     elseif Config.inputDuplicatesMode.value == "skip" then
                         LayerCount = LayerCount - 1
                     else
-                        app.alert("Invalid inputDuplicatesMode value (" .. tostring(Config.inputDuplicatesMode.value) .. ")")
-                        return
+                        error("Invalid inputDuplicatesMode value (" .. tostring(Config.inputDuplicatesMode.value) .. ")")
                     end
                     LayerCount = LayerCount + 1
                 end
@@ -326,12 +324,12 @@ end
 
 function asepriteImporter.Execute()
     if ConfigHandler == nil then
-        app.alert("Failed to get ConfigHandler.")
+        app.alert("Failed to get ConfigHandler, script aborted.")
         return
     end
 
     if LayerHandler == nil then
-        app.alert("Failed to get LayerHandler.")
+        app.alert("Failed to get LayerHandler, script aborted.")
         return
     end
 
