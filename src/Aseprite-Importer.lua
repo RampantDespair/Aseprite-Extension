@@ -159,7 +159,6 @@ function asepriteImporter.Import(activeSprite)
             importFileExtension = string.lower(importFileExtension)
             if ConfigHandler.ArrayContainsValue(ImportFileExtensions, importFileExtension) then
                 local importFileName = app.fs.fileTitle(importFile)
-                -- TODO add formatting
 
                 local otherSprite = Sprite({ fromFile = importFile })
                 app.command.ChangePixelFormat {
