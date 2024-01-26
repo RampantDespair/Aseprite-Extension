@@ -251,7 +251,7 @@ function asepriteImporter.BuildDialog(activeSprite)
         id = "inputDirectoriesAsGroups",
         label = "Directories As Groups:",
         selected = Config.inputDirectoriesAsGroups.value,
-        onclick = function() asepriteImporter.ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
+        onclick = function() ConfigHandler.UpdateConfigValue("inputDirectoriesAsGroups", Dlg.data.inputDirectoriesAsGroups) end,
     }
     Dlg:combobox {
         id = "inputDuplicatesMode",
