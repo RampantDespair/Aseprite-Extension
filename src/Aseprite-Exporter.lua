@@ -106,10 +106,10 @@ Config = {
         value = nil,
         parent = nil,
         children = {
+            "spineSetStaticSlot",
             "spineSetRootPostion",
             "spineSetImagesPath",
-            "spineGroupsAsSkins",
-            "spineSetStaticSlot",
+            "spineSkins",
         },
         condition = nil,
     },
@@ -155,7 +155,6 @@ Config = {
         default = "center",
         defaults = {
             "center",
-            "automatic",
             "manual",
         },
         value = nil,
@@ -208,7 +207,7 @@ Config = {
         children = {},
         condition = nil,
     },
-    spineGroupsAsSkins = {
+    spineSkins = {
         order = 409,
         type = "check",
         default = true,
@@ -216,28 +215,42 @@ Config = {
         value = nil,
         parent = "spineExport",
         children = {
+            "spineSkinsMode",
             "spineSkinNameFormat",
             "spineSeparateSlotSkin",
         },
         condition = nil,
     },
-    spineSkinNameFormat = {
+    spineSkinsMode = {
         order = 410,
+        type = "combobox",
+        default = "groups",
+        defaults = {
+            "groups",
+            "layers",
+        },
+        value = nil,
+        parent = "spineSkins",
+        children = {},
+        condition = nil,
+    },
+    spineSkinNameFormat = {
+        order = 411,
         type = "entry",
         default = "weapon-{layergroup}",
         defaults = nil,
         value = nil,
-        parent = "spineGroupsAsSkins",
+        parent = "spineSkins",
         children = {},
         condition = nil,
     },
     spineSeparateSlotSkin = {
-        order = 411,
+        order = 412,
         type = "check",
         default = true,
         defaults = nil,
         value = nil,
-        parent = "spineGroupsAsSkins",
+        parent = "spineSkins",
         children = {
             "spineSlotNameFormat",
             "spineSkinAttachmentFormat",
@@ -246,7 +259,7 @@ Config = {
         condition = nil,
     },
     spineSlotNameFormat = {
-        order = 412,
+        order = 413,
         type = "entry",
         default = "{layernameprefix}",
         defaults = nil,
@@ -256,7 +269,7 @@ Config = {
         condition = nil,
     },
     spineSkinAttachmentFormat = {
-        order = 413,
+        order = 414,
         type = "entry",
         default = "{layernameprefix}-{layernamesuffix}",
         defaults = nil,
@@ -266,7 +279,7 @@ Config = {
         condition = nil,
     },
     spineLayerNameSeparator = {
-        order = 414,
+        order = 415,
         type = "entry",
         default = "-",
         defaults = nil,
@@ -280,24 +293,24 @@ ConfigKeys = {}
 ConfigPathLocal = ""
 ConfigPathGlobal = ""
 Dlg = Dialog("X")
+RootPositon = {
+    x = 0,
+    y = 0,
+}
 
 -- FUNCTIONS
 ---@param activeSprite Sprite
-function asepriteExporter.GetRootPosition(activeSprite)
+function asepriteExporter.SetRootPosition(activeSprite)
     if Config.spineExport.value == true and Config.spineSetRootPostion.value == true then
         if Config.spineRootPostionMethod.value == "manual" then
-            return { x = Config.spineRootPostionX.value, y = Config.spineRootPostionY.value }
-        elseif Config.spineRootPostionMethod.value == "automatic" then
-            for _, layer in ipairs(activeSprite.layers) do
-                if layer.name == "root" then
-                    return { x = layer.cels[1].position.x, y = layer.cels[1].position.y }
-                end
-            end
+            RootPositon = { x = Config.spineRootPostionX.value, y = Config.spineRootPostionY.value }
         elseif Config.spineRootPostionMethod.value == "center" then
-            return { x = activeSprite.width / 2, y = activeSprite.height / 2 }
+            RootPositon = { x = activeSprite.width / 2, y = activeSprite.height / 2 }
+        else
+            error("Invalid spineRootPostionMethod value (" .. tostring(Config.spineRootPostionMethod.value) .. ")")
         end
+        app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
     end
-    return { x = 0, y = 0 }
 end
 
 ---@param activeSprite Sprite
@@ -321,64 +334,93 @@ end
 ---@param fileName string
 ---@param fileNameTemplate string
 function asepriteExporter.ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate)
+    app.command.GotoFirstFrame()
+
     for _, layer in ipairs(rootLayer.layers) do
         local _fileNameTemplate = fileNameTemplate
         local layerName = layer.name
 
-        if layerName ~= "root" then
-            if layer.isGroup then
-                local previousVisibility = layer.isVisible
-                layer.isVisible = true
+        if layer.isGroup then
+            local previousVisibility = layer.isVisible
+            layer.isVisible = true
 
-                if Config.outputGroupsAsDirectories.value == true then
-                    _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
-                end
+            if Config.outputGroupsAsDirectories.value == true then
+                _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
+            end
 
-                asepriteExporter.ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate)
+            asepriteExporter.ExportSpriteLayers(activeSprite, layer, fileName, _fileNameTemplate)
 
-                layer.isVisible = previousVisibility
+            layer.isVisible = previousVisibility
+        else
+            layer.isVisible = true
+
+            local layerParentName
+            if pcall(function () layerParentName = layer.parent.name end) then
+                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", layerParentName)
             else
-                layer.isVisible = true
+                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", "default")
+            end
 
-                local layerParentName
-                if pcall(function () layerParentName = layer.parent.name end) then
-                    _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", layerParentName)
-                else
-                    _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", "default")
+            _fileNameTemplate = string.gsub(_fileNameTemplate, "{layername}", layerName)
+
+            if #activeSprite.frames > 1 then
+                for i = 1, #activeSprite.frames, 1 do
+                    local cel = layer:cel(i)
+                    local tempFileNameTemplate = _fileNameTemplate
+
+                    if cel ~= nil then
+                        if #layer.cels > 1 then
+                            tempFileNameTemplate = tempFileNameTemplate .. "-" .. tostring(i)
+                        end
+
+                        if Config.spriteSheetExport.value == true then
+                            local tempSprite = Sprite(activeSprite.width, activeSprite.height)
+                            tempSprite:newCel(tempSprite.layers[1], 1, cel.image, cel.position)
+                            asepriteExporter.ExportSpriteSheet(tempSprite, cel, tempFileNameTemplate)
+                            tempSprite:close()
+                        end
+
+                        if Config.spineExport.value == true then
+                            asepriteExporter.ExportSpineJsonParse(layer, cel, tempFileNameTemplate)
+                        end
+                    end
+
+                    app.command.GotoNextFrame()
                 end
 
-                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layername}", layerName)
-
-                if #layer.cels ~= 0 then
+                LayerCount = LayerCount + 1
+            else
+                if #layer.cels == 1 then
                     if Config.spriteSheetExport.value == true then
-                        asepriteExporter.ExportSpriteSheet(activeSprite, layer, _fileNameTemplate)
+                        asepriteExporter.ExportSpriteSheet(activeSprite, layer.cels[1], _fileNameTemplate)
                     end
 
                     if Config.spineExport.value == true then
-                        asepriteExporter.ExportSpineJsonParse(layer, _fileNameTemplate)
+                        asepriteExporter.ExportSpineJsonParse(layer, layer.cels[1], _fileNameTemplate)
                     end
 
                     LayerCount = LayerCount + 1
                 end
-
-                layer.isVisible = false
             end
+
+            layer.isVisible = false
+            app.command.GotoFirstFrame()
         end
     end
 end
 
 ---@param activeSprite Sprite
----@param layer Layer
+---@param cel Cel
 ---@param fileNameTemplate string
-function asepriteExporter.ExportSpriteSheet(activeSprite, layer, fileNameTemplate)
-    local cel = layer.cels[1]
+function asepriteExporter.ExportSpriteSheet(activeSprite, cel, fileNameTemplate)
     local currentLayer = Sprite(activeSprite)
 
     if Config.spriteSheetTrim.value == true then
         currentLayer:crop(cel.position.x, cel.position.y, cel.bounds.width, cel.bounds.height)
     end
 
-    currentLayer:saveCopyAs(app.fs.joinPath(Dlg.data.outputPath, fileNameTemplate .. "." .. Config.spriteSheetFileFormat.value))
+    local newPath = app.fs.joinPath(Dlg.data.outputPath, fileNameTemplate .. "." .. Config.spriteSheetFileFormat.value)
+    currentLayer:saveCopyAs(newPath)
     currentLayer:close()
 end
 
@@ -407,8 +449,9 @@ function asepriteExporter.ExportSpineJsonStart(fileName)
 end
 
 ---@param layer Layer
+---@param cel Cel
 ---@param fileNameTemplate string
-function asepriteExporter.ExportSpineJsonParse(layer, fileNameTemplate)
+function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
     local layerName = layer.name
 
     local slotName
@@ -420,18 +463,16 @@ function asepriteExporter.ExportSpineJsonParse(layer, fileNameTemplate)
 
     local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", slotName)
 
-    local layerCel = layer.cels[1]
+    local celPosition = cel.position
+    local celX = celPosition.x
+    local celY = celPosition.y
 
-    local layerCelPosition = layerCel.position
-    local layerCelX = layerCelPosition.x
-    local layerCelY = layerCelPosition.y
+    local celBounds = cel.bounds
+    local celWidth = celBounds.width
+    local celHeight = celBounds.height
 
-    local layerCelBounds = layerCel.bounds
-    local layerCelWidth = layerCelBounds.width
-    local layerCelHeight = layerCelBounds.height
-
-    local realPostionX = layerCelX + layerCelWidth / 2
-    local realPositionY = layerCelY + layerCelHeight / 2
+    local realPostionX = celX + celWidth / 2
+    local realPositionY = celY + celHeight / 2
 
     local spriteX
     local spriteY
@@ -444,55 +485,108 @@ function asepriteExporter.ExportSpineJsonParse(layer, fileNameTemplate)
         spriteY = realPositionY
     end
 
-    if Config.spineGroupsAsSkins.value == true then
+    if Config.spineSkins.value == true then
         fileNameTemplate = string.gsub(fileNameTemplate, "\\", "/")
-        local skinName
-        if pcall(function () skinName = layer.parent.name end) then
-            skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.parent.name)
-        end
-
-        if skinName ~= nil then
-            if ConfigHandler.ArrayContainsKey(SkinsJson, skinName) == false then
-                SkinsJson[skinName] = {}
+        if Config.spineSkinsMode.value == "groups" then
+            local skinName
+            if pcall(function () skinName = layer.parent.name end) then
+                skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.parent.name)
             end
 
-            local skinAttachmentName = layerName
+            if skinName ~= nil then
+                if ConfigHandler.ArrayContainsKey(SkinsJson, skinName) == false then
+                    SkinsJson[skinName] = {}
+                end
 
-            if Config.spineSeparateSlotSkin.value == true then
-                local separatorPosition = string.find(layerName, Config.spineLayerNameSeparator.value)
+                local skinAttachmentName = layerName
 
-                if separatorPosition then
-                    local layerNamePrefix = string.sub(layerName, 1, separatorPosition - 1)
-                    local layerNameSuffix = string.sub(layerName, separatorPosition + 1, #layerName)
+                if Config.spineSeparateSlotSkin.value == true then
+                    local separatorPosition = string.find(layerName, Config.spineLayerNameSeparator.value)
 
-                    slotName = Config.spineSlotNameFormat.value
-                    if slotName ~= nil then
-                        slotName = string.gsub(slotName, "{layernameprefix}", layerNamePrefix)
-                        slotName = string.gsub(slotName, "{layernamesuffix}", layerNameSuffix)
-                    end
+                    if separatorPosition then
+                        local layerNamePrefix = string.sub(layerName, 1, separatorPosition - 1)
+                        local layerNameSuffix = string.sub(layerName, separatorPosition + 1, #layerName)
 
-                    skinAttachmentName = Config.spineSkinAttachmentFormat.value
-                    if skinAttachmentName ~= nil then
-                        skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
-                        skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix) 
-                    end
+                        slotName = Config.spineSlotNameFormat.value
+                        if slotName ~= nil then
+                            slotName = string.gsub(slotName, "{layernameprefix}", layerNamePrefix)
+                            slotName = string.gsub(slotName, "{layernamesuffix}", layerNameSuffix)
+                        end
 
-                    if slotName == skinAttachmentName then
-                        slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
-                    else
-                        slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
+                        skinAttachmentName = Config.spineSkinAttachmentFormat.value
+                        if skinAttachmentName ~= nil then
+                            skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
+                            skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix)
+                        end
+
+                        if slotName == skinAttachmentName then
+                            slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
+                        else
+                            slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
+                        end
                     end
                 end
+
+                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+            else
+                if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
+                    SkinsJson["default"] = {}
+                end
+
+                fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
+                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+            end
+        elseif Config.spineSkinsMode.value == "layers" then
+            local skinName
+            if pcall(function () skinName = layer.name end) then
+                skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.name)
             end
 
-            SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+            if skinName ~= nil then
+                if ConfigHandler.ArrayContainsKey(SkinsJson, skinName) == false then
+                    SkinsJson[skinName] = {}
+                end
+
+                local skinAttachmentName = layerName
+
+                if Config.spineSeparateSlotSkin.value == true then
+                    local separatorPosition = string.find(layerName, Config.spineLayerNameSeparator.value)
+
+                    if separatorPosition then
+                        local layerNamePrefix = string.sub(layerName, 1, separatorPosition - 1)
+                        local layerNameSuffix = string.sub(layerName, separatorPosition + 1, #layerName)
+
+                        slotName = Config.spineSlotNameFormat.value
+                        if slotName ~= nil then
+                            slotName = string.gsub(slotName, "{layernameprefix}", layerNamePrefix)
+                            slotName = string.gsub(slotName, "{layernamesuffix}", layerNameSuffix)
+                        end
+
+                        skinAttachmentName = Config.spineSkinAttachmentFormat.value
+                        if skinAttachmentName ~= nil then
+                            skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
+                            skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix)
+                        end
+
+                        if slotName == skinAttachmentName then
+                            slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
+                        else
+                            slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
+                        end
+                    end
+                end
+
+                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+            else
+                if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
+                    SkinsJson["default"] = {}
+                end
+
+                fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
+                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+            end
         else
-            if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
-                SkinsJson["default"] = {}
-            end
-
-            fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
-            SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+            error("Invalid spineSkinsMode value (" .. tostring(Config.spineSkinsMode.value) .. ")")
         end
     else
         if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
@@ -500,7 +594,7 @@ function asepriteExporter.ExportSpineJsonParse(layer, fileNameTemplate)
         end
 
         fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
-        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, layerCelWidth, layerCelHeight)
+        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
     end
 
     if ConfigHandler.ArrayContainsValue(SlotsJson, slot) == false then
@@ -513,7 +607,7 @@ function asepriteExporter.ExportSpineJsonEnd()
     JsonFile:write(table.concat(SlotsJson, ", "))
     JsonFile:write(" ], ")
 
-    if Config.spineGroupsAsSkins.value == true then
+    if Config.spineSkins.value == true then
         JsonFile:write('"skins": [ ')
 
         local parsedSkins = {}
@@ -531,7 +625,7 @@ function asepriteExporter.ExportSpineJsonEnd()
         JsonFile:write('}, ')
     end
 
-    JsonFile:write('"animations": { "animation": {} }')
+    JsonFile:write('"animations": { "animation": {} } ')
 
     JsonFile:write("}")
 
@@ -711,45 +805,53 @@ function asepriteExporter.BuildDialog(activeSprite)
         onchange = function() ConfigHandler.UpdateConfigValue("spineImagesPath", Dlg.data.spineImagesPath) end,
     }
     Dlg:check {
-        id = "spineGroupsAsSkins",
-        label = " Groups As Skins:",
-        selected = Config.spineGroupsAsSkins.value,
+        id = "spineSkins",
+        label = " Skins:",
+        selected = Config.spineSkins.value,
         visible = Config.spineExport.value,
-        onclick = function() ConfigHandler.UpdateConfigValue("spineGroupsAsSkins", Dlg.data.spineGroupsAsSkins) end,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSkins", Dlg.data.spineSkins) end,
+    }
+    Dlg:combobox {
+        id = "spineSkinsMode",
+        label = "  Mode:",
+        option = Config.spineSkinsMode.value,
+        options = Config.spineSkinsMode.defaults,
+        visible = Config.spineExport.value and Config.spineSkins.value,
+        onchange = function() ConfigHandler.UpdateConfigValue("spineSkinsMode", Dlg.data.spineSkinsMode) end,
     }
     Dlg:entry {
         id = "spineSkinNameFormat",
         label = "  Skin Name Format:",
         text = Config.spineSkinNameFormat.value,
-        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
+        visible = Config.spineExport.value and Config.spineSkins.value,
         onchange = function() ConfigHandler.UpdateConfigValue("spineSkinNameFormat", Dlg.data.spineSkinNameFormat) end,
     }
     Dlg:check {
         id = "spineSeparateSlotSkin",
         label = "  Separate Slot/Skin:",
         selected = Config.spineSeparateSlotSkin.value,
-        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value,
+        visible = Config.spineExport.value and Config.spineSkins.value,
         onclick = function() ConfigHandler.UpdateConfigValue("spineSeparateSlotSkin", Dlg.data.spineSeparateSlotSkin) end,
     }
     Dlg:entry {
         id = "spineSlotNameFormat",
         label = "   Slot Name Format:",
         text = Config.spineSlotNameFormat.value,
-        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        visible = Config.spineExport.value and Config.spineSkins.value and Config.spineSeparateSlotSkin.value,
         onchange = function() ConfigHandler.UpdateConfigValue("spineSlotNameFormat", Dlg.data.spineSlotNameFormat) end,
     }
     Dlg:entry {
         id = "spineSkinAttachmentFormat",
         label = "   Skin Attachment Format:",
         text = Config.spineSkinAttachmentFormat.value,
-        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        visible = Config.spineExport.value and Config.spineSkins.value and Config.spineSeparateSlotSkin.value,
         onchange = function() ConfigHandler.UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat) end,
     }
     Dlg:entry {
         id = "spineLayerNameSeparator",
         label = "   Layer Name Separator:",
         text = Config.spineLayerNameSeparator.value,
-        visible = Config.spineExport.value and Config.spineGroupsAsSkins.value and Config.spineSeparateSlotSkin.value,
+        visible = Config.spineExport.value and Config.spineSkins.value and Config.spineSeparateSlotSkin.value,
         onchange = function() ConfigHandler.UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator) end,
     }
 
@@ -793,12 +895,12 @@ end
 
 function asepriteExporter.Execute()
     if ConfigHandler == nil then
-        app.alert("Failed to get ConfigHandler.")
+        app.alert("Failed to get ConfigHandler, script aborted.")
         return
     end
 
     if LayerHandler == nil then
-        app.alert("Failed to get LayerHandler.")
+        app.alert("Failed to get LayerHandler, script aborted.")
         return
     end
 
@@ -862,8 +964,7 @@ function asepriteExporter.Execute()
         return
     end
 
-    RootPositon = asepriteExporter.GetRootPosition(activeSprite)
-    app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
+    asepriteExporter.SetRootPosition(activeSprite)
 
     local layerVisibilityData = LayerHandler.GetLayerVisibilityData(activeSprite)
 
