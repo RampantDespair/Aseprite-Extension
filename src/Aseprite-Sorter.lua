@@ -2,9 +2,7 @@
 local asepriteSorter = {}
 
 -- FIELDS
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
+---@type table<string, ConfigEntry>
 Config = {
     configSelect = {
         order = 100,
@@ -30,6 +28,9 @@ Config = {
         condition = nil,
     },
 }
+LayerCount = 0
+ConfigHandler = nil
+LayerHandler = nil
 ConfigKeys = {}
 ConfigPathLocal = ""
 ConfigPathGlobal = ""

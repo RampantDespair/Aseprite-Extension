@@ -2,9 +2,7 @@
 local asepriteRenamer = {}
 
 -- FIELDS
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
+---@type table<string, ConfigEntry>
 Config = {
     configSelect = {
         order = 100,
@@ -23,7 +21,7 @@ Config = {
         order = 200,
         type = "entry",
         default = "this",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
@@ -33,7 +31,7 @@ Config = {
         order = 201,
         type = "entry",
         default = "that",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
@@ -43,7 +41,7 @@ Config = {
         order = 202,
         type = "entry",
         default = "prefix",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
@@ -53,13 +51,16 @@ Config = {
         order = 203,
         type = "entry",
         default = "suffix",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
         condition = nil,
     },
 }
+LayerCount = 0
+ConfigHandler = nil
+LayerHandler = nil
 ConfigKeys = {}
 ConfigPathLocal = ""
 ConfigPathGlobal = ""
