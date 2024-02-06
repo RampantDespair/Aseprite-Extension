@@ -36,11 +36,14 @@ ConfigPathGlobal = ""
 Dlg = Dialog("X")
 
 -- FUNCTIONS
----@param activeSprite Sprite
+---@param activeSprite Sprite | Layer
 function asepriteSorter.Sort(activeSprite)
     local layerNames = {}
     for _, layer in ipairs(activeSprite.layers) do
         table.insert(layerNames, layer.name)
+        if layer.isGroup == true then
+            asepriteSorter.Sort(layer)
+        end
     end
 
     if Config.sortMethod.value == "ascending" then
