@@ -2,9 +2,7 @@
 local asepriteImporter = {}
 
 -- FIELDS
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
+---@type table<string, ConfigEntry>
 Config = {
     configSelect = {
         order = 100,
@@ -23,7 +21,7 @@ Config = {
         order = 200,
         type = "entry",
         default = "sprite",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
@@ -33,7 +31,7 @@ Config = {
         order = 201,
         type = "check",
         default = true,
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = nil,
         children = {},
@@ -74,7 +72,7 @@ Config = {
         order = 204,
         type = "number",
         default = "0",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = "inputSpritePosition",
         children = {},
@@ -84,13 +82,16 @@ Config = {
         order = 205,
         type = "number",
         default = "0",
-        defaults = nil,
+        defaults = {},
         value = nil,
         parent = "inputSpritePosition",
         children = {},
         condition = "manual",
     },
 }
+LayerCount = 0
+ConfigHandler = nil
+LayerHandler = nil
 ConfigKeys = {}
 ConfigPathLocal = ""
 ConfigPathGlobal = ""
@@ -144,15 +145,41 @@ function asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
 end
 
 ---@param activeSprite Sprite
-function asepriteImporter.Import(activeSprite)
+---@param parentDirectory string | nil
+---@param groupLayer Layer | nil
+function asepriteImporter.Import(activeSprite, parentDirectory, groupLayer)
     local activeColorMode = activeSprite.colorMode
     local activeColorModeName = asepriteImporter.GetColorMode(activeColorMode)
-    local importFiles = app.fs.listFiles(Dlg.data.inputPath)
+
+    local targetPath = Dlg.data.inputPath
+    if parentDirectory ~= nil then
+        targetPath = app.fs.joinPath(targetPath, parentDirectory)
+        targetPath = app.fs.normalizePath(targetPath)
+    end
+
+    local importFiles = app.fs.listFiles(targetPath)
     for _, value in ipairs(importFiles) do
-        local importFile = app.fs.joinPath(Dlg.data.inputPath, value)
+        local importFile = app.fs.joinPath(targetPath, value)
         importFile = app.fs.normalizePath(importFile)
         if app.fs.isDirectory(importFile) then
-            app.alert(importFile)
+            local importFileDirectory = app.fs.fileTitle(importFile)
+            local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileDirectory)
+            if newLayer ~= nil and newLayer.isGroup == false then
+                newLayer = nil
+            end
+
+            if newLayer == nil or Config.inputDuplicatesMode.value == "ignore" then
+                newLayer = activeSprite:newGroup()
+                newLayer.stackIndex = 1
+                newLayer.name = importFileDirectory
+                asepriteImporter.Import(activeSprite, importFileDirectory, newLayer)
+            elseif Config.inputDuplicatesMode.value == "override" then
+                asepriteImporter.Import(activeSprite, importFileDirectory, newLayer)
+            elseif Config.inputDuplicatesMode.value == "skip" then
+
+            else
+                error("Invalid inputDuplicatesMode value (" .. tostring(Config.inputDuplicatesMode.value) .. ")")
+            end
         else
             local importFileExtension = app.fs.fileExtension(importFile)
             importFileExtension = string.lower(importFileExtension)
@@ -169,11 +196,12 @@ function asepriteImporter.Import(activeSprite)
                 end
 
                 for _, otherLayer in ipairs(otherSprite.layers) do
-                    local newLayer = asepriteImporter.GetLayerByName(activeSprite.layers, importFileName)
+                    local newLayer = asepriteImporter.GetLayerByName(groupLayer ~= nil and groupLayer.layers or activeSprite.layers, importFileName)
                     if newLayer == nil or Config.inputDuplicatesMode.value == "ignore" then
                         newLayer = activeSprite:newLayer()
                         newLayer.stackIndex = 1
                         newLayer.name = importFileName
+                        newLayer.parent = groupLayer ~= nil and groupLayer or activeSprite
                         asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
                     elseif Config.inputDuplicatesMode.value == "override" then
                         asepriteImporter.CreateCels(activeSprite, newLayer, otherLayer)
@@ -377,7 +405,7 @@ function asepriteImporter.Execute()
         return
     end
 
-    app.transaction("Importer", function() asepriteImporter.Import(activeSprite) end)
+    app.transaction("Importer", function() asepriteImporter.Import(activeSprite, nil, nil) end)
 
     app.alert("Imported " .. LayerCount .. " layers")
 end
