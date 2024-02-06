@@ -23,8 +23,9 @@ LayerHandler = {}
 ---@field order integer
 ---@field type "check" | "combobox" | "entry" | "number" | "radio" | "slider",
 ---@field default any,
+---@field defaults string[],
 ---@field value any,
 ---@field parent string | nil,
----@field children table,
----@field condition any,
+---@field children string[],
+---@field condition string | nil,
 ConfigEntry = {}
