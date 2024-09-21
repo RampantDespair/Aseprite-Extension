@@ -17,8 +17,11 @@
   "contributes": {
     "scripts": [
       {
-      "path": "./extension.lua"
+        "path": "./extension.lua"
       }
     ]
+  },
+  "dependencies": {
+    "despair-extension": "file:"
   }
 }

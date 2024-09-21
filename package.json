@@ -37,5 +37,8 @@
     "cpx2": "^7.0.1",
     "make-dir-cli": "^3.1.0",
     "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "despair-extension": "file:"
   }
 }
