@@ -8,6 +8,9 @@ local configHandler = {}
 ---@param table table
 ---@param targetValue any
 function configHandler.ArrayContainsValue(table, targetValue)
+    if table == nil then
+        return false
+    end
     for _, value in ipairs(table) do
         if value == targetValue then
             return true
@@ -20,6 +23,9 @@ end
 ---@param table table
 ---@param targetKey any
 function configHandler.ArrayContainsKey(table, targetKey)
+    if table == nil then
+        return false
+    end
     for key, _ in pairs(table) do
         if key == targetKey then
             return true
@@ -32,12 +38,30 @@ end
 ---@param table table
 ---@param targetValue any
 function configHandler.ArrayGetValueIndex(table, targetValue)
+    if table == nil then
+        return -1
+    end
     for index, value in ipairs(table) do
         if value == targetValue then
             return index
         end
     end
     return -1
+end
+
+---https://stackoverflow.com/questions/1426954/split-string-in-lua
+---@return table
+---@param input string
+---@param seperator string
+function configHandler.SplitString(input, seperator)
+    if seperator == nil then
+        return {}
+    end
+    local values = {}
+    for value in string.gmatch(input, "([^" .. seperator .. "]+)") do
+        table.insert(values, value)
+    end
+    return values
 end
 
 function configHandler.InitializeConfig()
@@ -88,8 +112,20 @@ function configHandler.PopulateConfig(configFile)
             elseif entry.value == "nil" then
                 entry.value = nil
             end
+
+            if entry.type == "color" then
+                local values = configHandler.SplitString(entry.value, ";")
+                if #values == 4 then
+                    entry.value = Color{ 
+                        r=tonumber(values[1]) or 0,
+                        g=tonumber(values[2]) or 0,
+                        b=tonumber(values[3]) or 0,
+                        a=tonumber(values[4]) or 0
+                    }
+                end
+            end
         end
-        if type(entry.value) ~= type(entry.default) or entry.defaults ~= nil and not configHandler.ArrayContainsValue(entry.defaults, entry.value) then
+        if type(entry.default) ~= "userdata" and type(entry.value) ~= type(entry.default) or (#entry.defaults ~= 0 and not configHandler.ArrayContainsValue(entry.defaults, entry.value)) then
             entry.value = entry.default
         end
     end
@@ -155,7 +191,9 @@ function configHandler.WriteConfig()
 
     if configFile ~= nil then
         for _, value in ipairs(ConfigKeys) do
-            if type(Config[value.key].value) ~= "string" then
+            if Config[value.key].type == "color" then
+                configFile:write(value.key .. "=" .. tostring(Config[value.key].value.red).. ";" .. tostring(Config[value.key].value.green).. ";" .. tostring(Config[value.key].value.blue).. ";" .. tostring(Config[value.key].value.alpha).. ";" .. "\n")
+            elseif type(Config[value.key].value) ~= "string" then
                 configFile:write(value.key .. "=" .. tostring(Config[value.key].value) .. "\n")
             else
                 configFile:write(value.key .. "=" .. Config[value.key].value .. "\n")
@@ -175,6 +213,11 @@ function configHandler.UpdateDialog(configKey, newValue)
         Dlg:modify {
             id = configKey,
             selected = newValue,
+        }
+    elseif Config[configKey].type == "color" then
+        Dlg:modify {
+            id = configKey,
+            color = newValue,
         }
     elseif Config[configKey].type == "combobox" then
         Dlg:modify {

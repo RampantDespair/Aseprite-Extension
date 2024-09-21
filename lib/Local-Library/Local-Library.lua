@@ -21,7 +21,7 @@ LayerHandler = {}
 
 ---@class (exact) ConfigEntry
 ---@field order integer
----@field type "check" | "combobox" | "entry" | "number" | "radio" | "slider",
+---@field type "check" | "color" | "combobox" | "entry" | "number" | "radio" | "slider",
 ---@field default any,
 ---@field defaults string[],
 ---@field value any,
