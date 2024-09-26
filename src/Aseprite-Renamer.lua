@@ -1,71 +1,6 @@
 -- INSTANCE DECLARATION
 local asepriteRenamer = {}
 
--- FIELDS
----@type table<string, ConfigEntry>
-Config = {
-    configSelect = {
-        order = 100,
-        type = "combobox",
-        default = "global",
-        defaults = {
-            "global",
-            "local",
-        },
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    renameMatch = {
-        order = 200,
-        type = "entry",
-        default = "this",
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    renameReplace = {
-        order = 201,
-        type = "entry",
-        default = "that",
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    renamePrefix = {
-        order = 202,
-        type = "entry",
-        default = "prefix",
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    renameSuffix = {
-        order = 203,
-        type = "entry",
-        default = "suffix",
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-}
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
-ConfigKeys = {}
-ConfigPathLocal = ""
-ConfigPathGlobal = ""
-Dlg = Dialog("X")
-
 -- FUNCTIONS
 ---@param activeSprite Sprite
 function asepriteRenamer.Rename(activeSprite)
@@ -237,6 +172,69 @@ end
 function asepriteRenamer.Initialize(configHandler, layerHandler)
     ConfigHandler = configHandler
     LayerHandler = layerHandler
+
+    -- FIELDS
+    ---@type table<string, ConfigEntry>
+    Config = {
+        configSelect = {
+            order = 100,
+            type = "combobox",
+            default = "global",
+            defaults = {
+                "global",
+                "local",
+            },
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        renameMatch = {
+            order = 200,
+            type = "entry",
+            default = "this",
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        renameReplace = {
+            order = 201,
+            type = "entry",
+            default = "that",
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        renamePrefix = {
+            order = 202,
+            type = "entry",
+            default = "prefix",
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        renameSuffix = {
+            order = 203,
+            type = "entry",
+            default = "suffix",
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+    }
+    LayerCount = 0
+    ConfigKeys = {}
+    ConfigPathLocal = ""
+    ConfigPathGlobal = ""
+    Dlg = Dialog("X")
 end
 
 -- INSTANCE RETURN

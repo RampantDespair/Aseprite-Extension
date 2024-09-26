@@ -1,41 +1,6 @@
 -- INSTANCE DECLARATION
 local asepriteSorter = {}
 
--- FIELDS
----@type table<string, ConfigEntry>
-Config = {
-    configSelect = {
-        order = 100,
-        type = "combobox",
-        default = "global",
-        defaults = {
-            "global",
-            "local",
-        },
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    sortMethod = {
-        order = 200,
-        type = "combobox",
-        default = "ascending",
-        defaults = { "ascending", "descending" },
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-}
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
-ConfigKeys = {}
-ConfigPathLocal = ""
-ConfigPathGlobal = ""
-Dlg = Dialog("X")
-
 -- FUNCTIONS
 ---@param activeSprite Sprite | Layer
 function asepriteSorter.Sort(activeSprite)
@@ -189,6 +154,39 @@ end
 function asepriteSorter.Initialize(configHandler, layerHandler)
     ConfigHandler = configHandler
     LayerHandler = layerHandler
+
+    -- FIELDS
+    ---@type table<string, ConfigEntry>
+    Config = {
+        configSelect = {
+            order = 100,
+            type = "combobox",
+            default = "global",
+            defaults = {
+                "global",
+                "local",
+            },
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        sortMethod = {
+            order = 200,
+            type = "combobox",
+            default = "ascending",
+            defaults = { "ascending", "descending" },
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+    }
+    LayerCount = 0
+    ConfigKeys = {}
+    ConfigPathLocal = ""
+    ConfigPathGlobal = ""
+    Dlg = Dialog("X")
 end
 
 -- INSTANCE RETURN

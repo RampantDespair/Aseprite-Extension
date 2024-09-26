@@ -1,21 +1,11 @@
 -- FIELDS
-local configHandler = dofile("Config-Handler.lua")
-local layerHandler = dofile("Layer-Handler.lua")
+local configHandler = require("Config-Handler")
+local layerHandler = require("Layer-Handler")
 
-local appData = os.getenv("APPDATA")
-
-if appData == nil then
-    app.alert("APPDATA was nil, scripts won't load.")
-    return
-end
-
-local extensionPath = app.fs.joinPath(appData, "Aseprite/extensions/despair-extension")
-extensionPath = app.fs.normalizePath(extensionPath)
-
-local asepriteExporterPath = app.fs.joinPath(extensionPath, "Aseprite-Exporter.lua")
-local asepriteImporterPath = app.fs.joinPath(extensionPath, "Aseprite-Importer.lua")
-local asepriteRenamerPath = app.fs.joinPath(extensionPath, "Aseprite-Renamer.lua")
-local asepriteSorterPath = app.fs.joinPath(extensionPath, "Aseprite-Sorter.lua")
+local asepriteExporter = require("Aseprite-Exporter")
+local asepriteImporter = require("Aseprite-Importer")
+local asepriteRenamer = require("Aseprite-Renamer")
+local asepriteSorter = require("Aseprite-Sorter")
 
 -- FUNCTIONS
 ---@param plugin Plugin
@@ -38,11 +28,10 @@ function init(plugin)
         title = "Export",
         group = extensionGroup,
         onclick = function()
-            local asepriteExporter = dofile(asepriteExporterPath)
             asepriteExporter.Initialize(configHandler, layerHandler)
             asepriteExporter.Execute()
         end,
-        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+        onenabled = function() return app.activeSprite ~= nil end,
     }
 
     plugin:newCommand {
@@ -50,11 +39,10 @@ function init(plugin)
         title = "Import",
         group = extensionGroup,
         onclick = function()
-            local asepriteImporter = dofile(asepriteImporterPath)
             asepriteImporter.Initialize(configHandler, layerHandler)
             asepriteImporter.Execute()
         end,
-        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+        onenabled = function() return app.activeSprite ~= nil end,
     }
 
     plugin:newCommand {
@@ -62,11 +50,10 @@ function init(plugin)
         title = "Rename",
         group = extensionGroup,
         onclick = function()
-            local asepriteRenamer = dofile(asepriteRenamerPath)
             asepriteRenamer.Initialize(configHandler, layerHandler)
             asepriteRenamer.Execute()
         end,
-        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+        onenabled = function() return app.activeSprite ~= nil end,
     }
 
     plugin:newCommand {
@@ -74,11 +61,10 @@ function init(plugin)
         title = "Sort",
         group = extensionGroup,
         onclick = function()
-            local asepriteSorter = dofile(asepriteSorterPath)
             asepriteSorter.Initialize(configHandler, layerHandler)
             asepriteSorter.Execute()
         end,
-        onenabled = function() return appData ~= nil and app.activeSprite ~= nil end,
+        onenabled = function() return app.activeSprite ~= nil end,
     }
 end
 
