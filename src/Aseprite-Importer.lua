@@ -1,103 +1,6 @@
 -- INSTANCE DECLARATION
 local asepriteImporter = {}
 
--- FIELDS
----@type table<string, ConfigEntry>
-Config = {
-    configSelect = {
-        order = 100,
-        type = "combobox",
-        default = "global",
-        defaults = {
-            "global",
-            "local",
-        },
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    inputSubdirectory = {
-        order = 200,
-        type = "entry",
-        default = "sprite",
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    inputDirectoriesAsGroups = {
-        order = 201,
-        type = "check",
-        default = true,
-        defaults = {},
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    inputDuplicatesMode = {
-        order = 202,
-        type = "combobox",
-        default = "override",
-        defaults = {
-            "override",
-            "ignore",
-            "skip",
-        },
-        value = nil,
-        parent = nil,
-        children = {},
-        condition = nil,
-    },
-    inputSpritePosition = {
-        order = 203,
-        type = "combobox",
-        default = "center",
-        defaults = {
-            "center",
-            "inherit",
-            "manual",
-        },
-        value = nil,
-        parent = nil,
-        children = {
-            "inputSpritePositionX",
-            "inputSpritePositionY",
-        },
-        condition = nil,
-    },
-    inputSpritePositionX = {
-        order = 204,
-        type = "number",
-        default = "0",
-        defaults = {},
-        value = nil,
-        parent = "inputSpritePosition",
-        children = {},
-        condition = "manual",
-    },
-    inputSpritePositionY = {
-        order = 205,
-        type = "number",
-        default = "0",
-        defaults = {},
-        value = nil,
-        parent = "inputSpritePosition",
-        children = {},
-        condition = "manual",
-    },
-}
-LayerCount = 0
-ConfigHandler = nil
-LayerHandler = nil
-ConfigKeys = {}
-ConfigPathLocal = ""
-ConfigPathGlobal = ""
-Dlg = Dialog("X")
-ImportFileExtensions = { "png", "gif", "jpg", "jpeg" }
-
 -- FUNCTIONS
 ---@return string
 ---@param colorMode ColorMode
@@ -413,6 +316,101 @@ end
 function asepriteImporter.Initialize(configHandler, layerHandler)
     ConfigHandler = configHandler
     LayerHandler = layerHandler
+
+    -- FIELDS
+    ---@type table<string, ConfigEntry>
+    Config = {
+        configSelect = {
+            order = 100,
+            type = "combobox",
+            default = "global",
+            defaults = {
+                "global",
+                "local",
+            },
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        inputSubdirectory = {
+            order = 200,
+            type = "entry",
+            default = "sprite",
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        inputDirectoriesAsGroups = {
+            order = 201,
+            type = "check",
+            default = true,
+            defaults = {},
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        inputDuplicatesMode = {
+            order = 202,
+            type = "combobox",
+            default = "override",
+            defaults = {
+                "override",
+                "ignore",
+                "skip",
+            },
+            value = nil,
+            parent = nil,
+            children = {},
+            condition = nil,
+        },
+        inputSpritePosition = {
+            order = 203,
+            type = "combobox",
+            default = "center",
+            defaults = {
+                "center",
+                "inherit",
+                "manual",
+            },
+            value = nil,
+            parent = nil,
+            children = {
+                "inputSpritePositionX",
+                "inputSpritePositionY",
+            },
+            condition = nil,
+        },
+        inputSpritePositionX = {
+            order = 204,
+            type = "number",
+            default = "0",
+            defaults = {},
+            value = nil,
+            parent = "inputSpritePosition",
+            children = {},
+            condition = "manual",
+        },
+        inputSpritePositionY = {
+            order = 205,
+            type = "number",
+            default = "0",
+            defaults = {},
+            value = nil,
+            parent = "inputSpritePosition",
+            children = {},
+            condition = "manual",
+        },
+    }
+    LayerCount = 0
+    ConfigKeys = {}
+    ConfigPathLocal = ""
+    ConfigPathGlobal = ""
+    Dlg = Dialog("X")
+    ImportFileExtensions = { "png", "gif", "jpg", "jpeg" }
 end
 
 -- INSTANCE RETURN
