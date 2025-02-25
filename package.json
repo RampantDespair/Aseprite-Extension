@@ -2,15 +2,6 @@
   "name": "despair-extension",
   "version": "5.1.0",
   "description": "An Aseprite import, export and layer manipulation extension.",
-  "scripts": {
-    "build": "make-dir out && rimraf out/* --glob && cpx src/**/*.{lua,json} out && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.aseprite-extension *",
-    "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
-    "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RampantDespair/Aseprite-Extension.git"
-  },
   "keywords": [
     "Aseprite",
     "Extension",
@@ -21,19 +12,31 @@
     "Spine",
     "EsotericSoftware"
   ],
-  "author": "RampantDespair",
-  "license": "GPL-2.0",
+  "homepage": "https://github.com/RampantDespair/Aseprite-Extension#readme",
   "bugs": {
     "url": "https://github.com/RampantDespair/Aseprite-Extension/issues"
   },
-  "homepage": "https://github.com/RampantDespair/Aseprite-Extension#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RampantDespair/Aseprite-Extension.git"
+  },
+  "license": "GPL-2.0",
+  "author": "RampantDespair",
+  "contributors": [
+    "IoriBranford"
+  ],
+  "scripts": {
+    "build": "make-dir out && rimraf out/* --glob && cpx src/**/*.{lua,json} out && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.aseprite-extension *",
+    "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
+    "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
+  },
+  "dependencies": {
+    "despair-extension": "file:"
+  },
   "devDependencies": {
     "bestzip": "^2.2.1",
     "cpx2": "^8.0.0",
     "make-dir-cli": "^4.0.0",
     "rimraf": "^6.0.1"
-  },
-  "dependencies": {
-    "despair-extension": "file:"
   }
 }
