@@ -116,11 +116,11 @@ function configHandler.PopulateConfig(configFile)
             if entry.type == "color" then
                 local values = configHandler.SplitString(entry.value, ";")
                 if #values == 4 then
-                    entry.value = Color{ 
-                        r=tonumber(values[1]) or 0,
-                        g=tonumber(values[2]) or 0,
-                        b=tonumber(values[3]) or 0,
-                        a=tonumber(values[4]) or 0
+                    entry.value = Color {
+                        r = tonumber(values[1]) or 0,
+                        g = tonumber(values[2]) or 0,
+                        b = tonumber(values[3]) or 0,
+                        a = tonumber(values[4]) or 0
                     }
                 end
             end
@@ -136,7 +136,7 @@ function configHandler.InitializeConfigKeys()
         table.insert(ConfigKeys, { key = key, order = value.order })
     end
 
-    table.sort(ConfigKeys, function (a, b) return a.order < b.order end)
+    table.sort(ConfigKeys, function(a, b) return a.order < b.order end)
 end
 
 ---@param activeSprite Sprite
@@ -163,20 +163,16 @@ end
 ---@param visibility boolean
 function configHandler.UpdateChildrenVisibility(configKey, visibility)
     for _, value in pairs(Config[configKey].children) do
-        local parent = Config[value].parent
-        while parent ~= nil do
-            visibility = visibility and Config[parent].value
-            parent = Config[parent].parent
-        end
+        local visible = visibility
         if Config[value].condition ~= nil then
-            visibility = visibility and Config[configKey].value == Config[value].condition
+            visible = visible and Config[configKey].value == Config[value].condition
         end
         Dlg:modify {
             id = value,
-            visible = visibility,
+            visible = visible,
         }
         if #Config[value].children ~= 0 then
-            configHandler.UpdateChildrenVisibility(value, visibility and Config[value].value)
+            configHandler.UpdateChildrenVisibility(value, visible and Config[value].value)
         end
     end
 end
@@ -192,7 +188,7 @@ function configHandler.WriteConfig()
     if configFile ~= nil then
         for _, value in ipairs(ConfigKeys) do
             if Config[value.key].type == "color" then
-                configFile:write(value.key .. "=" .. tostring(Config[value.key].value.red).. ";" .. tostring(Config[value.key].value.green).. ";" .. tostring(Config[value.key].value.blue).. ";" .. tostring(Config[value.key].value.alpha).. ";" .. "\n")
+                configFile:write(value.key .. "=" .. tostring(Config[value.key].value.red) .. ";" .. tostring(Config[value.key].value.green) .. ";" .. tostring(Config[value.key].value.blue) .. ";" .. tostring(Config[value.key].value.alpha) .. ";" .. "\n")
             elseif type(Config[value.key].value) ~= "string" then
                 configFile:write(value.key .. "=" .. tostring(Config[value.key].value) .. "\n")
             else
