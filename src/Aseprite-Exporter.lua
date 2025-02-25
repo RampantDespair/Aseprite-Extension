@@ -4,13 +4,24 @@ local asepriteExporter = {}
 -- FUNCTIONS
 ---@param activeSprite Sprite
 function asepriteExporter.SetRootPosition(activeSprite)
-    if Config.spineExport.value == true and Config.spineSetRootPostion.value == true then
-        if Config.spineRootPostionMethod.value == "manual" then
-            RootPositon = { x = Config.spineRootPostionX.value, y = Config.spineRootPostionY.value }
-        elseif Config.spineRootPostionMethod.value == "center" then
-            RootPositon = { x = activeSprite.width / 2, y = activeSprite.height / 2 }
+    if Config.spineExport.value == true and Config.spineSetRootPosition.value == true then
+        if Config.spineRootPositionMethod.value == "center" then
+            RootPositon = {
+                x = activeSprite.width / 2,
+                y = activeSprite.height / 2
+            }
+        elseif Config.spineRootPositionMethod.value == "manual" then
+            RootPositon = {
+                x = Config.spineRootPositionX.value,
+                y = Config.spineRootPositionY.value
+            }
+        elseif Config.spineRootPositionMethod.value == "percentage" then
+            RootPositon = {
+                x = activeSprite.width * Config.spineRootPositionPX.value,
+                y = activeSprite.height * Config.spineRootPositionPY.value
+            }
         else
-            error("Invalid spineRootPostionMethod value (" .. tostring(Config.spineRootPostionMethod.value) .. ")")
+            error("Invalid spineRootPositionMethod value (" .. tostring(Config.spineRootPositionMethod.value) .. ")")
         end
         app.alert("RootPosition is x:" .. RootPositon.x .. " y:" .. RootPositon.y)
     end
@@ -58,7 +69,7 @@ function asepriteExporter.ExportSpriteLayers(activeSprite, rootLayer, fileName, 
             layer.isVisible = true
 
             local layerParentName
-            if pcall(function () layerParentName = layer.parent.name end) then
+            if pcall(function() layerParentName = layer.parent.name end) then
                 _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", layerParentName)
             else
                 _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", "default")
@@ -174,17 +185,17 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
     local celWidth = celBounds.width
     local celHeight = celBounds.height
 
-    local realPostionX = celX + celWidth / 2
+    local realPositionX = celX + celWidth / 2
     local realPositionY = celY + celHeight / 2
 
     local spriteX
     local spriteY
 
-    if Config.spineSetRootPostion.value == true then
-        spriteX = realPostionX - RootPositon.x
+    if Config.spineSetRootPosition.value == true then
+        spriteX = realPositionX - RootPositon.x
         spriteY = RootPositon.y - realPositionY
     else
-        spriteX = realPostionX
+        spriteX = realPositionX
         spriteY = realPositionY
     end
 
@@ -192,7 +203,7 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
         fileNameTemplate = string.gsub(fileNameTemplate, "\\", "/")
         if Config.spineSkinsMode.value == "groups" then
             local skinName
-            if pcall(function () skinName = layer.parent.name end) then
+            if pcall(function() skinName = layer.parent.name end) then
                 skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.parent.name)
             end
 
@@ -230,18 +241,24 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
                     end
                 end
 
-                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format(
+                    [["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]],
+                    slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight
+                )
             else
                 if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
                     SkinsJson["default"] = {}
                 end
 
                 fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
-                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format(
+                    [["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]],
+                    slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight
+                )
             end
         elseif Config.spineSkinsMode.value == "layers" then
             local skinName
-            if pcall(function () skinName = layer.name end) then
+            if pcall(function() skinName = layer.name end) then
                 skinName = string.gsub(Config.spineSkinNameFormat.value, "{layergroup}", layer.name)
             end
 
@@ -279,14 +296,20 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
                     end
                 end
 
-                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format([["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+                SkinsJson[skinName][#SkinsJson[skinName] + 1] = string.format(
+                    [["%s": { "%s": { "name": "%s", "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]],
+                    slotName, skinAttachmentName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight
+                )
             else
                 if ConfigHandler.ArrayContainsKey(SkinsJson, "default") == false then
                     SkinsJson["default"] = {}
                 end
 
                 fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
-                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+                SkinsJson["default"][#SkinsJson["default"] + 1] = string.format(
+                    [["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]],
+                    slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight
+                )
             end
         else
             error("Invalid spineSkinsMode value (" .. tostring(Config.spineSkinsMode.value) .. ")")
@@ -297,7 +320,10 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
         end
 
         fileNameTemplate = string.gsub(fileNameTemplate, "{layergroup}", "default")
-        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format([["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]], slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight)
+        SkinsJson["default"][#SkinsJson["default"] + 1] = string.format(
+            [["%s": { "%s": { "x": %.2f, "y": %.2f, "width": %d, "height": %d } }]],
+            slotName, fileNameTemplate, spriteX, spriteY, celWidth, celHeight
+        )
     end
 
     if ConfigHandler.ArrayContainsValue(SlotsJson, slot) == false then
@@ -346,7 +372,9 @@ function asepriteExporter.BuildDialog(activeSprite)
         label = "Current Config:",
         option = Config.configSelect.value,
         options = Config.configSelect.defaults,
-        onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteExporter.ExtraDialogModifications) end,
+        onchange = function()
+            ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteExporter.ExtraDialogModifications)
+        end,
     }
     Dlg:label {
         id = "globalConfigPath",
@@ -396,7 +424,9 @@ function asepriteExporter.BuildDialog(activeSprite)
         id = "outputGroupsAsDirectories",
         label = "Groups As Directories:",
         selected = Config.outputGroupsAsDirectories.value,
-        onclick = function() ConfigHandler.UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories) end,
+        onclick = function()
+            ConfigHandler.UpdateConfigValue("outputGroupsAsDirectories", Dlg.data.outputGroupsAsDirectories)
+        end,
     }
 
     Dlg:tab {
@@ -421,7 +451,9 @@ function asepriteExporter.BuildDialog(activeSprite)
         label = " File Name Format:",
         text = Config.spriteSheetFileNameFormat.value,
         visible = Config.spriteSheetExport.value,
-        onchange = function() ConfigHandler.UpdateConfigValue("spriteSheetFileNameFormat", Dlg.data.spriteSheetFileNameFormat) end,
+        onchange = function()
+            ConfigHandler.UpdateConfigValue("spriteSheetFileNameFormat", Dlg.data.spriteSheetFileNameFormat)
+        end,
     }
     Dlg:combobox {
         id = "spriteSheetFileFormat",
@@ -463,35 +495,77 @@ function asepriteExporter.BuildDialog(activeSprite)
         onchange = function() ConfigHandler.UpdateConfigValue("spineStaticSlotName", Dlg.data.spineStaticSlotName) end,
     }
     Dlg:check {
-        id = "spineSetRootPostion",
+        id = "spineSetRootPosition",
         label = " Set Root Position:",
-        selected = Config.spineSetRootPostion.value,
+        selected = Config.spineSetRootPosition.value,
         visible = Config.spineExport.value,
-        onclick = function() ConfigHandler.UpdateConfigValue("spineSetRootPostion", Dlg.data.spineSetRootPostion) end,
+        onclick = function() ConfigHandler.UpdateConfigValue("spineSetRootPosition", Dlg.data.spineSetRootPosition) end,
     }
     Dlg:combobox {
-        id = "spineRootPostionMethod",
+        id = "spineRootPositionMethod",
         label = "  Root position Method:",
-        option = Config.spineRootPostionMethod.value,
-        options = Config.spineRootPostionMethod.defaults,
-        visible = Config.spineExport.value and Config.spineSetRootPostion.value,
-        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionMethod", Dlg.data.spineRootPostionMethod) end,
+        option = Config.spineRootPositionMethod.value,
+        options = Config.spineRootPositionMethod.defaults,
+        visible = Config.spineExport.value and Config.spineSetRootPosition.value,
+        onchange = function()
+            ConfigHandler.UpdateConfigValue("spineRootPositionMethod", Dlg.data.spineRootPositionMethod)
+        end,
     }
     Dlg:number {
-        id = "spineRootPostionX",
-        label = "   Root Postion X:",
-        text = Config.spineRootPostionX.value,
-        visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
+        id = "spineRootPositionX",
+        label = "   Root Position X:",
+        text = Config.spineRootPositionX.value,
+        visible = Config.spineExport.value and Config.spineSetRootPosition.value and Config.spineRootPositionMethod.value == "manual",
         decimals = 0,
-        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionX", Dlg.data.spineRootPostionX) end,
+        onchange = function()
+            if Config.spineRootPositionX.value < 0 or Config.spineRootPositionX.value > activeSprite.width then
+                app.alert("Root Position X must be between 0 and " .. activeSprite.width)
+            else
+                ConfigHandler.UpdateConfigValue("spineRootPositionX", Dlg.data.spineRootPositionX)
+            end
+        end,
     }
     Dlg:number {
-        id = "spineRootPostionY",
-        label = "   Root Postion Y:",
-        text = Config.spineRootPostionY.value,
-        visible = Config.spineExport.value and Config.spineSetRootPostion.value and Config.spineRootPostionMethod.value == "manual",
+        id = "spineRootPositionY",
+        label = "   Root Position Y:",
+        text = Config.spineRootPositionY.value,
+        visible = Config.spineExport.value and Config.spineSetRootPosition.value and Config.spineRootPositionMethod.value == "manual",
         decimals = 0,
-        onchange = function() ConfigHandler.UpdateConfigValue("spineRootPostionY", Dlg.data.spineRootPostionY) end,
+        onchange = function()
+            if Config.spineRootPositionY.value < 0 or Config.spineRootPositionY.value > activeSprite.height then
+                app.alert("Root Position Y must be between 0 and " .. activeSprite.height)
+            else
+                ConfigHandler.UpdateConfigValue("spineRootPositionY", Dlg.data.spineRootPositionY)
+            end
+        end,
+    }
+    Dlg:number {
+        id = "spineRootPositionPX",
+        label = "   Root Position PX:",
+        text = Config.spineRootPositionPX.value,
+        visible = Config.spineExport.value and Config.spineSetRootPosition.value and Config.spineRootPositionMethod.value == "percentage",
+        decimals = 2,
+        onchange = function()
+            if Config.spineRootPositionPX.value < 0 or Config.spineRootPositionPX.value > 1 then
+                app.alert("Root Position PX must be between 0 and 1")
+            else
+                ConfigHandler.UpdateConfigValue("spineRootPositionPX", Dlg.data.spineRootPositionPX)
+            end
+        end,
+    }
+    Dlg:number {
+        id = "spineRootPositionPY",
+        label = "   Root Position PY:",
+        text = Config.spineRootPositionPY.value,
+        visible = Config.spineExport.value and Config.spineSetRootPosition.value and Config.spineRootPositionMethod.value == "percentage",
+        decimals = 2,
+        onchange = function()
+            if Config.spineRootPositionPY.value < 0 or Config.spineRootPositionPY.value > 1 then
+                app.alert("Root Position PY must be between 0 and 1")
+            else
+                ConfigHandler.UpdateConfigValue("spineRootPositionPY", Dlg.data.spineRootPositionPY)
+            end
+        end,
     }
     Dlg:check {
         id = "spineSetImagesPath",
@@ -548,14 +622,18 @@ function asepriteExporter.BuildDialog(activeSprite)
         label = "   Skin Attachment Format:",
         text = Config.spineSkinAttachmentFormat.value,
         visible = Config.spineExport.value and Config.spineSkins.value and Config.spineSeparateSlotSkin.value,
-        onchange = function() ConfigHandler.UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat) end,
+        onchange = function()
+            ConfigHandler.UpdateConfigValue("spineSkinAttachmentFormat", Dlg.data.spineSkinAttachmentFormat)
+        end,
     }
     Dlg:entry {
         id = "spineLayerNameSeparator",
         label = "   Layer Name Separator:",
         text = Config.spineLayerNameSeparator.value,
         visible = Config.spineExport.value and Config.spineSkins.value and Config.spineSeparateSlotSkin.value,
-        onchange = function() ConfigHandler.UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator) end,
+        onchange = function()
+            ConfigHandler.UpdateConfigValue("spineLayerNameSeparator", Dlg.data.spineLayerNameSeparator)
+        end,
     }
 
     Dlg:endtabs {}
@@ -788,7 +866,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             parent = nil,
             children = {
                 "spineSetStaticSlot",
-                "spineSetRootPostion",
+                "spineSetRootPosition",
                 "spineSetImagesPath",
                 "spineSkins",
             },
@@ -816,7 +894,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             children = {},
             condition = nil,
         },
-        spineSetRootPostion = {
+        spineSetRootPosition = {
             order = 403,
             type = "check",
             default = true,
@@ -824,50 +902,71 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             value = nil,
             parent = "spineExport",
             children = {
-                "spineRootPostionMethod",
-                "spineRootPostionX",
-                "spineRootPostionY",
+                "spineRootPositionMethod",
             },
             condition = nil,
         },
-        spineRootPostionMethod = {
+        spineRootPositionMethod = {
             order = 404,
             type = "combobox",
             default = "center",
             defaults = {
                 "center",
                 "manual",
+                "percentage",
             },
             value = nil,
-            parent = "spineSetRootPostion",
+            parent = "spineSetRootPosition",
             children = {
-                "spineRootPostionX",
-                "spineRootPostionY",
+                "spineRootPositionX",
+                "spineRootPositionY",
+                "spineRootPositionPX",
+                "spineRootPositionPY",
             },
             condition = nil,
         },
-        spineRootPostionX = {
+        spineRootPositionPX = {
             order = 405,
+            type = "number",
+            default = "0.50",
+            defaults = {},
+            value = nil,
+            parent = "spineRootPositionMethod",
+            children = {},
+            condition = "percentage",
+        },
+        spineRootPositionPY = {
+            order = 406,
+            type = "number",
+            default = "0.50",
+            defaults = {},
+            value = nil,
+            parent = "spineRootPositionMethod",
+            children = {},
+            condition = "percentage",
+        },
+        spineRootPositionX = {
+            order = 407,
             type = "number",
             default = "0",
             defaults = {},
             value = nil,
-            parent = "spineRootPostionMethod",
+            parent = "spineRootPositionMethod",
             children = {},
             condition = "manual",
         },
-        spineRootPostionY = {
-            order = 406,
+        spineRootPositionY = {
+            order = 408,
             type = "number",
             default = "0",
             defaults = {},
             value = nil,
-            parent = "spineRootPostionMethod",
+            parent = "spineRootPositionMethod",
             children = {},
             condition = "manual",
         },
         spineSetImagesPath = {
-            order = 407,
+            order = 409,
             type = "check",
             default = true,
             defaults = {},
@@ -879,7 +978,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineImagesPath = {
-            order = 408,
+            order = 410,
             type = "entry",
             default = "images",
             defaults = {},
@@ -889,7 +988,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSkins = {
-            order = 409,
+            order = 411,
             type = "check",
             default = true,
             defaults = {},
@@ -903,7 +1002,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSkinsMode = {
-            order = 410,
+            order = 412,
             type = "combobox",
             default = "groups",
             defaults = {
@@ -916,7 +1015,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSkinNameFormat = {
-            order = 411,
+            order = 413,
             type = "entry",
             default = "weapon-{layergroup}",
             defaults = {},
@@ -926,7 +1025,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSeparateSlotSkin = {
-            order = 412,
+            order = 414,
             type = "check",
             default = true,
             defaults = {},
@@ -940,7 +1039,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSlotNameFormat = {
-            order = 413,
+            order = 415,
             type = "entry",
             default = "{layernameprefix}",
             defaults = {},
@@ -950,7 +1049,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineSkinAttachmentFormat = {
-            order = 414,
+            order = 416,
             type = "entry",
             default = "{layernameprefix}-{layernamesuffix}",
             defaults = {},
@@ -960,7 +1059,7 @@ function asepriteExporter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
         spineLayerNameSeparator = {
-            order = 415,
+            order = 417,
             type = "entry",
             default = "-",
             defaults = {},
