@@ -1,5 +1,50 @@
-# --- Node ---
+# Created by https://www.toptal.com/developers/gitignore/api/lua,node
+# Edit at https://www.toptal.com/developers/gitignore?templates=lua,node
 
+### Lua ###
+# Compiled Lua sources
+luac.out
+
+# luarocks build files
+*.src.rock
+*.zip
+*.tar.gz
+
+# Object files
+*.o
+*.os
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.def
+*.exp
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+
+### Node ###
 # Logs
 logs
 *.log
@@ -104,7 +149,6 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
 
 # Docusaurus cache and generated files
 .docusaurus
@@ -131,49 +175,13 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# --- Lua ---
+### Node Patch ###
+# Serverless Webpack directories
+.webpack/
 
-# Compiled Lua sources
-luac.out
+# Optional stylelint cache
 
-# luarocks build files
-*.src.rock
-*.zip
-*.tar.gz
+# SvelteKit build / generate output
+.svelte-kit
 
-# Object files
-*.o
-*.os
-*.ko
-*.obj
-*.elf
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-*.def
-*.exp
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# --- Project ---
-
-*.conf
+# End of https://www.toptal.com/developers/gitignore/api/lua,node
