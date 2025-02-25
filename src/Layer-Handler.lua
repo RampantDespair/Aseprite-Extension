@@ -36,9 +36,9 @@ function layerHandler.RestoreLayers(activeSprite, layerVisibilityData)
         if layer.isGroup then
             layerHandler.RestoreLayers(layer, layerVisibilityData[i])
         else
-           layer.isVisible = layerVisibilityData[i]
+            layer.isVisible = layerVisibilityData[i]
         end
-     end
+    end
 end
 
 -- INSTANCE RETURN

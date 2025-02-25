@@ -13,9 +13,9 @@ function asepriteSorter.Sort(activeSprite)
     end
 
     if Config.sortMethod.value == "ascending" then
-        table.sort(layerNames, function (a, b) return a > b end)
+        table.sort(layerNames, function(a, b) return a > b end)
     elseif Config.sortMethod.value == "descending" then
-        table.sort(layerNames, function (a, b) return a < b end)
+        table.sort(layerNames, function(a, b) return a < b end)
     else
         app.alert("Invalid sortMethod value (" .. tostring(Config.sortMethod.value) .. ")")
         return
