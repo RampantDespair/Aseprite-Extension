@@ -1,12 +1,7 @@
 {
   "name": "despair-extension",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "An Aseprite import, export and layer manipulation extension.",
-  "main": "index.js",
-  "directories": {
-    "example": "example",
-    "lib": "lib"
-  },
   "scripts": {
     "build": "make-dir out && rimraf out/* --glob && cpx src/**/*.{lua,json} out && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.aseprite-extension *",
     "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
@@ -34,9 +29,9 @@
   "homepage": "https://github.com/RampantDespair/Aseprite-Extension#readme",
   "devDependencies": {
     "bestzip": "^2.2.1",
-    "cpx2": "^7.0.1",
-    "make-dir-cli": "^3.1.0",
-    "rimraf": "^5.0.5"
+    "cpx2": "^8.0.0",
+    "make-dir-cli": "^4.0.0",
+    "rimraf": "^6.0.1"
   },
   "dependencies": {
     "despair-extension": "file:"
