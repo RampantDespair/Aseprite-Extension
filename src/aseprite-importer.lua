@@ -354,6 +354,16 @@ function AsepriteImporter:Execute()
         return
     end
 
+    if self.configHandler.dialog.data.inputFile == nil then
+        app.alert("No input file selected, script aborted.")
+        return
+    end
+
+    if self.configHandler.dialog.data.inputPath == nil then
+        app.alert("No input path selected, script aborted.")
+        return
+    end
+
     app.transaction("Importer", function() self:Import(self.activeSprite, nil, nil) end)
 
     app.alert("Imported " .. self.layerCount .. " layers")
