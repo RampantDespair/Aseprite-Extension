@@ -1085,13 +1085,13 @@ function AsepriteExporter:Execute()
         return
     end
 
-    self:SetRootPosition()
+    self:SetRootPosition(self.activeSprite)
 
     local layerVisibilityData = self.layerHandler:GetLayerVisibilityData(self.activeSprite)
 
     app.transaction("Exporter", function()
         self.layerHandler:HideLayers(self.activeSprite)
-        self:Export(activeSprite, activeSprite, fileName, fileNameTemplate)
+        self:Export(self.activeSprite, self.activeSprite, fileName, fileNameTemplate)
         self.layerHandler:RestoreLayers(self.activeSprite, layerVisibilityData)
     end)
 
