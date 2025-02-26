@@ -1,7 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "despair-extension",
-  "version": "5.1.0",
+  "displayName": "Despair Extension",
+  "version": "5.2.0",
   "description": "An Aseprite import, export and layer manipulation extension.",
+  "categories": [
+    "Scripts"
+  ],
   "keywords": [
     "Aseprite",
     "Extension",
@@ -21,10 +26,15 @@
     "url": "git+https://github.com/RampantDespair/Aseprite-Extension.git"
   },
   "license": "GPL-2.0",
-  "author": "RampantDespair",
+  "author": {
+    "name": "RampantDespair",
+    "email": "despairservices@gmail.com",
+    "url": "https://github.com/RampantDespair/Aseprite-Exporter"
+  },
   "contributors": [
     "IoriBranford"
   ],
+  "publisher": "RampantDespair",
   "workspaces": [
     "configs/*"
   ],
@@ -34,8 +44,12 @@
     "dev-extension": "cpx {public,src}/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
     "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
   },
-  "dependencies": {
-    "despair-extension": "file:"
+  "contributes": {
+    "scripts": [
+      {
+        "path": "./extension.lua"
+      }
+    ]
   },
   "devDependencies": {
     "@repo/config-prettier": "*",
