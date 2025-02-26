@@ -1,0 +1,13 @@
+{
+  "installedFiles": [
+    "aseprite-base.lua",
+    "aseprite-exporter.lua",
+    "aseprite-importer.lua",
+    "aseprite-renamer.lua",
+    "aseprite-sorter.lua",
+    "extension.lua",
+    "handler-config.lua",
+    "handler-layer.lua",
+    "package.json"
+  ]
+}
