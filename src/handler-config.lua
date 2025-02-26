@@ -6,7 +6,7 @@
 ---@field configPathGlobal string
 ---@field configPathLocal string
 ---@field dialog Dialog
----@field _init fun(self: ConfigHandler, config: table<string, ConfigEntry>, activeSprite: Sprite)
+---@field _init fun(self: ConfigHandler, config: table<string, ConfigEntry>, scriptPath:string, activeSprite: Sprite)
 ---@field ArrayContainsValue fun(self: ConfigHandler, table: table, targetValue: any): boolean
 ---@field ArrayContainsKey fun(self: ConfigHandler, table: table, targetKey: any): boolean
 ---@field ArrayGetValueIndex fun(self: ConfigHandler, table: table, targetValue: any): integer
@@ -42,7 +42,7 @@ setmetatable(ConfigHandler, {
 local ConfigEntry = {}
 
 -- INITIALIZER
-function ConfigHandler:_init(config, activeSprite)
+function ConfigHandler:_init(config, scriptPath, activeSprite)
     self.config = config
     self.config["configSelect"] = {
         order = 1,
@@ -59,7 +59,6 @@ function ConfigHandler:_init(config, activeSprite)
     }
     self.configKeys = {}
 
-    local scriptPath = debug.getinfo(1).source
     scriptPath = string.sub(scriptPath, 2, string.len(scriptPath))
     scriptPath = app.fs.normalizePath(scriptPath)
 
@@ -220,14 +219,14 @@ end
 function ConfigHandler:UpdateChildrenVisibility(configKey, visibility)
     for _, value in pairs(self.config[configKey].children) do
         local visible = visibility
-        if self.config[value].condition ~= nil then
+        if self.config[value] ~= nil and self.config[value].condition ~= nil then
             visible = visible and self.config[configKey].value == self.config[value].condition
         end
         self.dialog:modify {
             id = value,
             visible = (visible == true),
         }
-        if #self.config[value].children ~= 0 then
+        if self.config[value] ~= nil and #self.config[value].children ~= 0 then
             self:UpdateChildrenVisibility(value, visible and self.config[value].value)
         end
     end

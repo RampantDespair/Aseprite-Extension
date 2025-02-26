@@ -35,8 +35,9 @@ function AsepriteSorter:_init()
         },
     }
 
+    local scriptPath = debug.getinfo(1).source
     local activeSprite = app.sprite
-    local configHandler = ConfigHandler(config, activeSprite)
+    local configHandler = ConfigHandler(config, scriptPath, activeSprite)
     local layerHandler = LayerHandler()
 
     AsepriteBase._init(self, activeSprite, configHandler, layerHandler)
