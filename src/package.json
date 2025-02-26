@@ -1,0 +1,27 @@
+{
+  "name": "despair-extension",
+  "displayName": "Despair Extension",
+  "description": "An Aseprite import, export and layer manipulation extension.",
+  "version": "5.1.0",
+  "author": {
+    "name": "RampantDespair",
+    "email": "despairservices@gmail.com",
+    "url": "https://github.com/RampantDespair/Aseprite-Exporter"
+  },
+  "contributors": [],
+  "publisher": "RampantDespair",
+  "license": "GPL-2.0",
+  "categories": [
+    "Scripts"
+  ],
+  "contributes": {
+    "scripts": [
+      {
+        "path": "./extension.lua"
+      }
+    ]
+  },
+  "dependencies": {
+    "despair-extension": "file:"
+  }
+}
