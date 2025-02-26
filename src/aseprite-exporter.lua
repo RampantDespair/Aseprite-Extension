@@ -17,7 +17,9 @@ local AsepriteBase = require("aseprite-base")
 ---@field ExportJsonStart fun(self: AsepriteExporter, fileName: string)
 ---@field ExportSpriteSheet fun(self: AsepriteExporter, activeSprite: Sprite | Layer, cel: Cel, fileNameTemplate: string)
 ---@field ExportSpriteLayers fun(self: AsepriteExporter, activeSprite: Sprite | Layer, rootLayer: Sprite | Layer, fileName: string, fileNameTemplate: string)
----@field SetRootPosition fun(self: AsepriteExporter, activeSprite: Sprite)
+---@field ValidateRootPosition fun(self: AsepriteExporter): boolean
+---@field GetRootPosition fun(self: AsepriteExporter): string
+---@field SetRootPosition fun(self: AsepriteExporter)
 local AsepriteExporter = {}
 AsepriteExporter.__index = AsepriteExporter
 setmetatable(AsepriteExporter, {
@@ -166,6 +168,7 @@ function AsepriteExporter:_init()
             parent = "spineExport",
             children = {
                 "spineRootPositionMethod",
+                "spineRootPosition",
             },
             condition = nil,
         },
@@ -333,36 +336,48 @@ function AsepriteExporter:_init()
         },
     }
 
+    local scriptPath = debug.getinfo(1).source
     local activeSprite = app.sprite
-    local configHandler = ConfigHandler(config, activeSprite)
+    local configHandler = ConfigHandler(config, scriptPath, activeSprite)
     local layerHandler = LayerHandler()
 
     AsepriteBase._init(self, activeSprite, configHandler, layerHandler)
 end
 
 -- FUNCTIONS
-function AsepriteExporter:SetRootPosition(activeSprite)
+function AsepriteExporter:SetRootPosition()
     if self.configHandler.config.spineExport.value == true and self.configHandler.config.spineSetRootPosition.value == true then
         if self.configHandler.config.spineRootPositionMethod.value == "center" then
             self.rootPosition = {
-                x = activeSprite.width / 2,
-                y = activeSprite.height / 2
+                x = self.activeSprite.width / 2,
+                y = self.activeSprite.height / 2
             }
         elseif self.configHandler.config.spineRootPositionMethod.value == "manual" then
             self.rootPosition = {
-                x = self.configHandler.config.spineRootPositionX.value,
-                y = self.configHandler.config.spineRootPositionY.value
+                x = tonumber(self.configHandler.config.spineRootPositionX.value),
+                y = tonumber(self.configHandler.config.spineRootPositionY.value)
             }
         elseif self.configHandler.config.spineRootPositionMethod.value == "percentage" then
             self.rootPosition = {
-                x = activeSprite.width * self.configHandler.config.spineRootPositionPX.value,
-                y = activeSprite.height * self.configHandler.config.spineRootPositionPY.value
+                x = self.activeSprite.width * tonumber(self.configHandler.config.spineRootPositionPX.value),
+                y = self.activeSprite.height * tonumber(self.configHandler.config.spineRootPositionPY.value)
             }
         else
             error("Invalid spineRootPositionMethod value (" .. tostring(self.configHandler.config.spineRootPositionMethod.value) .. ")")
         end
-        app.alert("RootPosition is x:" .. self.rootPosition.x .. " y:" .. self.rootPosition.y)
     end
+end
+
+function AsepriteExporter:GetRootPosition()
+    return "[" .. self.rootPosition.x .. ", " .. self.rootPosition.y .. "]" .. (self:ValidateRootPosition() and "" or " (invalid)")
+end
+
+function AsepriteExporter:ValidateRootPosition()
+    return
+        self.rootPosition.x > 0 and
+        self.rootPosition.x < self.activeSprite.width and
+        self.rootPosition.y > 0 and
+        self.rootPosition.y < self.activeSprite.height
 end
 
 function AsepriteExporter:ExportSpriteLayers(activeSprite, rootLayer, fileName, fileNameTemplate)
@@ -855,6 +870,11 @@ function AsepriteExporter:BuildDialogSpecialized()
                 "spineRootPositionMethod",
                 self.configHandler.dialog.data.spineRootPositionMethod
             )
+            self:SetRootPosition()
+            self.configHandler.dialog:modify {
+                id = "spineRootPosition",
+                text = self:GetRootPosition(),
+            }
         end,
     }
     self.configHandler.dialog:number {
@@ -864,14 +884,15 @@ function AsepriteExporter:BuildDialogSpecialized()
         visible = self.configHandler.config.spineExport.value and self.configHandler.config.spineSetRootPosition.value and self.configHandler.config.spineRootPositionMethod.value == "manual",
         decimals = 0,
         onchange = function()
-            if self.configHandler.config.spineRootPositionX.value < 0 or self.configHandler.config.spineRootPositionX.value > self.activeSprite.width then
-                app.alert("Root Position X must be between 0 and " .. self.activeSprite.width)
-            else
-                self.configHandler:UpdateConfigValue(
-                    "spineRootPositionX",
-                    self.configHandler.dialog.data.spineRootPositionX
-                )
-            end
+            self.configHandler:UpdateConfigValue(
+                "spineRootPositionX",
+                self.configHandler.dialog.data.spineRootPositionX
+            )
+            self:SetRootPosition()
+            self.configHandler.dialog:modify {
+                id = "spineRootPosition",
+                text = self:GetRootPosition(),
+            }
         end,
     }
     self.configHandler.dialog:number {
@@ -881,14 +902,15 @@ function AsepriteExporter:BuildDialogSpecialized()
         visible = self.configHandler.config.spineExport.value and self.configHandler.config.spineSetRootPosition.value and self.configHandler.config.spineRootPositionMethod.value == "manual",
         decimals = 0,
         onchange = function()
-            if self.configHandler.config.spineRootPositionY.value < 0 or self.configHandler.config.spineRootPositionY.value > self.activeSprite.height then
-                app.alert("Root Position Y must be between 0 and " .. self.activeSprite.height)
-            else
-                self.configHandler:UpdateConfigValue(
-                    "spineRootPositionY",
-                    self.configHandler.dialog.data.spineRootPositionY
-                )
-            end
+            self.configHandler:UpdateConfigValue(
+                "spineRootPositionY",
+                self.configHandler.dialog.data.spineRootPositionY
+            )
+            self:SetRootPosition()
+            self.configHandler.dialog:modify {
+                id = "spineRootPosition",
+                self:GetRootPosition(),
+            }
         end,
     }
     self.configHandler.dialog:number {
@@ -898,14 +920,15 @@ function AsepriteExporter:BuildDialogSpecialized()
         visible = self.configHandler.config.spineExport.value and self.configHandler.config.spineSetRootPosition.value and self.configHandler.config.spineRootPositionMethod.value == "percentage",
         decimals = 2,
         onchange = function()
-            if self.configHandler.config.spineRootPositionPX.value < 0 or self.configHandler.config.spineRootPositionPX.value > 1 then
-                app.alert("Root Position PX must be between 0 and 1")
-            else
-                self.configHandler:UpdateConfigValue(
-                    "spineRootPositionPX",
-                    self.configHandler.dialog.data.spineRootPositionPX
-                )
-            end
+            self.configHandler:UpdateConfigValue(
+                "spineRootPositionPX",
+                self.configHandler.dialog.data.spineRootPositionPX
+            )
+            self:SetRootPosition()
+            self.configHandler.dialog:modify {
+                id = "spineRootPosition",
+                text = self:GetRootPosition(),
+            }
         end,
     }
     self.configHandler.dialog:number {
@@ -915,15 +938,22 @@ function AsepriteExporter:BuildDialogSpecialized()
         visible = self.configHandler.config.spineExport.value and self.configHandler.config.spineSetRootPosition.value and self.configHandler.config.spineRootPositionMethod.value == "percentage",
         decimals = 2,
         onchange = function()
-            if self.configHandler.config.spineRootPositionPY.value < 0 or self.configHandler.config.spineRootPositionPY.value > 1 then
-                app.alert("Root Position PY must be between 0 and 1")
-            else
-                self.configHandler:UpdateConfigValue(
-                    "spineRootPositionPY",
-                    self.configHandler.dialog.data.spineRootPositionPY
-                )
-            end
+            self.configHandler:UpdateConfigValue(
+                "spineRootPositionPY",
+                self.configHandler.dialog.data.spineRootPositionPY
+            )
+            self:SetRootPosition()
+            self.configHandler.dialog:modify {
+                id = "spineRootPosition",
+                text = self:GetRootPosition(),
+            }
         end,
+    }
+    self.configHandler.dialog:label {
+        id = "spineRootPosition",
+        label = "  Root Position:",
+        text = self:GetRootPosition(),
+        visible = self.configHandler.config.spineExport.value and self.configHandler.config.spineSetRootPosition.value,
     }
     self.configHandler.dialog:check {
         id = "spineSetImagesPath",
@@ -1051,6 +1081,8 @@ function AsepriteExporter:ExtraDialogModifications(activeSprite)
 end
 
 function AsepriteExporter:Execute()
+    self:SetRootPosition()
+
     self:BuildDialog()
 
     self.configHandler:WriteConfig()
@@ -1069,6 +1101,11 @@ function AsepriteExporter:Execute()
         return
     end
 
+    if self:ValidateRootPosition() == false then
+        app.alert("Invalid root position, script aborted.")
+        return
+    end
+
     local fileName = app.fs.fileTitle(self.activeSprite.filename)
 
     if self.configHandler.dialog.data.spriteSheetNameTrim then
@@ -1084,8 +1121,6 @@ function AsepriteExporter:Execute()
         app.alert("No file name was specified, script aborted.")
         return
     end
-
-    self:SetRootPosition(self.activeSprite)
 
     local layerVisibilityData = self.layerHandler:GetLayerVisibilityData(self.activeSprite)
 
