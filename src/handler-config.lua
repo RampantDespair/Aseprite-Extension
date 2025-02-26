@@ -6,7 +6,7 @@
 ---@field configPathGlobal string
 ---@field configPathLocal string
 ---@field dialog Dialog
----@field _init fun(self: ConfigHandler, config: table<string, ConfigEntry>, configPathGlobal: string, configPathLocal: string, dialog: Dialog)
+---@field _init fun(self: ConfigHandler, config: table<string, ConfigEntry>, activeSprite: Sprite)
 ---@field ArrayContainsValue fun(self: ConfigHandler, table: table, targetValue: any): boolean
 ---@field ArrayContainsKey fun(self: ConfigHandler, table: table, targetKey: any): boolean
 ---@field ArrayGetValueIndex fun(self: ConfigHandler, table: table, targetValue: any): integer
@@ -42,12 +42,39 @@ setmetatable(ConfigHandler, {
 local ConfigEntry = {}
 
 -- INITIALIZER
-function ConfigHandler:_init(config, configPathGlobal, configPathLocal, dialog)
+function ConfigHandler:_init(config, activeSprite)
     self.config = config
+    self.config["configSelect"] = {
+        order = 1,
+        type = "combobox",
+        default = "global",
+        defaults = {
+            "global",
+            "local",
+        },
+        value = nil,
+        parent = nil,
+        children = {},
+        condition = nil,
+    }
     self.configKeys = {}
-    self.configPathGlobal = configPathGlobal
-    self.configPathLocal = configPathLocal
-    self.dialog = dialog
+
+    local scriptPath = debug.getinfo(1).source
+    scriptPath = string.sub(scriptPath, 2, string.len(scriptPath))
+    scriptPath = app.fs.normalizePath(scriptPath)
+
+    local scriptName = app.fs.fileTitle(scriptPath)
+    local scriptDirectory = string.match(scriptPath, "(.*[/\\])")
+
+    local spritePath = app.fs.filePath(activeSprite.filename)
+
+    self.configPathLocal = app.fs.joinPath(spritePath, scriptName .. ".conf")
+    self.configPathGlobal = app.fs.joinPath(scriptDirectory, scriptName .. ".conf")
+
+    self:InitializeConfig()
+    self:InitializeConfigKeys()
+
+    self.dialog = Dialog("X")
 end
 
 -- FUNCTIONS
