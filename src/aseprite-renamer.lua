@@ -1,3 +1,4 @@
+-- INSTANCES
 local ConfigHandler = require("handler-config")
 local LayerHandler = require("handler-layer")
 local AsepriteBase = require("aseprite-base")
