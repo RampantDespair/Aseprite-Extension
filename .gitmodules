@@ -1,3 +1,6 @@
 [submodule "lib/Aseprite-Library"]
 	path = lib/Aseprite-Library
 	url = https://github.com/RampantDespair/Aseprite-Library.git
+[submodule "configs"]
+	path = configs
+	url = https://github.com/RampantDespair/turbo-configs.git

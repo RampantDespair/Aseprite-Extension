@@ -1,7 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "despair-extension",
-  "version": "5.1.0",
+  "displayName": "Despair Extension",
+  "version": "5.2.0",
   "description": "An Aseprite import, export and layer manipulation extension.",
+  "categories": [
+    "Scripts"
+  ],
   "keywords": [
     "Aseprite",
     "Extension",
@@ -21,21 +26,37 @@
     "url": "git+https://github.com/RampantDespair/Aseprite-Extension.git"
   },
   "license": "GPL-2.0",
-  "author": "RampantDespair",
+  "author": {
+    "name": "RampantDespair",
+    "email": "despairservices@gmail.com",
+    "url": "https://github.com/RampantDespair/Aseprite-Exporter"
+  },
   "contributors": [
     "IoriBranford"
   ],
+  "publisher": "RampantDespair",
+  "workspaces": [
+    "configs/*"
+  ],
   "scripts": {
-    "build": "make-dir out && rimraf out/* --glob && cpx src/**/*.{lua,json} out && cd out/ && bestzip %npm_package_name%_v%npm_package_version%.aseprite-extension *",
-    "dev-extension": "cpx src/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
+    "build": "npx webpack --config webpack.config.mjs --mode production",
+    "bundle": "make-dir out && rimraf out/* --glob && bestzip out/%npm_package_name%_v%npm_package_version%.aseprite-extension dist/*",
+    "dev-extension": "cpx {public,src}/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
     "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
   },
-  "dependencies": {
-    "despair-extension": "file:"
+  "contributes": {
+    "scripts": [
+      {
+        "path": "./extension.lua"
+      }
+    ]
   },
   "devDependencies": {
+    "@repo/config-prettier": "*",
+    "@repo/config-webpack": "*",
     "bestzip": "^2.2.1",
     "cpx2": "^8.0.0",
+    "luamin": "^1.0.4",
     "make-dir-cli": "^4.0.0",
     "rimraf": "^6.0.1"
   }

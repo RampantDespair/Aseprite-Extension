@@ -1,9 +1,6 @@
 {
-    "Lua.workspace.library": [
-        "lib\\Aseprite-Library\\Aseprite-Library.lua",
-        "lib\\Local-Library\\Local-Library.lua"
-    ],
-    "Lua.format.defaultConfig": {
-        "max_line_length": "999"
-    }
+  "Lua.workspace.library": ["lib\\Aseprite-Library\\Aseprite-Library.lua"],
+  "Lua.format.defaultConfig": {
+    "max_line_length": "999"
+  }
 }
