@@ -78,7 +78,12 @@ function AsepriteSorter:BuildDialogSpecialized()
         label = "Sort Method:",
         option = self.configHandler.config.sortMethod.value,
         options = self.configHandler.config.sortMethod.defaults,
-        onchange = function() self.configHandler:UpdateConfigValue("sortMethod", self.configHandler.dialog.data.sortMethod) end,
+        onchange = function()
+            self.configHandler:UpdateConfigValue(
+                "sortMethod",
+                self.configHandler.dialog.data.sortMethod
+            )
+        end,
     }
 end
 
