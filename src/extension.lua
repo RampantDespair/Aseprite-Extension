@@ -1,11 +1,8 @@
--- FIELDS
-local configHandler = require("Config-Handler")
-local layerHandler = require("Layer-Handler")
-
-local asepriteExporter = require("Aseprite-Exporter")
-local asepriteImporter = require("Aseprite-Importer")
-local asepriteRenamer = require("Aseprite-Renamer")
-local asepriteSorter = require("Aseprite-Sorter")
+-- INSTANCES
+local asepriteExporterInstance = require("aseprite-exporter")
+local asepriteImporterInstance = require("aseprite-importer")
+local asepriteRenamerInstance = require("aseprite-renamer")
+local asepriteSorterInstance = require("aseprite-sorter")
 
 -- FUNCTIONS
 ---@param plugin Plugin
@@ -28,8 +25,8 @@ function init(plugin)
         title = "Export",
         group = extensionGroup,
         onclick = function()
-            asepriteExporter.Initialize(configHandler, layerHandler)
-            asepriteExporter.Execute()
+            local asepriteExporter = asepriteExporterInstance()
+            asepriteExporter:Execute()
         end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
@@ -39,8 +36,8 @@ function init(plugin)
         title = "Import",
         group = extensionGroup,
         onclick = function()
-            asepriteImporter.Initialize(configHandler, layerHandler)
-            asepriteImporter.Execute()
+            local asepriteImporter = asepriteImporterInstance()
+            asepriteImporter:Execute()
         end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
@@ -50,8 +47,8 @@ function init(plugin)
         title = "Rename",
         group = extensionGroup,
         onclick = function()
-            asepriteRenamer.Initialize(configHandler, layerHandler)
-            asepriteRenamer.Execute()
+            local asepriteRenamer = asepriteRenamerInstance()
+            asepriteRenamer:Execute()
         end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
@@ -61,8 +58,8 @@ function init(plugin)
         title = "Sort",
         group = extensionGroup,
         onclick = function()
-            asepriteSorter.Initialize(configHandler, layerHandler)
-            asepriteSorter.Execute()
+            local asepriteSorter = asepriteSorterInstance()
+            asepriteSorter:Execute()
         end,
         onenabled = function() return app.activeSprite ~= nil end,
     }
