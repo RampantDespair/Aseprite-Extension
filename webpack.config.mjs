@@ -28,17 +28,22 @@ const createConfig = (env, argv) => {
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(paths.in, "public", "__info.json"),
-          to: paths.out,
-        },
-        {
-          from: path.resolve(paths.in, "public", "package.json"),
+          from: path.resolve(paths.in, "package.json"),
           to: paths.out,
           transform(content) {
             const contents = JSON.parse(content.toString());
+
             delete contents["$schema"];
+            delete contents["workspaces"];
+            delete contents["scripts"];
+            delete contents["devDependencies"];
+
             return JSON.stringify(contents, null, 0);
           },
+        },
+        {
+          from: path.resolve(paths.in, "public", "__info.json"),
+          to: paths.out,
         },
         ...luaFiles.map((file) => ({
           from: file,
