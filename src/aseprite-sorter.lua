@@ -68,29 +68,7 @@ function AsepriteSorter:Sort(activeSprite)
     end
 end
 
-function AsepriteSorter:BuildDialog(activeSprite)
-    self.configHandler.dialog:tab {
-        id = "configSettings",
-        text = "Config Settings",
-    }
-    self.configHandler.dialog:combobox {
-        id = "configSelect",
-        label = "Current Config:",
-        option = self.configHandler.config.configSelect.value,
-        options = self.configHandler.config.configSelect.defaults,
-        onchange = function() self.configHandler:UpdateConfigFile(activeSprite, self.configHandler.dialog.data.configSelect, self.ExtraDialogModifications) end,
-    }
-    self.configHandler.dialog:label {
-        id = "globalConfigPath",
-        label = "Global Config Path: ",
-        text = self.configHandler.configPathGlobal,
-    }
-    self.configHandler.dialog:label {
-        id = "localConfigPath",
-        label = "Local Config Path: ",
-        text = self.configHandler.configPathLocal,
-    }
-
+function AsepriteSorter:BuildDialogSpecialized()
     self.configHandler.dialog:tab {
         id = "sortSettings",
         text = "Sort Settings",
@@ -102,31 +80,6 @@ function AsepriteSorter:BuildDialog(activeSprite)
         options = self.configHandler.config.sortMethod.defaults,
         onchange = function() self.configHandler:UpdateConfigValue("sortMethod", self.configHandler.dialog.data.sortMethod) end,
     }
-
-    self.configHandler.dialog:endtabs {}
-
-    self.configHandler.dialog:entry {
-        id = "help",
-        label = "Need help? Visit my GitHub repository @",
-        text = "https://github.com/RampantDespair/Aseprite-Extension",
-    }
-    self.configHandler.dialog:separator {
-        id = "helpSeparator",
-    }
-
-    self.configHandler.dialog:button {
-        id = "confirm",
-        text = "Confirm",
-    }
-    self.configHandler.dialog:button {
-        id = "cancel",
-        text = "Cancel",
-    }
-    self.configHandler.dialog:button {
-        id = "reset",
-        text = "Reset",
-        onclick = function() self.configHandler:ResetConfig(activeSprite, self.ExtraDialogModifications) end,
-    }
 end
 
 function AsepriteSorter:ExtraDialogModifications(activeSprite)
@@ -134,9 +87,8 @@ function AsepriteSorter:ExtraDialogModifications(activeSprite)
 end
 
 function AsepriteSorter:Execute()
-    self:BuildDialog(self.activeSprite)
+    self:BuildDialog()
 
-    self.configHandler.dialog:show()
     self.configHandler:WriteConfig()
 
     if self.configHandler.dialog.data.cancel then
