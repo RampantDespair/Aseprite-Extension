@@ -158,7 +158,7 @@ function asepriteExporter.ExportSpineJsonStart(fileName)
     JsonFile:write('} ')
     JsonFile:write('], ')
 
-    SlotsJson = {}
+    SlotsNames = {}
     SkinsJson = {}
 end
 
@@ -174,8 +174,6 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
     else
         slotName = layerName
     end
-
-    local slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", slotName)
 
     local celPosition = cel.position
     local celX = celPosition.x
@@ -232,12 +230,6 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
                             skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
                             skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix)
                         end
-
-                        if slotName == skinAttachmentName then
-                            slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
-                        else
-                            slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
-                        end
                     end
                 end
 
@@ -287,12 +279,6 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
                             skinAttachmentName = string.gsub(skinAttachmentName, "{layernameprefix}", layerNamePrefix)
                             skinAttachmentName = string.gsub(skinAttachmentName, "{layernamesuffix}", layerNameSuffix)
                         end
-
-                        if slotName == skinAttachmentName then
-                            slot = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", skinAttachmentName)
-                        else
-                            slot = string.format([[{ "name": "%s", "bone": "%s"}]], slotName, "root")
-                        end
                     end
                 end
 
@@ -326,14 +312,21 @@ function asepriteExporter.ExportSpineJsonParse(layer, cel, fileNameTemplate)
         )
     end
 
-    if ConfigHandler.ArrayContainsValue(SlotsJson, slot) == false then
-        SlotsJson[#SlotsJson + 1] = slot
+    if ConfigHandler.ArrayContainsValue(SlotsNames, slotName) == false then
+        SlotsNames[#SlotsNames + 1] = slotName
     end
 end
 
 function asepriteExporter.ExportSpineJsonEnd()
     JsonFile:write('"slots": [ ')
-    JsonFile:write(table.concat(SlotsJson, ", "))
+
+    local serializedSlots = {}
+    for _, slotName in ipairs(SlotsNames) do
+        local slotJson = string.format([[{ "name": "%s", "bone": "%s", "attachment": "%s" }]], slotName, "root", slotName)
+        table.insert(serializedSlots, slotJson)
+    end
+
+    JsonFile:write(table.concat(serializedSlots, ", "))
     JsonFile:write(" ], ")
 
     if Config.spineSkins.value == true then
