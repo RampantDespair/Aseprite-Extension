@@ -1,7 +1,7 @@
 -- CLASS DEFINITION
 ---@class (exact) LayerHandler
 ---@field __index LayerHandler
----@field new fun(): LayerHandler
+---@field _init fun(self: LayerHandler)
 ---@field GetLayerVisibilityData fun(self: LayerHandler, activeSprite: Sprite | Layer): table
 ---@field HideLayers fun(self: LayerHandler, activeSprite: Sprite | Layer)
 ---@field RestoreLayers fun(self: LayerHandler, activeSprite: Sprite | Layer, layerVisibilityData: table)
@@ -9,15 +9,15 @@ local LayerHandler = {}
 LayerHandler.__index = LayerHandler
 setmetatable(LayerHandler, {
     __call = function(cls, ...)
-        return cls.new(...)
+        local self = setmetatable({}, cls)
+        self:_init(...)
+        return self
     end,
 })
 
--- CONSTRUCTOR
----@return LayerHandler
-function LayerHandler.new()
-    local self = setmetatable({}, LayerHandler)
-    return self
+-- INITIALIZER
+function LayerHandler:_init()
+
 end
 
 -- FUNCTIONS

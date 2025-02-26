@@ -6,7 +6,7 @@
 ---@field configPathGlobal string
 ---@field configPathLocal string
 ---@field dialog Dialog
----@field new fun(config: table<string, ConfigEntry>, configPathGlobal: string, configPathLocal: string, dialog: Dialog): ConfigHandler
+---@field _init fun(self: ConfigHandler, config: table<string, ConfigEntry>, configPathGlobal: string, configPathLocal: string, dialog: Dialog)
 ---@field ArrayContainsValue fun(self: ConfigHandler, table: table, targetValue: any): boolean
 ---@field ArrayContainsKey fun(self: ConfigHandler, table: table, targetKey: any): boolean
 ---@field ArrayGetValueIndex fun(self: ConfigHandler, table: table, targetValue: any): integer
@@ -24,7 +24,9 @@ local ConfigHandler = {}
 ConfigHandler.__index = ConfigHandler
 setmetatable(ConfigHandler, {
     __call = function(cls, ...)
-        return cls.new(...)
+        local self = setmetatable({}, cls)
+        self:_init(...)
+        return self
     end,
 })
 
@@ -39,15 +41,13 @@ setmetatable(ConfigHandler, {
 ---@field condition string | nil
 local ConfigEntry = {}
 
--- CONSTRUCTOR
-function ConfigHandler.new(config, configPathGlobal, configPathLocal, dialog)
-    local self = setmetatable({}, ConfigHandler)
+-- INITIALIZER
+function ConfigHandler:_init(config, configPathGlobal, configPathLocal, dialog)
     self.config = config
     self.configKeys = {}
     self.configPathGlobal = configPathGlobal
     self.configPathLocal = configPathLocal
     self.dialog = dialog
-    return self
 end
 
 -- FUNCTIONS
