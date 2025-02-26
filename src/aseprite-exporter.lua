@@ -354,13 +354,13 @@ function AsepriteExporter:SetRootPosition()
             }
         elseif self.configHandler.config.spineRootPositionMethod.value == "manual" then
             self.rootPosition = {
-                x = tonumber(self.configHandler.config.spineRootPositionX.value),
-                y = tonumber(self.configHandler.config.spineRootPositionY.value)
+                x = tonumber(self.configHandler.config.spineRootPositionX.value) or 0,
+                y = tonumber(self.configHandler.config.spineRootPositionY.value) or 0
             }
         elseif self.configHandler.config.spineRootPositionMethod.value == "percentage" then
             self.rootPosition = {
-                x = self.activeSprite.width * tonumber(self.configHandler.config.spineRootPositionPX.value),
-                y = self.activeSprite.height * tonumber(self.configHandler.config.spineRootPositionPY.value)
+                x = self.activeSprite.width * (tonumber(self.configHandler.config.spineRootPositionPX.value) or 0),
+                y = self.activeSprite.height * (tonumber(self.configHandler.config.spineRootPositionPY.value) or 0)
             }
         else
             error("Invalid spineRootPositionMethod value (" .. tostring(self.configHandler.config.spineRootPositionMethod.value) .. ")")
