@@ -6,7 +6,7 @@ local AsepriteBase = require("aseprite-base")
 ---@class (exact) AsepriteRenamer: AsepriteBase
 ---@field __index AsepriteBase
 ---@field _init fun(self: AsepriteBase)
----@field Rename fun(self: AsepriteRenamer, activeSprite: Sprite | Layer)
+---@field Rename fun(self: AsepriteRenamer, activeSprite: Sprite)
 local AsepriteRenamer = {}
 AsepriteRenamer.__index = AsepriteRenamer
 setmetatable(AsepriteRenamer, {
