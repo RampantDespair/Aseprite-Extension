@@ -1,178 +1,29 @@
--- INSTANCE DECLARATION
-local asepriteSorter = {}
+local ConfigHandler = require("handler-config")
+local LayerHandler = require("handler-layer")
+local AsepriteBase = require("aseprite-base")
 
--- FUNCTIONS
----@param activeSprite Sprite | Layer
-function asepriteSorter.Sort(activeSprite)
-    local layerNames = {}
-    for _, layer in ipairs(activeSprite.layers) do
-        table.insert(layerNames, layer.name)
-        if layer.isGroup == true then
-            asepriteSorter.Sort(layer)
-        end
-    end
+-- CLASS DEFINITION
+---@class (exact) AsepriteSorter: AsepriteBase
+---@field __index AsepriteBase
+---@field _init fun(self: AsepriteBase)
+---@field Sort fun(self: AsepriteSorter, activeSprite: Sprite | Layer)
+local AsepriteSorter = {}
+AsepriteSorter.__index = AsepriteSorter
+setmetatable(AsepriteSorter, {
+    __index = AsepriteBase,
+    __call = function(cls, ...)
+        local self = setmetatable({}, cls)
+        self:_init(...)
+        return self
+    end,
+})
 
-    if Config.sortMethod.value == "ascending" then
-        table.sort(layerNames, function(a, b) return a > b end)
-    elseif Config.sortMethod.value == "descending" then
-        table.sort(layerNames, function(a, b) return a < b end)
-    else
-        app.alert("Invalid sortMethod value (" .. tostring(Config.sortMethod.value) .. ")")
-        return
-    end
-
-    for i = 1, #activeSprite.layers, 1 do
-        while activeSprite.layers[i].name ~= layerNames[i] do
-            activeSprite.layers[i].stackIndex = #activeSprite.layers
-        end
-        LayerCount = LayerCount + 1
-    end
-end
-
----@param activeSprite Sprite
-function asepriteSorter.BuildDialog(activeSprite)
-    Dlg:tab {
-        id = "configSettings",
-        text = "Config Settings",
-    }
-    Dlg:combobox {
-        id = "configSelect",
-        label = "Current Config:",
-        option = Config.configSelect.value,
-        options = Config.configSelect.defaults,
-        onchange = function() ConfigHandler.UpdateConfigFile(activeSprite, Dlg.data.configSelect, asepriteSorter.ExtraDialogModifications) end,
-    }
-    Dlg:label {
-        id = "globalConfigPath",
-        label = "Global Config Path: ",
-        text = ConfigPathGlobal,
-    }
-    Dlg:label {
-        id = "localConfigPath",
-        label = "Local Config Path: ",
-        text = ConfigPathLocal,
-    }
-
-    Dlg:tab {
-        id = "sortSettings",
-        text = "Sort Settings",
-    }
-    Dlg:combobox {
-        id = "sortMethod",
-        label = "Sort Method:",
-        option = Config.sortMethod.value,
-        options = Config.sortMethod.defaults,
-        onchange = function() ConfigHandler.UpdateConfigValue("sortMethod", Dlg.data.sortMethod) end,
-    }
-
-    Dlg:endtabs {}
-
-    Dlg:entry {
-        id = "help",
-        label = "Need help? Visit my GitHub repository @",
-        text = "https://github.com/RampantDespair/Aseprite-Extension",
-    }
-    Dlg:separator {
-        id = "helpSeparator",
-    }
-
-    Dlg:button {
-        id = "confirm",
-        text = "Confirm",
-    }
-    Dlg:button {
-        id = "cancel",
-        text = "Cancel",
-    }
-    Dlg:button {
-        id = "reset",
-        text = "Reset",
-        onclick = function() ConfigHandler.ResetConfig(activeSprite, asepriteSorter.ExtraDialogModifications) end,
-    }
-end
-
----@param activeSprite Sprite
-function asepriteSorter.ExtraDialogModifications(activeSprite)
-
-end
-
-function asepriteSorter.Execute()
-    if ConfigHandler == nil then
-        app.alert("Failed to get ConfigHandler.")
-        return
-    end
-
-    if LayerHandler == nil then
-        app.alert("Failed to get LayerHandler.")
-        return
-    end
-
-    local activeSprite = app.sprite
-
-    if activeSprite == nil then
-        app.alert("No sprite selected, script aborted.")
-        return
-    end
-
-    local scriptPath = debug.getinfo(1).source
-    scriptPath = string.sub(scriptPath, 2, string.len(scriptPath))
-    scriptPath = app.fs.normalizePath(scriptPath)
-
-    local scriptName = app.fs.fileTitle(scriptPath)
-    local scriptDirectory = string.match(scriptPath, "(.*[/\\])")
-
-    local spritePath = app.fs.filePath(activeSprite.filename)
-
-    ConfigPathLocal = app.fs.joinPath(spritePath, scriptName .. ".conf")
-    ConfigPathGlobal = app.fs.joinPath(scriptDirectory, scriptName .. ".conf")
-
-    Dlg = Dialog(scriptName)
-
-    ConfigHandler.InitializeConfig()
-    ConfigHandler.InitializeConfigKeys()
-
-    asepriteSorter.BuildDialog(activeSprite)
-
-    Dlg:show()
-
-    ConfigHandler.WriteConfig()
-
-    if Dlg.data.cancel then
-        return
-    end
-
-    if not Dlg.data.confirm then
-        app.alert("Settings were not confirmed, script aborted.")
-        return
-    end
-
-    app.transaction("Sorter", function() asepriteSorter.Sort(activeSprite) end)
-
-    app.alert("Sorted " .. LayerCount .. " layers")
-end
-
-function asepriteSorter.Initialize(configHandler, layerHandler)
-    ConfigHandler = configHandler
-    LayerHandler = layerHandler
-
-    -- FIELDS
+-- INITIALIZER
+function AsepriteSorter:_init()
     ---@type table<string, ConfigEntry>
-    Config = {
-        configSelect = {
-            order = 100,
-            type = "combobox",
-            default = "global",
-            defaults = {
-                "global",
-                "local",
-            },
-            value = nil,
-            parent = nil,
-            children = {},
-            condition = nil,
-        },
+    local config = {
         sortMethod = {
-            order = 200,
+            order = 100,
             type = "combobox",
             default = "ascending",
             defaults = { "ascending", "descending" },
@@ -182,12 +33,125 @@ function asepriteSorter.Initialize(configHandler, layerHandler)
             condition = nil,
         },
     }
-    LayerCount = 0
-    ConfigKeys = {}
-    ConfigPathLocal = ""
-    ConfigPathGlobal = ""
-    Dlg = Dialog("X")
+
+    local activeSprite = app.sprite
+    local configHandler = ConfigHandler(config, activeSprite)
+    local layerHandler = LayerHandler()
+
+    AsepriteBase._init(self, activeSprite, configHandler, layerHandler)
 end
 
--- INSTANCE RETURN
-return asepriteSorter
+-- FUNCTIONS
+function AsepriteSorter:Sort(activeSprite)
+    local layerNames = {}
+    for _, layer in ipairs(activeSprite.layers) do
+        table.insert(layerNames, layer.name)
+        if layer.isGroup == true then
+            self:Sort(layer)
+        end
+    end
+
+    if self.configHandler.config.sortMethod.value == "ascending" then
+        table.sort(layerNames, function(a, b) return a > b end)
+    elseif self.configHandler.config.sortMethod.value == "descending" then
+        table.sort(layerNames, function(a, b) return a < b end)
+    else
+        app.alert("Invalid sortMethod value (" .. tostring(self.configHandler.config.sortMethod.value) .. ")")
+        return
+    end
+
+    for i = 1, #activeSprite.layers, 1 do
+        while activeSprite.layers[i].name ~= layerNames[i] do
+            activeSprite.layers[i].stackIndex = #activeSprite.layers
+        end
+        self.layerCount = self.layerCount + 1
+    end
+end
+
+function AsepriteSorter:BuildDialog(activeSprite)
+    self.configHandler.dialog:tab {
+        id = "configSettings",
+        text = "Config Settings",
+    }
+    self.configHandler.dialog:combobox {
+        id = "configSelect",
+        label = "Current Config:",
+        option = self.configHandler.config.configSelect.value,
+        options = self.configHandler.config.configSelect.defaults,
+        onchange = function() self.configHandler:UpdateConfigFile(activeSprite, self.configHandler.dialog.data.configSelect, self.ExtraDialogModifications) end,
+    }
+    self.configHandler.dialog:label {
+        id = "globalConfigPath",
+        label = "Global Config Path: ",
+        text = self.configHandler.configPathGlobal,
+    }
+    self.configHandler.dialog:label {
+        id = "localConfigPath",
+        label = "Local Config Path: ",
+        text = self.configHandler.configPathLocal,
+    }
+
+    self.configHandler.dialog:tab {
+        id = "sortSettings",
+        text = "Sort Settings",
+    }
+    self.configHandler.dialog:combobox {
+        id = "sortMethod",
+        label = "Sort Method:",
+        option = self.configHandler.config.sortMethod.value,
+        options = self.configHandler.config.sortMethod.defaults,
+        onchange = function() self.configHandler:UpdateConfigValue("sortMethod", self.configHandler.dialog.data.sortMethod) end,
+    }
+
+    self.configHandler.dialog:endtabs {}
+
+    self.configHandler.dialog:entry {
+        id = "help",
+        label = "Need help? Visit my GitHub repository @",
+        text = "https://github.com/RampantDespair/Aseprite-Extension",
+    }
+    self.configHandler.dialog:separator {
+        id = "helpSeparator",
+    }
+
+    self.configHandler.dialog:button {
+        id = "confirm",
+        text = "Confirm",
+    }
+    self.configHandler.dialog:button {
+        id = "cancel",
+        text = "Cancel",
+    }
+    self.configHandler.dialog:button {
+        id = "reset",
+        text = "Reset",
+        onclick = function() self.configHandler:ResetConfig(activeSprite, self.ExtraDialogModifications) end,
+    }
+end
+
+function AsepriteSorter:ExtraDialogModifications(activeSprite)
+
+end
+
+function AsepriteSorter:Execute()
+    self:BuildDialog(self.activeSprite)
+
+    self.configHandler.dialog:show()
+    self.configHandler:WriteConfig()
+
+    if self.configHandler.dialog.data.cancel then
+        return
+    end
+
+    if not self.configHandler.dialog.data.confirm then
+        app.alert("Settings were not confirmed, script aborted.")
+        return
+    end
+
+    app.transaction("Sorter", function() self:Sort(self.activeSprite) end)
+
+    app.alert("Sorted " .. self.layerCount .. " layers")
+end
+
+-- CLASS RETURN
+return AsepriteSorter
