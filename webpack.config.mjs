@@ -1,8 +1,10 @@
 import { createBaseConfig } from "@repo/config-webpack";
 import CopyPlugin from "copy-webpack-plugin";
-import glob from "glob";
+import fs from "fs-extra";
+import { glob } from "glob";
 import luamin from "luamin";
 import path from "path";
+import ZipPlugin from "zip-webpack-plugin";
 
 const __dirname = import.meta.dirname;
 const paths = {
@@ -10,7 +12,10 @@ const paths = {
   out: path.resolve(__dirname, "dist"),
 };
 
-const luaFiles = glob.sync(path.resolve(paths.in, "src", "**/*.lua"));
+const packageJson = fs.readJsonSync(path.resolve(paths.in, "package.json"));
+const luaFiles = glob.sync("src/**/*.lua");
+
+fs.ensureDirSync(path.resolve(paths.in, "out"));
 
 const createConfig = (env, argv) => {
   const config = createBaseConfig(env, argv);
@@ -62,6 +67,11 @@ const createConfig = (env, argv) => {
           },
         })),
       ],
+    }),
+    new ZipPlugin({
+      filename: `${packageJson.name}_v${packageJson.version}`,
+      path: path.resolve(__dirname, "out"),
+      extension: "aseprite-extension",
     }),
   );
 
