@@ -5,6 +5,7 @@ local AsepriteBase = require("aseprite-base")
 
 -- CLASS DEFINITION
 ---@class (exact) AsepriteExporter: AsepriteBase
+---@field fileName string
 ---@field rootPosition Point
 ---@field spineFile file*?
 ---@field spineSlots table<string, string[]>
@@ -20,6 +21,7 @@ local AsepriteBase = require("aseprite-base")
 ---@field ValidateRootPosition fun(self: AsepriteExporter): boolean
 ---@field GetRootPosition fun(self: AsepriteExporter): string
 ---@field SetRootPosition fun(self: AsepriteExporter)
+---@field SetFileName fun(self: AsepriteExporter)
 local AsepriteExporter = {}
 AsepriteExporter.__index = AsepriteExporter
 setmetatable(AsepriteExporter, {
@@ -342,9 +344,29 @@ function AsepriteExporter:_init()
     local layerHandler = LayerHandler()
 
     AsepriteBase._init(self, activeSprite, configHandler, layerHandler)
+
+    local fileName = app.fs.fileTitle(self.activeSprite.filename)
+    if self.configHandler.config.spriteSheetNameTrim.value then
+        local index = string.find(fileName, "_")
+        if index ~= nil then
+            fileName = string.sub(fileName, index + 1, string.len(fileName))
+        end
+    end
+    self.fileName = fileName
 end
 
 -- FUNCTIONS
+function AsepriteExporter:SetFileName()
+    local fileName = app.fs.fileTitle(self.activeSprite.filename)
+    if self.configHandler.dialog.data.spriteSheetNameTrim then
+        local index = string.find(fileName, "_")
+        if index ~= nil then
+            fileName = string.sub(fileName, index + 1, string.len(fileName))
+        end
+    end
+    self.fileName = fileName
+end
+
 function AsepriteExporter:SetRootPosition()
     if self.configHandler.config.spineExport.value == true and self.configHandler.config.spineSetRootPosition.value == true then
         if self.configHandler.config.spineRootPositionMethod.value == "center" then
@@ -705,7 +727,7 @@ function AsepriteExporter:BuildDialogSpecialized()
                 text = app.fs.joinPath(
                     app.fs.filePath(self.configHandler.dialog.data.outputFile),
                     self.configHandler.dialog.data.outputSubdirectory
-                )
+                ):gsub("{spritename}", self.fileName)
             }
         end,
     }
@@ -720,7 +742,7 @@ function AsepriteExporter:BuildDialogSpecialized()
                 text = app.fs.joinPath(
                     app.fs.filePath(self.configHandler.dialog.data.outputFile),
                     self.configHandler.dialog.data.outputSubdirectory
-                )
+                ):gsub("{spritename}", self.fileName)
             }
         end,
     }
@@ -730,7 +752,7 @@ function AsepriteExporter:BuildDialogSpecialized()
         text = app.fs.joinPath(
             app.fs.filePath(self.configHandler.dialog.data.outputFile),
             self.configHandler.dialog.data.outputSubdirectory
-        ),
+        ):gsub("{spritename}", self.fileName),
     }
     self.configHandler.dialog:check {
         id = "outputGroupsAsDirectories",
@@ -769,6 +791,14 @@ function AsepriteExporter:BuildDialogSpecialized()
                 "spriteSheetNameTrim",
                 self.configHandler.dialog.data.spriteSheetNameTrim
             )
+            self:SetFileName()
+            self.configHandler.dialog:modify {
+                id = "outputPath",
+                text = app.fs.joinPath(
+                    app.fs.filePath(self.configHandler.dialog.data.outputFile),
+                    self.configHandler.dialog.data.outputSubdirectory
+                ):gsub("{spritename}", self.fileName)
+            }
         end,
     }
     self.configHandler.dialog:entry {
@@ -1106,16 +1136,7 @@ function AsepriteExporter:Execute()
         return
     end
 
-    local fileName = app.fs.fileTitle(self.activeSprite.filename)
-
-    if self.configHandler.dialog.data.spriteSheetNameTrim then
-        local _index = string.find(fileName, "_")
-        if _index ~= nil then
-            fileName = string.sub(fileName, _index + 1, string.len(fileName))
-        end
-    end
-
-    local fileNameTemplate = self.configHandler.dialog.data.spriteSheetFileNameFormat:gsub("{spritename}", fileName)
+    local fileNameTemplate = self.configHandler.dialog.data.spriteSheetFileNameFormat:gsub("{spritename}", self.fileName)
 
     if fileNameTemplate == nil then
         app.alert("No file name was specified, script aborted.")
@@ -1126,7 +1147,7 @@ function AsepriteExporter:Execute()
 
     app.transaction("Exporter", function()
         self.layerHandler:HideLayers(self.activeSprite)
-        self:Export(self.activeSprite, self.activeSprite, fileName, fileNameTemplate)
+        self:Export(self.activeSprite, self.activeSprite, self.fileName, fileNameTemplate)
         self.layerHandler:RestoreLayers(self.activeSprite, layerVisibilityData)
     end)
 
