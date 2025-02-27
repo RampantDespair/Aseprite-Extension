@@ -909,7 +909,7 @@ function AsepriteExporter:BuildDialogSpecialized()
             self:SetRootPosition()
             self.configHandler.dialog:modify {
                 id = "spineRootPosition",
-                self:GetRootPosition(),
+                text = self:GetRootPosition(),
             }
         end,
     }
