@@ -13,9 +13,6 @@ const outputDir = path.join(
 // Ensure the output directory exists
 fs.ensureDirSync(outputDir);
 
-// Clean the output directory
-fs.emptyDirSync(outputDir);
-
 // Define the files to watch
 const watchPaths = ["package.json", "public/**/*.json", "src/**/*.lua"];
 const expandedPaths = glob.sync(watchPaths);
@@ -35,7 +32,6 @@ const copyFileFlattened = (filePath: string) => {
 };
 
 // Initialize file watcher
-
 const watcher = chokidar.watch(normalizedPaths, { persistent: true });
 
 watcher
