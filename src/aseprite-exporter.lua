@@ -374,9 +374,9 @@ end
 
 function AsepriteExporter:ValidateRootPosition()
     return
-        self.rootPosition.x > 0 and
+        self.rootPosition.x >= 0 and
         self.rootPosition.x < self.activeSprite.width and
-        self.rootPosition.y > 0 and
+        self.rootPosition.y >= 0 and
         self.rootPosition.y < self.activeSprite.height
 end
 
