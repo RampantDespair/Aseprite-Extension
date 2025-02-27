@@ -51,6 +51,9 @@
       }
     ]
   },
+  "dependencies": {
+    "despair-extension": "file:"
+  },
   "devDependencies": {
     "@repo/config-prettier": "*",
     "@repo/config-webpack": "*",
