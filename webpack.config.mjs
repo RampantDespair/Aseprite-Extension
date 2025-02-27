@@ -36,6 +36,7 @@ const createConfig = (env, argv) => {
             delete contents["$schema"];
             delete contents["workspaces"];
             delete contents["scripts"];
+            delete contents["dependencies"];
             delete contents["devDependencies"];
 
             return JSON.stringify(contents, null, 0);
