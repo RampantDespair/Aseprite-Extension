@@ -500,7 +500,7 @@ function AsepriteExporter:ExportSpineJsonStart(fileName)
     self.spineFile:write('"skeleton": { ')
 
     if self.configHandler.config.spineSetImagesPath.value == true then
-        self.spineFile:write(string.format([["images": "%s" ]], "./" .. self.configHandler.config.spineImagesPath.value .. "/"))
+        self.spineFile:write(string.format([["images": "%s" ]], "./" .. self.configHandler.config.spineImagesPath.value:gsub("{spritename}", self.fileName) .. "/"))
     end
 
     self.spineFile:write('}, ')
