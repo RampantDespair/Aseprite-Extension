@@ -446,7 +446,7 @@ function AsepriteExporter:ExportSpriteLayers(activeSprite, rootLayer, fileName, 
                         self:ExportSpineJsonParse(layer, layer.cels[1], _fileNameTemplate)
                     end
 
-                    LayerCount = LayerCount + 1
+                    self.layerCount = self.layerCount + 1
                 end
             end
 
