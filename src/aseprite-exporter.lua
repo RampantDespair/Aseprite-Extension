@@ -1150,6 +1150,7 @@ function AsepriteExporter:Execute()
         self:Export(self.activeSprite, self.activeSprite, self.fileName, fileNameTemplate)
         self.layerHandler:RestoreLayers(self.activeSprite, layerVisibilityData)
     end)
+    app.undo()
 
     app.alert("Exported " .. self.layerCount .. " layers to " .. self.configHandler.dialog.data.outputPath)
 end
