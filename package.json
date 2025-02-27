@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "despair-extension",
   "displayName": "Despair Extension",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "An Aseprite import, export and layer manipulation extension.",
   "categories": [
     "Scripts"
