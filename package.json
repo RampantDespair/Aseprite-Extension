@@ -35,14 +35,13 @@
     "IoriBranford"
   ],
   "publisher": "RampantDespair",
+  "type": "module",
   "workspaces": [
     "configs/*"
   ],
   "scripts": {
     "build": "npx webpack --config webpack.config.mjs --mode production",
-    "bundle": "make-dir out && rimraf out/* --glob && bestzip out/%npm_package_name%_v%npm_package_version%.aseprite-extension dist/*",
-    "dev-extension": "cpx {public,src}/**/*.{lua,json} %appdata%/Aseprite/extensions/%npm_package_name% --watch",
-    "dev-scripts": "cpx src/**/*.{lua} %appdata%/Aseprite/scripts/%npm_package_name% --watch"
+    "dev": "tsx scripts/copy.ts"
   },
   "contributes": {
     "scripts": [
@@ -51,16 +50,15 @@
       }
     ]
   },
-  "dependencies": {
-    "despair-extension": "file:"
-  },
   "devDependencies": {
     "@repo/config-prettier": "*",
+    "@repo/config-typescript": "*",
     "@repo/config-webpack": "*",
-    "bestzip": "^2.2.1",
-    "cpx2": "^8.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "chokidar": "^4.0.3",
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.1",
     "luamin": "^1.0.4",
-    "make-dir-cli": "^4.0.0",
-    "rimraf": "^6.0.1"
+    "zip-webpack-plugin": "^4.0.3"
   }
 }
