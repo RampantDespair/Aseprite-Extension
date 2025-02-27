@@ -17,40 +17,26 @@ fs.ensureDirSync(outputDir);
 fs.emptyDirSync(outputDir);
 
 // Define the files to watch
-const watchPaths = [
-  "package.json",
-  "public/**/*.{lua,json}",
-  "src/**/*.{lua,json}",
-];
+const watchPaths = ["package.json", "public/**/*.json", "src/**/*.lua"];
+const expandedPaths = glob.sync(watchPaths);
+const normalizedPaths = expandedPaths.map((p) => p.replace(/\\/g, "/"));
 
 // Function to copy file and flatten structure
-const copyFileFlattened = async (filePath: string) => {
+const copyFileFlattened = (filePath: string) => {
   const fileName = path.basename(filePath);
   const destPath = path.join(outputDir, fileName);
 
   try {
-    await fs.copy(filePath, destPath);
+    fs.copySync(filePath, destPath);
     console.log(`Copied: ${filePath} -> ${destPath}`);
   } catch (err) {
     console.error(`Error copying ${filePath}:`, err);
   }
 };
 
-// Initially copy all files
-const copyAllFiles = async () => {
-  try {
-    const files = await glob(watchPaths);
-    await Promise.all(files.map(copyFileFlattened));
-    console.log("Initial copy complete.");
-  } catch (err) {
-    console.error("Error during initial copy:", err);
-  }
-};
-
-await copyAllFiles();
-
 // Initialize file watcher
-const watcher = chokidar.watch(watchPaths, { persistent: true });
+
+const watcher = chokidar.watch(normalizedPaths, { persistent: true });
 
 watcher
   .on("add", copyFileFlattened)
