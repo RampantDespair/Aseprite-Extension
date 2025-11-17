@@ -10,6 +10,7 @@ local AsepriteBase = require("aseprite-base")
 ---@field spineFile file*?
 ---@field spineSlots table<string, string[]>
 ---@field spineSkins table<string, table<string, string[]>>
+---@field tagFrames table<string, integer[]>
 ---@field __index AsepriteBase
 ---@field _init fun(self: AsepriteBase)
 ---@field Export fun(self: AsepriteExporter, activeSprite: Sprite | Layer, rootLayer: Sprite | Layer, fileName: string, fileNameTemplate: string)
@@ -22,6 +23,8 @@ local AsepriteBase = require("aseprite-base")
 ---@field GetRootPosition fun(self: AsepriteExporter): string
 ---@field SetRootPosition fun(self: AsepriteExporter)
 ---@field SetFileName fun(self: AsepriteExporter)
+---@field BuildTagFrames fun(self: AsepriteExporter, activeSprite: Sprite | Layer)
+---@field GetTagFromFrameNumber fun(self: AsepriteExporter, frameNumber: number): string | nil
 local AsepriteExporter = {}
 AsepriteExporter.__index = AsepriteExporter
 setmetatable(AsepriteExporter, {
@@ -42,6 +45,7 @@ function AsepriteExporter:_init()
     self.spineFile = nil
     self.spineSlots = {}
     self.spineSkins = {}
+    self.tagFrames = {}
 
     ---@type table<string, ConfigEntry>
     local config = {
@@ -55,13 +59,28 @@ function AsepriteExporter:_init()
             children = {},
             condition = nil,
         },
-        outputGroupsAsDirectories = {
+        outputAsDirectories = {
             order = 101,
             type = "check",
             default = true,
             defaults = {},
             value = nil,
             parent = nil,
+            children = {
+                "outputAsDirectoriesBy",
+            },
+            condition = nil,
+        },
+        outputAsDirectoriesBy = {
+            order = 102,
+            type = "combobox",
+            default = "groups",
+            defaults = {
+                "groups",
+                "tags",
+            },
+            value = nil,
+            parent = "outputAsDirectories",
             children = {},
             condition = nil,
         },
@@ -356,6 +375,34 @@ function AsepriteExporter:_init()
 end
 
 -- FUNCTIONS
+function AsepriteExporter:BuildTagFrames(activeSprite)
+    for _, tag in ipairs(activeSprite.tags) do
+        local fromF = tag.fromFrame.frameNumber
+        local toF   = tag.toFrame.frameNumber
+
+        local list  = self.tagFrames[tag.name]
+        if not list then
+            list = {}
+            self.tagFrames[tag.name] = list
+        end
+
+        for f = fromF, toF do
+            list[#list + 1] = f
+        end
+    end
+end
+
+function AsepriteExporter:GetTagFromFrameNumber(frameNumber)
+    for tagName, frames in pairs(self.tagFrames) do
+        for _, fn in ipairs(frames) do
+            if fn == frameNumber then
+                return tagName
+            end
+        end
+    end
+    return nil
+end
+
 function AsepriteExporter:SetFileName()
     local fileName = app.fs.fileTitle(self.activeSprite.filename)
     if self.configHandler.dialog.data.spriteSheetNameTrim then
@@ -413,7 +460,7 @@ function AsepriteExporter:ExportSpriteLayers(activeSprite, rootLayer, fileName, 
             local previousVisibility = layer.isVisible
             layer.isVisible = true
 
-            if self.configHandler.config.outputGroupsAsDirectories.value == true then
+            if self.configHandler.config.outputAsDirectories.value == true and self.configHandler.config.outputAsDirectoriesBy.value == "groups" then
                 _fileNameTemplate = app.fs.joinPath(layerName, _fileNameTemplate)
             end
 
@@ -436,6 +483,13 @@ function AsepriteExporter:ExportSpriteLayers(activeSprite, rootLayer, fileName, 
                 for i = 1, #activeSprite.frames, 1 do
                     local cel = layer:cel(i)
                     local tempFileNameTemplate = _fileNameTemplate
+
+                    if self.configHandler.config.outputAsDirectories.value == true and self.configHandler.config.outputAsDirectoriesBy.value == "tags" then
+                        local tagName = self:GetTagFromFrameNumber(i)
+                        if tagName ~= nil then
+                            tempFileNameTemplate = app.fs.joinPath(tagName, tempFileNameTemplate)
+                        end
+                    end
 
                     if cel ~= nil then
                         if #layer.cels > 1 then
@@ -755,13 +809,25 @@ function AsepriteExporter:BuildDialogSpecialized()
         ):gsub("{spritename}", self.fileName),
     }
     self.configHandler.dialog:check {
-        id = "outputGroupsAsDirectories",
-        label = "Groups As Directories:",
-        selected = self.configHandler.config.outputGroupsAsDirectories.value,
+        id = "outputAsDirectories",
+        label = "Output As Directories:",
+        selected = self.configHandler.config.outputAsDirectories.value,
         onclick = function()
             self.configHandler:UpdateConfigValue(
-                "outputGroupsAsDirectories",
-                self.configHandler.dialog.data.outputGroupsAsDirectories
+                "outputAsDirectories",
+                self.configHandler.dialog.data.outputAsDirectories
+            )
+        end,
+    }
+    self.configHandler.dialog:combobox {
+        id = "outputAsDirectoriesBy",
+        label = "Output As Directories By:",
+        option = self.configHandler.config.outputAsDirectoriesBy.value,
+        options = self.configHandler.config.outputAsDirectoriesBy.defaults,
+        onchange = function()
+            self.configHandler:UpdateConfigValue(
+                "outputAsDirectoriesBy",
+                self.configHandler.dialog.data.outputAsDirectoriesBy
             )
         end,
     }
@@ -1144,6 +1210,8 @@ function AsepriteExporter:Execute()
     end
 
     local layerVisibilityData = self.layerHandler:GetLayerVisibilityData(self.activeSprite)
+
+    self:BuildTagFrames(self.activeSprite)
 
     app.transaction("Exporter", function()
         self.layerHandler:HideLayers(self.activeSprite)
