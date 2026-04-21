@@ -77,6 +77,7 @@ function AsepriteExporter:_init()
                 "spriteSheetFileNameFormat",
                 "spriteSheetFileFormat",
                 "spriteSheetTrim",
+                "spriteSheetPadding",
             },
             condition = nil,
         },
@@ -118,6 +119,16 @@ function AsepriteExporter:_init()
             order = 204,
             type = "check",
             default = true,
+            defaults = {},
+            value = nil,
+            parent = "spriteSheetExport",
+            children = {},
+            condition = nil,
+        },
+        spriteSheetPadding = {
+            order = 205,
+            type = "number",
+            default = "0",
             defaults = {},
             value = nil,
             parent = "spriteSheetExport",
@@ -481,12 +492,23 @@ end
 function AsepriteExporter:ExportSpriteSheet(activeSprite, cel, fileNameTemplate)
     local currentLayer = Sprite(activeSprite)
 
-    if self.configHandler.config.spriteSheetTrim.value == true then
-        currentLayer:crop(cel.position.x, cel.position.y, cel.bounds.width, cel.bounds.height)
-    end
-
     local newPath = app.fs.joinPath(self.configHandler.dialog.data.outputPath, fileNameTemplate .. "." .. self.configHandler.config.spriteSheetFileFormat.value)
-    currentLayer:saveCopyAs(newPath)
+
+    app.command.ExportSpriteSheet({
+        ui = false,
+        askOverwrite = false,
+        type = SpriteSheetType.HORIZONTAL,
+        columns = 1,
+        rows = 1,
+        width = cel.bounds.width,
+        height = cel.bounds.height,
+        bestFit = false,
+        textureFilename = newPath,
+        filenameFormat = self.configHandler.config.spriteSheetFileFormat.value,
+        borderPadding = tonumber(self.configHandler.config.spriteSheetPadding.value) or 0,
+        trim = self.configHandler.config.spriteSheetTrim.value,
+    })
+
     currentLayer:close()
 end
 
@@ -834,6 +856,19 @@ function AsepriteExporter:BuildDialogSpecialized()
             self.configHandler:UpdateConfigValue(
                 "spriteSheetTrim",
                 self.configHandler.dialog.data.spriteSheetTrim
+            )
+        end,
+    }
+    self.configHandler.dialog:number {
+        id = "spriteSheetPadding",
+        label = " SpriteSheet Padding:",
+        text = self.configHandler.config.spriteSheetPadding.value,
+        visible = self.configHandler.config.spriteSheetExport.value,
+        decimals = 0,
+        onchange = function()
+            self.configHandler:UpdateConfigValue(
+                "spriteSheetPadding",
+                self.configHandler.dialog.data.spriteSheetPadding
             )
         end,
     }
