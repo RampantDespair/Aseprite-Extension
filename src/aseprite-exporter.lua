@@ -18,6 +18,7 @@ local AsepriteBase = require("aseprite-base")
 ---@field ExportJsonStart fun(self: AsepriteExporter, fileName: string)
 ---@field ExportSpriteSheet fun(self: AsepriteExporter, activeSprite: Sprite | Layer, cel: Cel, fileNameTemplate: string)
 ---@field ExportSpriteLayers fun(self: AsepriteExporter, activeSprite: Sprite | Layer, rootLayer: Sprite | Layer, fileName: string, fileNameTemplate: string)
+---@field ApplyNameFormatPlaceholders fun(self: AsepriteExporter, format: string, layer: Layer): string
 ---@field ValidateRootPosition fun(self: AsepriteExporter): boolean
 ---@field GetRootPosition fun(self: AsepriteExporter): string
 ---@field SetRootPosition fun(self: AsepriteExporter)
@@ -378,6 +379,20 @@ function AsepriteExporter:SetFileName()
     self.fileName = fileName
 end
 
+function AsepriteExporter:ApplyNameFormatPlaceholders(format, layer)
+    local result = format
+    local layerGroupName
+    if pcall(function() layerGroupName = layer.parent.name end) then
+        result = string.gsub(result, "{layergroup}", layerGroupName)
+    else
+        result = string.gsub(result, "{layergroup}", "default")
+    end
+
+    result = string.gsub(result, "{spritename}", self.fileName)
+    result = string.gsub(result, "{layername}", layer.name)
+    return result
+end
+
 function AsepriteExporter:SetRootPosition()
     if self.configHandler.config.spineExport.value == true and self.configHandler.config.spineSetRootPosition.value == true then
         if self.configHandler.config.spineRootPositionMethod.value == "center" then
@@ -434,14 +449,7 @@ function AsepriteExporter:ExportSpriteLayers(activeSprite, rootLayer, fileName, 
         else
             layer.isVisible = true
 
-            local layerParentName
-            if pcall(function() layerParentName = layer.parent.name end) then
-                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", layerParentName)
-            else
-                _fileNameTemplate = string.gsub(_fileNameTemplate, "{layergroup}", "default")
-            end
-
-            _fileNameTemplate = string.gsub(_fileNameTemplate, "{layername}", layerName)
+            _fileNameTemplate = self:ApplyNameFormatPlaceholders(_fileNameTemplate, layer)
 
             if #activeSprite.frames > 1 then
                 for i = 1, #activeSprite.frames, 1 do
@@ -569,7 +577,7 @@ function AsepriteExporter:ExportSpineJsonParse(layer, cel, fileNameTemplate)
         if self.configHandler.config.spineSkinsMode.value == "groups" then
             local skinName
             if pcall(function() skinName = layer.parent.name end) then
-                skinName = string.gsub(self.configHandler.config.spineSkinNameFormat.value, "{layergroup}", layer.parent.name)
+                skinName = self:ApplyNameFormatPlaceholders(self.configHandler.config.spineSkinNameFormat.value, layer)
             end
 
             if skinName ~= nil then
@@ -618,7 +626,7 @@ function AsepriteExporter:ExportSpineJsonParse(layer, cel, fileNameTemplate)
         elseif self.configHandler.config.spineSkinsMode.value == "layers" then
             local skinName
             if pcall(function() skinName = layer.name end) then
-                skinName = string.gsub(self.configHandler.config.spineSkinNameFormat.value, "{layergroup}", layer.name)
+                skinName = self:ApplyNameFormatPlaceholders(self.configHandler.config.spineSkinNameFormat.value, layer)
             end
 
             if skinName ~= nil then
