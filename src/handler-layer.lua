@@ -28,7 +28,6 @@ function LayerHandler:GetLayerVisibilityData(activeSprite)
             layerVisibilityData[i] = self:GetLayerVisibilityData(layer)
         else
             layerVisibilityData[i] = layer.isVisible
-            layer.isVisible = false
         end
     end
     return layerVisibilityData
